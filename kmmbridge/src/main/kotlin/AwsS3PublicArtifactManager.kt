@@ -16,7 +16,7 @@ class AwsS3PublicArtifactManager(
     private val s3SecretAccessKey: String,
     private val makeArtifactsPublic: Boolean,
     private val altBaseUrl: String?,
-    private val extension: FaktoryExtension
+    private val extension: KmmBridgeExtension,
 ) : ArtifactManager {
 
     override fun deployArtifact(project: Project, zipFilePath: File, remoteFileId: String): String {
@@ -83,6 +83,6 @@ class AwsS3PublicArtifactManager(
     private fun artifactName(project: Project, remoteFileId: String): String {
         val frameworkName = extension.frameworkName.get()
         val buildTypeString = extension.buildType.get().getName()
-        return "$frameworkName-$buildTypeString-$remoteFileId.xcframework.${project.version}.zip"
+        return "$frameworkName-$buildTypeString-$remoteFileId.xcframework.${project.kmmBridgeExtension.version}.zip"
     }
 }

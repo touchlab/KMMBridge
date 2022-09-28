@@ -62,9 +62,9 @@ class FaktoryServerArtifactManager : ArtifactManager {
         "$FAKTORY_SERVER/fk/pubread/${artifactName(project, remoteFileId)}?faktoryKey=$faktoryReadKey"
 
     private fun artifactName(project: Project, checksum: String): String {
-        val frameworkName = project.faktoryExtension.frameworkName.get()
-        val buildTypeString = project.faktoryExtension.buildType.get().getName()
-        return "$frameworkName-$buildTypeString-$checksum.xcframework.${project.version}.zip"
+        val frameworkName = project.kmmBridgeExtension.frameworkName.get()
+        val buildTypeString = project.kmmBridgeExtension.buildType.get().getName()
+        return "$frameworkName-$buildTypeString-$checksum.xcframework.${project.kmmBridgeExtension.version}.zip"
     }
 }
 
@@ -76,7 +76,7 @@ private val FAKTORY_SERVER = if (isDev) {
 }
 
 private val Project.faktoryReadKey: String?
-    get() = project.faktoryExtension.faktoryReadKey.orNull ?: findStringProperty("FAKTORY_READ_KEY")
+    get() = project.kmmBridgeExtension.faktoryReadKey.orNull ?: findStringProperty("FAKTORY_READ_KEY")
 private val Project.faktorySecretKey: String? get() = findStringProperty("FAKTORY_SECRET_KEY")
 private fun Project.findStringProperty(name: String): String? {
     rootProject.extensions.getByType(ExtraPropertiesExtension::class.java).run {

@@ -5,11 +5,13 @@ import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.api.Task
 import org.gradle.api.UnknownTaskException
+import org.gradle.api.plugins.ExtensionAware
 import org.gradle.api.provider.ListProperty
 import org.gradle.api.provider.Property
 import org.gradle.api.tasks.*
 import org.gradle.api.tasks.bundling.Zip
 import org.gradle.kotlin.dsl.*
+import org.jetbrains.kotlin.gradle.plugin.cocoapods.CocoapodsExtension
 import org.jetbrains.kotlin.gradle.plugin.mpp.*
 import org.jetbrains.kotlin.gradle.plugin.mpp.apple.XCFramework
 import org.jetbrains.kotlin.gradle.plugin.mpp.apple.XCFrameworkConfig
@@ -17,7 +19,7 @@ import java.io.*
 import java.util.*
 import javax.json.JsonObject
 
-interface FaktoryExtension {
+interface KmmBridgeExtension {
     /**
      * The name of the kotlin framework, which will be wrapped into a cocoapod. May be the same or different from podName.
      * This should be the same as
@@ -37,13 +39,17 @@ interface FaktoryExtension {
 
     val buildType: Property<NativeBuildType>
 
+    val versionManager: Property<VersionManager>
+
+    val versionPrefix: Property<String>
+
     fun s3Public(
         region: String,
         bucket: String,
         accessKeyId: String,
         secretAccessKey: String,
         makeArtifactsPublic: Boolean,
-        altBaseUrl: String?
+        altBaseUrl: String?,
     ) {
         artifactManager.set(
             AwsS3PublicArtifactManager(
@@ -95,6 +101,13 @@ interface ArtifactManager {
     fun deployArtifact(project: Project, zipFilePath: File, remoteFileId: String):String
 }
 
+interface VersionManager {
+    /**
+     * Compute a final version to use for publication, based on the plugin versionPrefix
+     */
+    fun getVersion(versionPrefix: String): String
+}
+
 internal const val TASK_GROUP_NAME = "kmmbridge"
 private const val EXTENSION_NAME = "kmmbridge"
 
@@ -102,10 +115,16 @@ private const val EXTENSION_NAME = "kmmbridge"
 class KMMBridgePlugin : Plugin<Project> {
 
     override fun apply(project: Project): Unit = with(project) {
-        val extension = extensions.create<FaktoryExtension>(EXTENSION_NAME)
+        val extension = extensions.create<KmmBridgeExtension>(EXTENSION_NAME)
         extension.dependencyManagers.convention(emptyList())
         extension.buildType.convention(NativeBuildType.DEBUG)
         extension.artifactManager.convention(FaktoryServerArtifactManager())
+        extension.versionManager.convention(TimestampVersionManager())
+
+        // Don't call `kotlin.cocoapods` because that will throw if we don't have cocoapods plugin applied
+        val fallbackVersion =
+            (kotlin as ExtensionAware).extensions.findByType<CocoapodsExtension>()?.version ?: version.toString()
+        extension.versionPrefix.convention(fallbackVersion)
 
         afterEvaluate {
             if (extension.xcFrameworkPath.orNull == null) {
@@ -125,7 +144,7 @@ class KMMBridgePlugin : Plugin<Project> {
 
     // Collect all declared frameworks in project and combine into xcframework
     private fun Project.configureXcFramework() {
-        val extension = extensions.getByType<FaktoryExtension>()
+        val extension = extensions.getByType<KmmBridgeExtension>()
         var xcFrameworkConfig: XCFrameworkConfig? = null
 
         kotlin.targets
@@ -150,7 +169,7 @@ class KMMBridgePlugin : Plugin<Project> {
     }
 
     private fun Project.findXCFrameworkAssembleTask(): Task {
-        val extension = extensions.getByType<FaktoryExtension>()
+        val extension = extensions.getByType<KmmBridgeExtension>()
         val name = extension.frameworkName.get()
         val buildTypeString = extension.buildType.get().getName().capitalize()
         val taskWithoutName = "assemble${buildTypeString}XCFramework"
@@ -163,7 +182,7 @@ class KMMBridgePlugin : Plugin<Project> {
     }
 
     private fun Project.configureDeploy() {
-        val extension = extensions.getByType<FaktoryExtension>()
+        val extension = extensions.getByType<KmmBridgeExtension>()
 
         val jbXcFrameworkBuild = extension.xcFrameworkPath.orNull == null
 
