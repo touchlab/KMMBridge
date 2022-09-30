@@ -1,6 +1,5 @@
 package co.touchlab.faktory
 
-import org.apache.commons.codec.digest.DigestUtils
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.api.Task
@@ -17,7 +16,6 @@ import org.jetbrains.kotlin.gradle.plugin.mpp.apple.XCFramework
 import org.jetbrains.kotlin.gradle.plugin.mpp.apple.XCFrameworkConfig
 import java.io.*
 import java.util.*
-import javax.json.JsonObject
 
 interface KmmBridgeExtension {
     /**
@@ -48,8 +46,8 @@ interface KmmBridgeExtension {
         bucket: String,
         accessKeyId: String,
         secretAccessKey: String,
-        makeArtifactsPublic: Boolean,
-        altBaseUrl: String?,
+        makeArtifactsPublic: Boolean = true,
+        altBaseUrl: String? = null,
     ) {
         artifactManager.set(
             AwsS3PublicArtifactManager(
@@ -58,8 +56,7 @@ interface KmmBridgeExtension {
                 accessKeyId,
                 secretAccessKey,
                 makeArtifactsPublic,
-                altBaseUrl,
-                this
+                altBaseUrl
             )
         )
     }
@@ -98,7 +95,7 @@ interface ArtifactManager {
     /**
      * Send the thing, and return a link to the thing...
      */
-    fun deployArtifact(project: Project, zipFilePath: File, remoteFileId: String):String
+    fun deployArtifact(project: Project, zipFilePath: File, fileName: String): String
 }
 
 interface VersionManager {
@@ -117,7 +114,7 @@ class KMMBridgePlugin : Plugin<Project> {
     override fun apply(project: Project): Unit = with(project) {
         val extension = extensions.create<KmmBridgeExtension>(EXTENSION_NAME)
         extension.dependencyManagers.convention(emptyList())
-        extension.buildType.convention(NativeBuildType.DEBUG)
+        extension.buildType.convention(NativeBuildType.RELEASE)
         extension.artifactManager.convention(FaktoryServerArtifactManager())
         extension.versionManager.convention(TimestampVersionManager())
 
@@ -134,13 +131,6 @@ class KMMBridgePlugin : Plugin<Project> {
             configureDeploy()
         }
     }
-
-    private fun valueOrEmpty(jsonObject: JsonObject, fieldName: String): String =
-        if (jsonObject.isNull(fieldName)) {
-            ""
-        } else {
-            jsonObject.getString(fieldName)
-        }
 
     // Collect all declared frameworks in project and combine into xcframework
     private fun Project.configureXcFramework() {
@@ -208,17 +198,12 @@ class KMMBridgePlugin : Plugin<Project> {
 
             dependsOn(zipTask)
             inputs.file(zipFile)
-            outputs.file(project.urlFile)
+            outputs.file(urlFile)
 
             doLast {
-                val deployUrl = with(artifactManager) {
-                    val remoteFileId = computeRemoteFileId(zipFile)
-                    deployArtifact(project, zipFile, remoteFileId)
-                }
-
-                prepWriteFaktoryFiles(project) {
-                    project.urlFile.writeText(deployUrl)
-                }
+                val fileName = artifactName(project)
+                val deployUrl = artifactManager.deployArtifact(project, zipFile, fileName)
+                urlFile.writeText(deployUrl)
             }
         }
 
@@ -232,12 +217,11 @@ class KMMBridgePlugin : Plugin<Project> {
         }
     }
 
-    private fun computeRemoteFileId(zipFilePath: File): String =
-        FileInputStream(zipFilePath).use { DigestUtils.sha256Hex(it) }
-
-    private fun prepWriteFaktoryFiles(project: Project, block: () -> Unit) {
-        project.file(".faktory").mkdirs()
-        block()
+    private fun artifactName(project: Project): String {
+        val remoteFileId = UUID.randomUUID().toString()
+        val frameworkName = project.kmmBridgeExtension.frameworkName.get()
+        val buildTypeString = project.kmmBridgeExtension.buildType.get().getName()
+        return "$frameworkName-$buildTypeString-$remoteFileId.xcframework.${project.kmmBridgeExtension.version}.zip"
     }
 }
 

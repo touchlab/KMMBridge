@@ -21,6 +21,7 @@ class MultiRepoCocoapodsDependencyManager(
             "${project.buildDir}/XCFrameworks/${project.kmmBridgeExtension.buildType.get().name.toLowerCase()}/${project.kotlin.cocoapods.name}.podspec"
 
         val generatePodspecTask = project.task("generateReleasePodspec") {
+            inputs.file(project.urlFile)
             outputs.file(podSpecFile)
             dependsOn(uploadTask)
             doLast {
