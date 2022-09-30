@@ -12,12 +12,17 @@ import java.time.Duration
 
 class FaktoryServerArtifactManager : ArtifactManager {
 
-    override fun deployUrl(project: Project, remoteFileId: String): String {
+    override fun deployArtifact(project: Project, zipFilePath: File, remoteFileId: String): String {
+        uploadArtifact(project, zipFilePath, remoteFileId)
+        return deployUrl(project, remoteFileId)
+    }
+
+    private fun deployUrl(project: Project, remoteFileId: String): String {
         val faktoryKey = project.faktoryReadKey ?: error("No Faktory key provided!")
         return faktoryReadUrl(project, remoteFileId, faktoryKey)
     }
 
-    override fun uploadArtifact(project: Project, zipFilePath: File, remoteFileId: String) {
+    private fun uploadArtifact(project: Project, zipFilePath: File, remoteFileId: String) {
         val okHttpClient = OkHttpClient.Builder()
             .callTimeout(Duration.ofMinutes(5))
             .connectTimeout(Duration.ofMinutes(2))
