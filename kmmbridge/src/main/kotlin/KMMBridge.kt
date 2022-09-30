@@ -90,18 +90,9 @@ interface DependencyManager {
 
 interface ArtifactManager {
     /**
-     * Compute the fully qualified URL for the artifact we just uploaded
-     *
-     * @see uploadArtifact
+     * Send the thing, and return a link to the thing...
      */
-    fun deployUrl(project: Project, remoteFileId: String): String
-
-    /**
-     * If the artifact doesn't already exist in remote storage, upload it.  Note: if there
-     * is a problem determining if it exists, it's assumed not to be there and will be
-     * uploaded.
-     */
-    fun uploadArtifact(project: Project, zipFilePath: File, remoteFileId: String)
+    fun deployArtifact(project: Project, zipFilePath: File, remoteFileId: String):String
 }
 
 internal const val TASK_GROUP_NAME = "kmmbridge"
@@ -203,8 +194,7 @@ class KMMBridgePlugin : Plugin<Project> {
             doLast {
                 val deployUrl = with(artifactManager) {
                     val remoteFileId = computeRemoteFileId(zipFile)
-                    uploadArtifact(project, zipFile, remoteFileId)
-                    deployUrl(project, remoteFileId)
+                    deployArtifact(project, zipFile, remoteFileId)
                 }
 
                 prepWriteFaktoryFiles(project) {

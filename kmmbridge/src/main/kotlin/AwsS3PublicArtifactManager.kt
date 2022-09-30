@@ -19,12 +19,17 @@ class AwsS3PublicArtifactManager(
     private val extension: FaktoryExtension
 ) : ArtifactManager {
 
+    override fun deployArtifact(project: Project, zipFilePath: File, remoteFileId: String): String {
+        uploadArtifact(project, zipFilePath, remoteFileId)
+        return deployUrl(project, remoteFileId)
+    }
+
     /**
      * Compute the fully qualified URL for the artifact we just uploaded
      *
      * @see uploadArtifact
      */
-    override fun deployUrl(project: Project, remoteFileId: String): String {
+    private fun deployUrl(project: Project, remoteFileId: String): String {
         val baseUrl = altBaseUrl ?: "https://${s3Bucket}.s3.${s3Region}.amazonaws.com"
         return "${baseUrl}/${artifactName(project, remoteFileId)}"
     }
@@ -34,7 +39,7 @@ class AwsS3PublicArtifactManager(
      * is a problem determining if it exists it's assumed not to be there and will be
      * uploaded.
      */
-    override fun uploadArtifact(project: Project, zipFilePath: File, remoteFileId: String) {
+    private fun uploadArtifact(project: Project, zipFilePath: File, remoteFileId: String) {
         val s3Client = S3Client.builder()
             .region(Region.of(s3Region))
             .credentialsProvider {
