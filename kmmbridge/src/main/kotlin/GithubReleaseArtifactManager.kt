@@ -1,7 +1,6 @@
 package co.touchlab.faktory
 
 import com.google.gson.Gson
-import okhttp3.MediaType
 import okhttp3.MediaType.Companion.toMediaTypeOrNull
 import okhttp3.OkHttpClient
 import okhttp3.Request
@@ -10,8 +9,17 @@ import okhttp3.RequestBody.Companion.asRequestBody
 import okhttp3.RequestBody.Companion.toRequestBody
 import org.gradle.api.Project
 import java.io.File
+import java.net.URLEncoder
 import java.time.Duration
-import java.util.UUID
+import java.util.*
+
+fun FaktoryExtension.githubRelease(
+    owner: String,
+    repo: String,
+    artifactRelease: String
+) {
+    artifactManager.set(GithubReleaseArtifactManager(owner, repo, artifactRelease))
+}
 
 class GithubReleaseArtifactManager(
     private val owner: String,
@@ -27,7 +35,8 @@ class GithubReleaseArtifactManager(
 
     override fun deployArtifact(project: Project, zipFilePath: File, remoteFileId: String): String {
         val gson = Gson()
-        val token = (project.property("GITHUB_PUBLISH_TOKEN")?:throw IllegalArgumentException("GithubReleaseArtifactManager needs property GITHUB_PUBLISH_TOKEN")) as String
+        val token = (project.property("GITHUB_PUBLISH_TOKEN")
+            ?: throw IllegalArgumentException("GithubReleaseArtifactManager needs property GITHUB_PUBLISH_TOKEN")) as String
         val request: Request = Request.Builder()
             .url("https://api.github.com/repos/${owner}/${repo}/releases/tags/${artifactRelease}")
             .get()
@@ -56,20 +65,23 @@ class GithubReleaseArtifactManager(
         val fileName = "${UUID.randomUUID().toString()}.zip"
 
         val uploadRequest = Request.Builder()
-            .url("https://api.github.com/repos/${owner}/${repo}/releases/${idReply.id}/assets?name=${fileName}")
+            .url("https://uploads.github.com/repos/${owner}/${repo}/releases/${idReply.id}/assets?name=${URLEncoder.encode(fileName, "UTF-8")}")
             .post(body)
             .addHeader("Accept", "application/vnd.github+json")
             .addHeader("Authorization", "Bearer $token")
+            .addHeader("Content-Type", "application/zip")
             .build()
 
-        return gson.fromJson(okHttpClient.newCall(uploadRequest).execute().body!!.string(), UploadReply::class.java).url
+        val response = okHttpClient.newCall(uploadRequest).execute()
+        val uploadResponseString = response.body!!.string()
+        return gson.fromJson(uploadResponseString, UploadReply::class.java).url
     }
 
 }
 
-data class IdReply(var id:Int)
+data class IdReply(var id: Int)
 
-data class UploadReply(var url:String)
+data class UploadReply(var url: String)
 
 data class CreateReleaseBody(val tag_name: String)
 
