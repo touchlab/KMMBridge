@@ -11,9 +11,8 @@ import org.gradle.api.Project
 import java.io.File
 import java.net.URLEncoder
 import java.time.Duration
-import java.util.*
 
-fun FaktoryExtension.githubRelease(
+fun KmmBridgeExtension.githubRelease(
     owner: String,
     repo: String,
     artifactRelease: String
@@ -33,7 +32,7 @@ class GithubReleaseArtifactManager(
         .readTimeout(Duration.ofMinutes(2))
         .build()
 
-    override fun deployArtifact(project: Project, zipFilePath: File, remoteFileId: String): String {
+    override fun deployArtifact(project: Project, zipFilePath: File, fileName: String): String {
         val gson = Gson()
         val token = (project.property("GITHUB_PUBLISH_TOKEN")
             ?: throw IllegalArgumentException("GithubReleaseArtifactManager needs property GITHUB_PUBLISH_TOKEN")) as String
@@ -62,10 +61,15 @@ class GithubReleaseArtifactManager(
 
         val body: RequestBody = zipFilePath.asRequestBody("application/zip".toMediaTypeOrNull())
 
-        val fileName = "${UUID.randomUUID().toString()}.zip"
-
         val uploadRequest = Request.Builder()
-            .url("https://uploads.github.com/repos/${owner}/${repo}/releases/${idReply.id}/assets?name=${URLEncoder.encode(fileName, "UTF-8")}")
+            .url(
+                "https://uploads.github.com/repos/${owner}/${repo}/releases/${idReply.id}/assets?name=${
+                    URLEncoder.encode(
+                        fileName,
+                        "UTF-8"
+                    )
+                }"
+            )
             .post(body)
             .addHeader("Accept", "application/vnd.github+json")
             .addHeader("Authorization", "Bearer $token")
@@ -73,11 +77,17 @@ class GithubReleaseArtifactManager(
             .build()
 
         val response = okHttpClient.newCall(uploadRequest).execute()
+        if (response.code != 201) {
+            throw GithubReleaseException("Upload call failed ${response.code}, ${response.message}")
+        }
         val uploadResponseString = response.body!!.string()
-        return gson.fromJson(uploadResponseString, UploadReply::class.java).url
+        val uploadUrl = gson.fromJson(uploadResponseString, UploadReply::class.java).url
+        return "${uploadUrl}.zip"
     }
 
 }
+
+class GithubReleaseException(message: String, cause: Throwable? = null) : Exception(message, cause)
 
 data class IdReply(var id: Int)
 

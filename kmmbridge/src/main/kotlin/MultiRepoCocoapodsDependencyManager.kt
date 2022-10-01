@@ -17,9 +17,11 @@ class MultiRepoCocoapodsDependencyManager(
 ) : DependencyManager {
     override fun doExtraConfiguration(project: Project, uploadTask: Task, publishRemoteTask: Task) {
 
-        val podSpecFile = "${project.buildDir}/XCFrameworks/${project.faktoryExtension.buildType.get().name.toLowerCase()}/${project.kotlin.cocoapods.name}.podspec"
+        val podSpecFile =
+            "${project.buildDir}/XCFrameworks/${project.kmmBridgeExtension.buildType.get().name.toLowerCase()}/${project.kotlin.cocoapods.name}.podspec"
 
         val generatePodspecTask = project.task("generateReleasePodspec") {
+            inputs.file(project.urlFile)
             outputs.file(podSpecFile)
             dependsOn(uploadTask)
             doLast {
@@ -74,14 +76,13 @@ private fun Project.generatePodspec(outputFile: File) = with(kotlin.cocoapods) {
     val customSpec = extraSpecAttributes.map { "|    spec.${it.key} = ${it.value}" }.joinToString("\n")
 
     val url = urlFile.readText()
-    val pluginVersion = "${version ?: project.version}"
-    val incrementingVersion = "${pluginVersion}.${System.currentTimeMillis()}"
+    val version = kmmBridgeExtension.version
 
     outputFile.writeText(
         """
             |Pod::Spec.new do |spec|
             |    spec.name                     = '$name'
-            |    spec.version                  = '$incrementingVersion'
+            |    spec.version                  = '$version'
             |    spec.homepage                 = ${homepage.orEmpty().surroundWithSingleQuotesIfNeeded()}
             |    spec.source                   = { 
             |                                      :http => '${url}',

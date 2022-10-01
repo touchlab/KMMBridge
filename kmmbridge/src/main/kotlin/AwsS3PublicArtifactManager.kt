@@ -16,12 +16,11 @@ class AwsS3PublicArtifactManager(
     private val s3SecretAccessKey: String,
     private val makeArtifactsPublic: Boolean,
     private val altBaseUrl: String?,
-    private val extension: FaktoryExtension
 ) : ArtifactManager {
 
-    override fun deployArtifact(project: Project, zipFilePath: File, remoteFileId: String): String {
-        uploadArtifact(project, zipFilePath, remoteFileId)
-        return deployUrl(project, remoteFileId)
+    override fun deployArtifact(project: Project, zipFilePath: File, fileName: String): String {
+        uploadArtifact(zipFilePath, fileName)
+        return deployUrl(fileName)
     }
 
     /**
@@ -29,9 +28,9 @@ class AwsS3PublicArtifactManager(
      *
      * @see uploadArtifact
      */
-    private fun deployUrl(project: Project, remoteFileId: String): String {
+    private fun deployUrl(zipFileName: String): String {
         val baseUrl = altBaseUrl ?: "https://${s3Bucket}.s3.${s3Region}.amazonaws.com"
-        return "${baseUrl}/${artifactName(project, remoteFileId)}"
+        return "${baseUrl}/$zipFileName"
     }
 
     /**
@@ -39,7 +38,7 @@ class AwsS3PublicArtifactManager(
      * is a problem determining if it exists it's assumed not to be there and will be
      * uploaded.
      */
-    private fun uploadArtifact(project: Project, zipFilePath: File, remoteFileId: String) {
+    private fun uploadArtifact(zipFilePath: File, fileName: String) {
         val s3Client = S3Client.builder()
             .region(Region.of(s3Region))
             .credentialsProvider {
@@ -51,11 +50,10 @@ class AwsS3PublicArtifactManager(
             .build()
 
         s3Client.use { s3Client ->
-            val objectKeyName = artifactName(project, remoteFileId)
 
             val headObjectRequest = HeadObjectRequest.builder()
                 .bucket(s3Bucket)
-                .key(objectKeyName)
+                .key(fileName)
                 .build()
 
             val exists = try {
@@ -67,7 +65,7 @@ class AwsS3PublicArtifactManager(
             if (!exists) {
                 val builder = PutObjectRequest.builder()
                     .bucket(s3Bucket)
-                    .key(objectKeyName)
+                    .key(fileName)
 
                 if (makeArtifactsPublic)
                     builder.acl("public-read")
@@ -78,11 +76,5 @@ class AwsS3PublicArtifactManager(
                 s3Client.putObject(putObjectRequest, requestBody)
             }
         }
-    }
-
-    private fun artifactName(project: Project, remoteFileId: String): String {
-        val frameworkName = extension.frameworkName.get()
-        val buildTypeString = extension.buildType.get().getName()
-        return "$frameworkName-$buildTypeString-$remoteFileId.xcframework.${project.version}.zip"
     }
 }
