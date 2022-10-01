@@ -72,10 +72,3 @@ private val FAKTORY_SERVER = if (isDev) {
 private val Project.faktoryReadKey: String?
     get() = project.kmmBridgeExtension.faktoryReadKey.orNull ?: findStringProperty("FAKTORY_READ_KEY")
 private val Project.faktorySecretKey: String? get() = findStringProperty("FAKTORY_SECRET_KEY")
-private fun Project.findStringProperty(name: String): String? {
-    rootProject.extensions.getByType(ExtraPropertiesExtension::class.java).run {
-        if (has(name))
-            return get(name).toString()
-    }
-    return null
-}

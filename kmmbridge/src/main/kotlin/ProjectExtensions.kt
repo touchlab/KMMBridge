@@ -2,6 +2,7 @@ package co.touchlab.faktory
 
 import org.gradle.api.Project
 import org.gradle.api.plugins.ExtensionAware
+import org.gradle.api.plugins.ExtraPropertiesExtension
 import org.gradle.kotlin.dsl.findByType
 import org.gradle.kotlin.dsl.getByType
 import org.jetbrains.kotlin.gradle.dsl.KotlinMultiplatformExtension
@@ -35,4 +36,12 @@ internal val KmmBridgeExtension.version by object {
         }
         return finalVersion
     }
+}
+
+internal fun Project.findStringProperty(name: String): String? {
+    rootProject.extensions.getByType(ExtraPropertiesExtension::class.java).run {
+        if (has(name))
+            return get(name).toString()
+    }
+    return null
 }

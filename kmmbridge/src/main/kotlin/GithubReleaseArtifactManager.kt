@@ -13,46 +13,38 @@ import java.net.URLEncoder
 import java.time.Duration
 
 fun KmmBridgeExtension.githubRelease(
-    owner: String,
-    repo: String,
-    artifactRelease: String
+    repo: String? = null, artifactRelease: String? = null
 ) {
-    artifactManager.set(GithubReleaseArtifactManager(owner, repo, artifactRelease))
+    artifactManager.set(GithubReleaseArtifactManager(repo, artifactRelease))
 }
 
 class GithubReleaseArtifactManager(
-    private val owner: String,
-    private val repo: String,
-    private val artifactRelease: String
+    private val repoArg: String?, private val artifactReleaseArg: String?
 ) : ArtifactManager {
-    private val okHttpClient = OkHttpClient.Builder()
-        .callTimeout(Duration.ofMinutes(5))
-        .connectTimeout(Duration.ofMinutes(2))
-        .writeTimeout(Duration.ofMinutes(5))
-        .readTimeout(Duration.ofMinutes(2))
-        .build()
+    private val okHttpClient =
+        OkHttpClient.Builder().callTimeout(Duration.ofMinutes(5)).connectTimeout(Duration.ofMinutes(2))
+            .writeTimeout(Duration.ofMinutes(5)).readTimeout(Duration.ofMinutes(2)).build()
 
     override fun deployArtifact(project: Project, zipFilePath: File, fileName: String): String {
+        val repoName: String = repoArg ?: (project.findStringProperty("GITHUB_REPO")
+            ?: throw IllegalArgumentException("GithubReleaseArtifactManager needs a repo param or property GITHUB_REPO")) as String
+
+        val artifactReleaseTag = artifactReleaseArg ?: "kmm-artifacts-${project.kmmBridgeExtension.versionPrefix.get()}"
+
         val gson = Gson()
         val token = (project.property("GITHUB_PUBLISH_TOKEN")
             ?: throw IllegalArgumentException("GithubReleaseArtifactManager needs property GITHUB_PUBLISH_TOKEN")) as String
-        val request: Request = Request.Builder()
-            .url("https://api.github.com/repos/${owner}/${repo}/releases/tags/${artifactRelease}")
-            .get()
-            .addHeader("Accept", "application/vnd.github+json")
-            .addHeader("Authorization", "Bearer $token")
-            .build()
+        val request: Request =
+            Request.Builder().url("https://api.github.com/repos/${repoName}/releases/tags/${artifactReleaseTag}").get()
+                .addHeader("Accept", "application/vnd.github+json").addHeader("Authorization", "Bearer $token").build()
 
         val responseString = okHttpClient.newCall(request).execute().body!!.string()
         val releaseFound = !responseString.contains("Not Found")
         val idReply = if (!releaseFound) {
-            val createReleaseBody = CreateReleaseBody(artifactRelease)
-            val createRequest = Request.Builder()
-                .url("https://api.github.com/repos/${owner}/${repo}/releases")
+            val createReleaseBody = CreateReleaseBody(artifactReleaseTag)
+            val createRequest = Request.Builder().url("https://api.github.com/repos/${repoName}/releases")
                 .post(gson.toJson(createReleaseBody).toRequestBody("application/json".toMediaTypeOrNull()))
-                .addHeader("Accept", "application/vnd.github+json")
-                .addHeader("Authorization", "Bearer $token")
-                .build()
+                .addHeader("Accept", "application/vnd.github+json").addHeader("Authorization", "Bearer $token").build()
 
             gson.fromJson(okHttpClient.newCall(createRequest).execute().body!!.string(), IdReply::class.java)
         } else {
@@ -61,20 +53,14 @@ class GithubReleaseArtifactManager(
 
         val body: RequestBody = zipFilePath.asRequestBody("application/zip".toMediaTypeOrNull())
 
-        val uploadRequest = Request.Builder()
-            .url(
-                "https://uploads.github.com/repos/${owner}/${repo}/releases/${idReply.id}/assets?name=${
+        val uploadRequest = Request.Builder().url(
+                "https://uploads.github.com/repos/${repoName}/releases/${idReply.id}/assets?name=${
                     URLEncoder.encode(
-                        fileName,
-                        "UTF-8"
+                        fileName, "UTF-8"
                     )
                 }"
-            )
-            .post(body)
-            .addHeader("Accept", "application/vnd.github+json")
-            .addHeader("Authorization", "Bearer $token")
-            .addHeader("Content-Type", "application/zip")
-            .build()
+            ).post(body).addHeader("Accept", "application/vnd.github+json").addHeader("Authorization", "Bearer $token")
+            .addHeader("Content-Type", "application/zip").build()
 
         val response = okHttpClient.newCall(uploadRequest).execute()
         if (response.code != 201) {
@@ -84,7 +70,6 @@ class GithubReleaseArtifactManager(
         val uploadUrl = gson.fromJson(uploadResponseString, UploadReply::class.java).url
         return "${uploadUrl}.zip"
     }
-
 }
 
 class GithubReleaseException(message: String, cause: Throwable? = null) : Exception(message, cause)
