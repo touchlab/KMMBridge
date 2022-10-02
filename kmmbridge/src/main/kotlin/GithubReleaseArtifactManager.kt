@@ -12,6 +12,10 @@ import java.io.File
 import java.net.URLEncoder
 import java.time.Duration
 
+/**
+ * Helper function for gradle config. If using Github Actions CI, you can leave the arguments empty as the workflow
+ * should provide the values needed.
+ */
 fun KmmBridgeExtension.githubRelease(
     repo: String? = null, artifactRelease: String? = null
 ) {
