@@ -20,7 +20,7 @@ fun KmmBridgeExtension.githubRelease(
     repo: String? = null, artifactRelease: String? = null
 ) {
     artifactManager.set(GithubReleaseArtifactManager(repo, artifactRelease))
-    versionManager.set(GithubReleaseVersionManager(repo))
+    versionManager.set(GitTagVersionManager)
 }
 
 class GithubReleaseArtifactManager(
