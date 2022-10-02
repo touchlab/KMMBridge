@@ -16,6 +16,7 @@ fun KmmBridgeExtension.githubRelease(
     repo: String? = null, artifactRelease: String? = null
 ) {
     artifactManager.set(GithubReleaseArtifactManager(repo, artifactRelease))
+    versionManager.set(GithubReleaseVersionManager(repo))
 }
 
 class GithubReleaseArtifactManager(
@@ -25,7 +26,7 @@ class GithubReleaseArtifactManager(
         OkHttpClient.Builder().callTimeout(Duration.ofMinutes(5)).connectTimeout(Duration.ofMinutes(2))
             .writeTimeout(Duration.ofMinutes(5)).readTimeout(Duration.ofMinutes(2)).build()
 
-    override fun deployArtifact(project: Project, zipFilePath: File, fileName: String): String {
+    override fun deployArtifact(project: Project, zipFilePath: File): String {
         val repoName: String = repoArg ?: (project.findStringProperty("GITHUB_REPO")
             ?: throw IllegalArgumentException("GithubReleaseArtifactManager needs a repo param or property GITHUB_REPO")) as String
 
@@ -34,32 +35,31 @@ class GithubReleaseArtifactManager(
         val gson = Gson()
         val token = (project.property("GITHUB_PUBLISH_TOKEN")
             ?: throw IllegalArgumentException("GithubReleaseArtifactManager needs property GITHUB_PUBLISH_TOKEN")) as String
-        val request: Request =
-            Request.Builder().url("https://api.github.com/repos/${repoName}/releases/tags/${artifactReleaseTag}").get()
-                .addHeader("Accept", "application/vnd.github+json").addHeader("Authorization", "Bearer $token").build()
 
-        val responseString = okHttpClient.newCall(request).execute().body!!.string()
-        val releaseFound = !responseString.contains("Not Found")
-        val idReply = if (!releaseFound) {
+        val releaseId = releaseId(repoName, artifactReleaseTag, token, okHttpClient)
+
+        val idReply: Int = if (releaseId == null) {
             val createReleaseBody = CreateReleaseBody(artifactReleaseTag)
             val createRequest = Request.Builder().url("https://api.github.com/repos/${repoName}/releases")
                 .post(gson.toJson(createReleaseBody).toRequestBody("application/json".toMediaTypeOrNull()))
                 .addHeader("Accept", "application/vnd.github+json").addHeader("Authorization", "Bearer $token").build()
 
-            gson.fromJson(okHttpClient.newCall(createRequest).execute().body!!.string(), IdReply::class.java)
+            gson.fromJson(okHttpClient.newCall(createRequest).execute().body!!.string(), IdReply::class.java).id
         } else {
-            gson.fromJson(responseString, IdReply::class.java)
+            releaseId
         }
 
         val body: RequestBody = zipFilePath.asRequestBody("application/zip".toMediaTypeOrNull())
 
+        val fileName = artifactName(project, project.kmmBridgeVersion)
+
         val uploadRequest = Request.Builder().url(
-                "https://uploads.github.com/repos/${repoName}/releases/${idReply.id}/assets?name=${
-                    URLEncoder.encode(
-                        fileName, "UTF-8"
-                    )
-                }"
-            ).post(body).addHeader("Accept", "application/vnd.github+json").addHeader("Authorization", "Bearer $token")
+            "https://uploads.github.com/repos/${repoName}/releases/${idReply}/assets?name=${
+                URLEncoder.encode(
+                    fileName, "UTF-8"
+                )
+            }"
+        ).post(body).addHeader("Accept", "application/vnd.github+json").addHeader("Authorization", "Bearer $token")
             .addHeader("Content-Type", "application/zip").build()
 
         val response = okHttpClient.newCall(uploadRequest).execute()
@@ -72,6 +72,25 @@ class GithubReleaseArtifactManager(
     }
 }
 
+internal fun releaseId(
+    repoName: String,
+    artifactReleaseTag: String,
+    token: String,
+    okHttpClient: OkHttpClient
+): Int? {
+    val request: Request =
+        Request.Builder().url("https://api.github.com/repos/${repoName}/releases/tags/${artifactReleaseTag}").get()
+            .addHeader("Accept", "application/vnd.github+json").addHeader("Authorization", "Bearer $token").build()
+
+    val responseString = okHttpClient.newCall(request).execute().body!!.string()
+    return if (!responseString.contains("Not Found")) {
+        Gson().fromJson(responseString, IdReply::class.java).id
+    } else {
+        null
+    }
+}
+
+
 class GithubReleaseException(message: String, cause: Throwable? = null) : Exception(message, cause)
 
 data class IdReply(var id: Int)
@@ -80,21 +99,8 @@ data class UploadReply(var url: String)
 
 data class CreateReleaseBody(val tag_name: String)
 
-/*
-curl \
-  -X POST \
-  -H "Accept: application/vnd.github+json" \
-  -H "Authorization: Bearer <YOUR-TOKEN>" \
-  https://api.github.com/repos/OWNER/REPO/releases \
-  -d '{
 
-  "tag_name":"v1.0.0",
-  "target_commitish":"master",
-  "name":"v1.0.0",
-  "body":"Description of the release",
-  "draft":false,
-  "prerelease":false,
-  "generate_release_notes":false
-
-  }'
- */
+private fun artifactName(project: Project, versionString: String): String {
+    val frameworkName = project.kmmBridgeExtension.frameworkName.get()
+    return "$frameworkName-${versionString}-${(System.currentTimeMillis()/1000)}.xcframework.zip"
+}

@@ -30,7 +30,7 @@ class SpmDependencyManager(
                 project.alterPackageFile(url, checksum)
                 val versionFile = project.versionFile
                 versionFile.parentFile.mkdirs()
-                val version = project.kmmBridgeExtension.version
+                val version = project.kmmBridgeVersion
                 versionFile.writeText(version)
             }
         }

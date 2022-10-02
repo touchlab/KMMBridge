@@ -5,14 +5,14 @@ import okhttp3.OkHttpClient
 import okhttp3.Request
 import okhttp3.RequestBody.Companion.asRequestBody
 import org.gradle.api.Project
-import org.gradle.api.plugins.ExtraPropertiesExtension
 import java.io.File
 import java.io.IOException
 import java.time.Duration
 
 class FaktoryServerArtifactManager : ArtifactManager {
 
-    override fun deployArtifact(project: Project, zipFilePath: File, fileName: String): String {
+    override fun deployArtifact(project: Project, zipFilePath: File): String {
+        val fileName = obscureFileName(project, project.kmmBridgeVersion)
         uploadArtifact(project, zipFilePath, fileName)
         return deployUrl(project, fileName)
     }

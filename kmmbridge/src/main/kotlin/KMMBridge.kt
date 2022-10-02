@@ -95,14 +95,14 @@ interface ArtifactManager {
     /**
      * Send the thing, and return a link to the thing...
      */
-    fun deployArtifact(project: Project, zipFilePath: File, fileName: String): String
+    fun deployArtifact(project: Project, zipFilePath: File): String
 }
 
 interface VersionManager {
     /**
      * Compute a final version to use for publication, based on the plugin versionPrefix
      */
-    fun getVersion(versionPrefix: String): String
+    fun getVersion(project: Project, versionPrefix: String): String
 }
 
 internal const val TASK_GROUP_NAME = "kmmbridge"
@@ -201,8 +201,7 @@ class KMMBridgePlugin : Plugin<Project> {
             outputs.file(urlFile)
 
             doLast {
-                val fileName = artifactName(project)
-                val deployUrl = artifactManager.deployArtifact(project, zipFile, fileName)
+                val deployUrl = artifactManager.deployArtifact(project, zipFile)
                 urlFile.writeText(deployUrl)
             }
         }
@@ -215,13 +214,6 @@ class KMMBridgePlugin : Plugin<Project> {
         for (dependencyManager in dependencyManagers) {
             dependencyManager.doExtraConfiguration(this, uploadTask, publishRemoteTask)
         }
-    }
-
-    private fun artifactName(project: Project): String {
-//        val remoteFileId = UUID.randomUUID().toString()
-        val frameworkName = project.kmmBridgeExtension.frameworkName.get()
-        val buildTypeString = project.kmmBridgeExtension.buildType.get().getName()
-        return "$frameworkName-${project.kmmBridgeExtension.version}.xcframework.zip"
     }
 }
 

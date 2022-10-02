@@ -5,6 +5,7 @@ import org.gradle.api.plugins.ExtensionAware
 import org.gradle.api.plugins.ExtraPropertiesExtension
 import org.gradle.kotlin.dsl.findByType
 import org.gradle.kotlin.dsl.getByType
+import org.gradle.kotlin.dsl.provideDelegate
 import org.jetbrains.kotlin.gradle.dsl.KotlinMultiplatformExtension
 import org.jetbrains.kotlin.gradle.plugin.cocoapods.CocoapodsExtension
 import java.io.File
@@ -27,12 +28,12 @@ internal fun Project.zipFilePath(): File {
 }
 
 // This is a little hacky so we get something that works like `by lazy {}` but lets us access `this`.
-internal val KmmBridgeExtension.version by object {
+internal val Project.kmmBridgeVersion by object {
     lateinit var finalVersion: String
 
-    operator fun getValue(thisRef: KmmBridgeExtension, property: KProperty<*>): String {
+    operator fun getValue(thisRef: Project, property: KProperty<*>): String {
         if (!::finalVersion.isInitialized) {
-            finalVersion = thisRef.versionManager.get().getVersion(thisRef.versionPrefix.get())
+            finalVersion = thisRef.kmmBridgeExtension.versionManager.get().getVersion(thisRef,  thisRef.kmmBridgeExtension.versionPrefix.get())
         }
         return finalVersion
     }
