@@ -12,17 +12,17 @@ import java.time.Duration
 
 class FaktoryServerArtifactManager : ArtifactManager {
 
-    override fun deployArtifact(project: Project, zipFilePath: File, remoteFileId: String): String {
-        uploadArtifact(project, zipFilePath, remoteFileId)
-        return deployUrl(project, remoteFileId)
+    override fun deployArtifact(project: Project, zipFilePath: File, fileName: String): String {
+        uploadArtifact(project, zipFilePath, fileName)
+        return deployUrl(project, fileName)
     }
 
-    private fun deployUrl(project: Project, remoteFileId: String): String {
+    private fun deployUrl(project: Project, zipFileName: String): String {
         val faktoryKey = project.faktoryReadKey ?: error("No Faktory key provided!")
-        return faktoryReadUrl(project, remoteFileId, faktoryKey)
+        return faktoryReadUrl(zipFileName, faktoryKey)
     }
 
-    private fun uploadArtifact(project: Project, zipFilePath: File, remoteFileId: String) {
+    private fun uploadArtifact(project: Project, zipFilePath: File, fileName: String) {
         val okHttpClient = OkHttpClient.Builder()
             .callTimeout(Duration.ofMinutes(5))
             .connectTimeout(Duration.ofMinutes(2))
@@ -33,7 +33,7 @@ class FaktoryServerArtifactManager : ArtifactManager {
         val faktoryKey = project.faktorySecretKey ?: error("No Faktory secret key provided!")
 
         val request: Request = Request.Builder()
-            .url(faktoryPutUrl(project, remoteFileId, faktoryKey))
+            .url(faktoryPutUrl(fileName, faktoryKey))
             .get()
             .build()
 
@@ -53,19 +53,13 @@ class FaktoryServerArtifactManager : ArtifactManager {
         }
     }
 
-    data class S3PostUrlResponse(val url:String)
+    data class S3PostUrlResponse(val url: String)
 
-    private fun faktoryPutUrl(project: Project, remoteFileId: String, faktorySecretKey: String) =
-        "$FAKTORY_SERVER/fk/pub/${artifactName(project, remoteFileId)}?faktoryKey=$faktorySecretKey"
+    private fun faktoryPutUrl(zipFileName: String, faktorySecretKey: String) =
+        "$FAKTORY_SERVER/fk/pub/$zipFileName?faktoryKey=$faktorySecretKey"
 
-    private fun faktoryReadUrl(project: Project, remoteFileId: String, faktoryReadKey: String) =
-        "$FAKTORY_SERVER/fk/pubread/${artifactName(project, remoteFileId)}?faktoryKey=$faktoryReadKey"
-
-    private fun artifactName(project: Project, checksum: String): String {
-        val frameworkName = project.faktoryExtension.frameworkName.get()
-        val buildTypeString = project.faktoryExtension.buildType.get().getName()
-        return "$frameworkName-$buildTypeString-$checksum.xcframework.${project.version}.zip"
-    }
+    private fun faktoryReadUrl(zipFileName: String, faktoryReadKey: String) =
+        "$FAKTORY_SERVER/fk/pubread/$zipFileName?faktoryKey=$faktoryReadKey"
 }
 
 private val isDev = System.getenv("FAKTORY_SERVER_LOCALDEV")?.toBoolean() ?: false
@@ -76,7 +70,7 @@ private val FAKTORY_SERVER = if (isDev) {
 }
 
 private val Project.faktoryReadKey: String?
-    get() = project.faktoryExtension.faktoryReadKey.orNull ?: findStringProperty("FAKTORY_READ_KEY")
+    get() = project.kmmBridgeExtension.faktoryReadKey.orNull ?: findStringProperty("FAKTORY_READ_KEY")
 private val Project.faktorySecretKey: String? get() = findStringProperty("FAKTORY_SECRET_KEY")
 private fun Project.findStringProperty(name: String): String? {
     rootProject.extensions.getByType(ExtraPropertiesExtension::class.java).run {
