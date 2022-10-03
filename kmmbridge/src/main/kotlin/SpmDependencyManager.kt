@@ -1,7 +1,6 @@
 package co.touchlab.faktory
 
-import co.touchlab.faktory.co.touchlab.faktory.internal.procRun
-import org.gradle.api.GradleException
+import co.touchlab.faktory.co.touchlab.faktory.internal.procRunFailLog
 import org.gradle.api.Project
 import org.gradle.api.Task
 import java.io.ByteArrayOutputStream
@@ -37,15 +36,16 @@ class SpmDependencyManager(
                 val version = project.kmmBridgeVersion
                 versionFile.writeText(version)
 
-                procRun("git", "add", ".") { _, _ -> }
-                procRun("git", "commit", "-m", "KMM SPM package release for $version") { _, _ -> }
-                procRun("git", "tag", "-a", version, "-m", "KMM release version $version") { line, _ -> }
+                project.procRunFailLog("git", "add", ".")
+                project.procRunFailLog("git", "commit", "-m", "KMM SPM package release for $version")
+                project.procRunFailLog("git", "tag", "-a", version, "-m", "KMM release version $version")
 
                 project.writePackageFile(originalPackageFile)
 
-                procRun("git", "add", ".") { _, _ -> }
-                procRun("git", "commit", "-m", "KMM SPM package file revert") { _, _ -> }
-                procRun("git", "push", "--follow-tags") { _, _ -> }
+                project.procRunFailLog("git", "add", ".")
+                project.procRunFailLog("git", "commit", "-m", "KMM SPM package file revert")
+                project.procRunFailLog("git", "push", "--follow-tags")
+
             }
         }
 
