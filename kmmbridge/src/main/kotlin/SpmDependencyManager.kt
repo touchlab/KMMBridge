@@ -37,15 +37,15 @@ class SpmDependencyManager(
                 val version = project.kmmBridgeVersion
                 versionFile.writeText(version)
 
-                procRun("git", "add", "."){_,_->}
-                procRun("git", "commit", "-m", "KMM SPM Package for $version"){_,_->}
-                procRun("git", "tag", "-a", version, "-m", "KMM Built Version $version") { line, _ ->}
+                procRun("git", "add", ".") { _, _ -> }
+                procRun("git", "commit", "-m", "KMM SPM package release for $version") { _, _ -> }
+                procRun("git", "tag", "-a", version, "-m", "KMM release version $version") { line, _ -> }
 
                 project.writePackageFile(originalPackageFile)
 
-                procRun("git", "add", "."){_,_->}
-                procRun("git", "commit", "-m", "KMM SPM Revert Package File"){_,_->}
-                procRun("git", "push", "origin", "--tags"){_,_->}
+                procRun("git", "add", ".") { _, _ -> }
+                procRun("git", "commit", "-m", "KMM SPM package file revert") { _, _ -> }
+                procRun("git", "push", "--follow-tags") { _, _ -> }
             }
         }
 
