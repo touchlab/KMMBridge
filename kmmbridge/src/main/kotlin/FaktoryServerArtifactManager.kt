@@ -5,14 +5,14 @@ import okhttp3.OkHttpClient
 import okhttp3.Request
 import okhttp3.RequestBody.Companion.asRequestBody
 import org.gradle.api.Project
-import org.gradle.api.plugins.ExtraPropertiesExtension
 import java.io.File
 import java.io.IOException
 import java.time.Duration
 
 class FaktoryServerArtifactManager : ArtifactManager {
 
-    override fun deployArtifact(project: Project, zipFilePath: File, fileName: String): String {
+    override fun deployArtifact(project: Project, zipFilePath: File): String {
+        val fileName = obscureFileName(project, project.kmmBridgeVersion)
         uploadArtifact(project, zipFilePath, fileName)
         return deployUrl(project, fileName)
     }
@@ -72,10 +72,3 @@ private val FAKTORY_SERVER = if (isDev) {
 private val Project.faktoryReadKey: String?
     get() = project.kmmBridgeExtension.faktoryReadKey.orNull ?: findStringProperty("FAKTORY_READ_KEY")
 private val Project.faktorySecretKey: String? get() = findStringProperty("FAKTORY_SECRET_KEY")
-private fun Project.findStringProperty(name: String): String? {
-    rootProject.extensions.getByType(ExtraPropertiesExtension::class.java).run {
-        if (has(name))
-            return get(name).toString()
-    }
-    return null
-}

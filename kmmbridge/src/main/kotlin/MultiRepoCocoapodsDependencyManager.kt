@@ -76,7 +76,7 @@ private fun Project.generatePodspec(outputFile: File) = with(kotlin.cocoapods) {
     val customSpec = extraSpecAttributes.map { "|    spec.${it.key} = ${it.value}" }.joinToString("\n")
 
     val url = urlFile.readText()
-    val version = kmmBridgeExtension.version
+    val version = kmmBridgeVersion
 
     outputFile.writeText(
         """

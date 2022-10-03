@@ -28,6 +28,10 @@ class SpmDependencyManager(
                 val url = project.urlFile.readText()
 
                 project.alterPackageFile(url, checksum)
+                val versionFile = project.versionFile
+                versionFile.parentFile.mkdirs()
+                val version = project.kmmBridgeVersion
+                versionFile.writeText(version)
             }
         }
 
@@ -131,3 +135,5 @@ internal fun stripEndSlash(path: String): String {
         path
     }
 }
+
+private val Project.versionFile get() = file("$buildDir/faktory/version")

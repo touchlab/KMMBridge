@@ -31,6 +31,7 @@ dependencies {
 
     implementation("com.squareup.okhttp3:okhttp:4.10.0")
     implementation("com.google.code.gson:gson:2.9.0")
+    testImplementation(kotlin("test"))
 }
 
 val GROUP: String by project
