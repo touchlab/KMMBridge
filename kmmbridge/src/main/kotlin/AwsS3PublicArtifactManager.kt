@@ -39,6 +39,7 @@ class AwsS3PublicArtifactManager(
      * is a problem determining if it exists it's assumed not to be there and will be
      * uploaded.
      */
+    @Suppress("NAME_SHADOWING")
     private fun uploadArtifact(zipFilePath: File, fileName: String) {
         val s3Client = S3Client.builder()
             .region(Region.of(s3Region))

@@ -11,7 +11,7 @@ class GithubReleaseVersionManager(private val repoArg: String?) : VersionManager
 
     override fun getVersion(project: Project, versionPrefix: String): String {
         val repoName: String = repoArg ?: (project.findStringProperty("GITHUB_REPO")
-            ?: throw IllegalArgumentException("GithubReleaseArtifactManager needs a repo param or property GITHUB_REPO")) as String
+            ?: throw IllegalArgumentException("GithubReleaseArtifactManager needs a repo param or property GITHUB_REPO"))
 
         val token = (project.property("GITHUB_PUBLISH_TOKEN")
             ?: throw IllegalArgumentException("GithubReleaseArtifactManager needs property GITHUB_PUBLISH_TOKEN")) as String

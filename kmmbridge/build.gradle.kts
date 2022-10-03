@@ -34,6 +34,11 @@ dependencies {
     testImplementation(kotlin("test"))
 }
 
+java {
+    sourceCompatibility = JavaVersion.VERSION_1_8
+    targetCompatibility = JavaVersion.VERSION_1_8
+}
+
 val GROUP: String by project
 val VERSION_NAME: String by project
 
