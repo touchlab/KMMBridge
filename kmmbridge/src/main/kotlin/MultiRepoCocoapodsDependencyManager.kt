@@ -15,7 +15,7 @@ class MultiRepoCocoapodsDependencyManager(
     private val specRepo: SpecRepo,
     private val allowWarnings: Boolean = true
 ) : DependencyManager {
-    override fun doExtraConfiguration(project: Project, uploadTask: Task, publishRemoteTask: Task) {
+    override fun configure(project: Project, uploadTask: Task, publishRemoteTask: Task) {
 
         val podSpecFile =
             "${project.buildDir}/XCFrameworks/${project.kmmBridgeExtension.buildType.get().name.toLowerCase()}/${project.kotlin.cocoapods.name}.podspec"

@@ -33,8 +33,6 @@ interface KmmBridgeExtension {
 
     val artifactManager: Property<ArtifactManager>
 
-    val faktoryReadKey: Property<String>
-
     val buildType: Property<NativeBuildType>
 
     val versionManager: Property<VersionManager>
@@ -61,13 +59,13 @@ interface KmmBridgeExtension {
         )
     }
 
-    fun defaultUpload() {
-        artifactManager.set(FaktoryServerArtifactManager())
+    fun Project.faktoryServer(faktoryReadKey: String? = null) {
+        artifactManager.set(FaktoryServerArtifactManager(faktoryReadKey, this))
     }
 
     fun Project.spm(
         spmDirectory: String? = null,
-        packageName: String = project.name
+        packageName: String = project.name,
     ) {
         val swiftPackageFolder = spmDirectory ?: projectDir.path
         val dependencyManager = SpmDependencyManager(swiftPackageFolder, packageName)
@@ -89,7 +87,7 @@ interface DependencyManager {
      * Do configuration specific to this `DependencyManager`. Generally this involves creating tasks that depend on
      * [uploadTask] and are dependencies of [publishRemoteTask].
      */
-    fun doExtraConfiguration(project: Project, uploadTask: Task, publishRemoteTask: Task) {}
+    fun configure(project: Project, uploadTask: Task, publishRemoteTask: Task) {}
 }
 
 interface ArtifactManager {
@@ -116,7 +114,6 @@ class KMMBridgePlugin : Plugin<Project> {
         val extension = extensions.create<KmmBridgeExtension>(EXTENSION_NAME)
         extension.dependencyManagers.convention(emptyList())
         extension.buildType.convention(NativeBuildType.RELEASE)
-        extension.artifactManager.convention(FaktoryServerArtifactManager())
         extension.versionManager.convention(TimestampVersionManager())
 
         // Don't call `kotlin.cocoapods` because that will throw if we don't have cocoapods plugin applied
@@ -125,6 +122,10 @@ class KMMBridgePlugin : Plugin<Project> {
         extension.versionPrefix.convention(fallbackVersion)
 
         afterEvaluate {
+            if (!extension.artifactManager.isPresent) {
+                error("You must apply an artifact manager! Call `artifactManager.set(...)` or a configuration function like `githubRelease()` in your `kmmbridge {}` block.")
+            }
+
             if (extension.xcFrameworkPath.orNull == null) {
                 configureXcFramework()
             }
@@ -207,13 +208,13 @@ class KMMBridgePlugin : Plugin<Project> {
             }
         }
 
-        val publishRemoteTask = task("publishRemoteFramework") {
+        val publishRemoteTask = task("kmmBridgePublish") {
             group = TASK_GROUP_NAME
             dependsOn(uploadTask)
         }
 
         for (dependencyManager in dependencyManagers) {
-            dependencyManager.doExtraConfiguration(this, uploadTask, publishRemoteTask)
+            dependencyManager.configure(this, uploadTask, publishRemoteTask)
         }
     }
 }

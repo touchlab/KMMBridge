@@ -18,7 +18,7 @@ class SpmDependencyManager(
     private val swiftPackageFilePath: String
         get() = "${stripEndSlash(swiftPackageFolder)}/Package.swift"
 
-    override fun doExtraConfiguration(project: Project, uploadTask: Task, publishRemoteTask: Task) {
+    override fun configure(project: Project, uploadTask: Task, publishRemoteTask: Task) {
         val updatePackageSwiftTask = project.task("updatePackageSwift") {
             group = TASK_GROUP_NAME
             val zipFile = project.zipFilePath()
