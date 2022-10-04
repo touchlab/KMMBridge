@@ -65,10 +65,11 @@ interface KmmBridgeExtension {
 
     fun Project.spm(
         spmDirectory: String? = null,
+        commitVersionStrategy: SpmDependencyManager.CommitVersionStrategy = SpmDependencyManager.CommitVersionStrategy.GitTag,
         packageName: String = project.name,
     ) {
         val swiftPackageFolder = spmDirectory ?: projectDir.path
-        val dependencyManager = SpmDependencyManager(swiftPackageFolder, packageName)
+        val dependencyManager = SpmDependencyManager(swiftPackageFolder, commitVersionStrategy, packageName)
         dependencyManagers.set(dependencyManagers.getOrElse(emptyList()) + dependencyManager)
     }
 

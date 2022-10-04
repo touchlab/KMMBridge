@@ -28,7 +28,7 @@ internal fun procRun(vararg params: String, processLines: (String, Int) -> Unit)
 /**
  * Run a process. If it fails, write output to gradle error log and throw exception.
  */
-internal fun Project.procRunFailLog(vararg params: String){
+internal fun Project.procRunFailLog(vararg params: String):List<String>{
     val output = mutableListOf<String>()
     try {
         procRun(*params){ line, _ -> output.add(line)}
@@ -36,4 +36,5 @@ internal fun Project.procRunFailLog(vararg params: String){
         output.forEach { logger.error("error: $it") }
         throw e
     }
+    return output
 }

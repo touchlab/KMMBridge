@@ -1,5 +1,6 @@
 package co.touchlab.faktory
 
+import co.touchlab.faktory.co.touchlab.faktory.internal.GithubCalls
 import co.touchlab.faktory.co.touchlab.faktory.internal.procRunFailLog
 import org.gradle.api.Project
 import org.gradle.api.Task
@@ -12,8 +13,13 @@ class SpmDependencyManager(
      * Folder where the Package.swift file lives
      */
     private val swiftPackageFolder: String,
+    private val commitVersionStrategy: CommitVersionStrategy,
     private val packageName: String
 ) : DependencyManager {
+
+    enum class CommitVersionStrategy {
+        None, GitTag, GithubRelease
+    }
 
     private val swiftPackageFilePath: String
         get() = "${stripEndSlash(swiftPackageFolder)}/Package.swift"
@@ -36,16 +42,28 @@ class SpmDependencyManager(
                 val version = project.kmmBridgeVersion
                 versionFile.writeText(version)
 
-                project.procRunFailLog("git", "add", ".")
-                project.procRunFailLog("git", "commit", "-m", "KMM SPM package release for $version")
-                project.procRunFailLog("git", "tag", "-a", version, "-m", "KMM release version $version")
+                if (commitVersionStrategy != CommitVersionStrategy.None) {
 
-                project.writePackageFile(originalPackageFile)
+                    project.procRunFailLog("git", "add", ".")
+                    project.procRunFailLog("git", "commit", "-m", "KMM SPM package release for $version")
+                    if (commitVersionStrategy == CommitVersionStrategy.GitTag) {
+                        project.procRunFailLog("git", "tag", "-a", version, "-m", "KMM release version $version")
+                    } else {
+                        project.procRunFailLog("git", "push")
+                        val commitId = project.procRunFailLog("git", "rev-parse", "HEAD").first()
+                        GithubCalls.createRelease(project, project.githubRepo, version, commitId)
+                    }
 
-                project.procRunFailLog("git", "add", ".")
-                project.procRunFailLog("git", "commit", "-m", "KMM SPM package file revert")
-                project.procRunFailLog("git", "push", "--follow-tags")
+                    project.writePackageFile(originalPackageFile)
 
+                    project.procRunFailLog("git", "add", ".")
+                    project.procRunFailLog("git", "commit", "-m", "KMM SPM package file revert")
+                    if (commitVersionStrategy == CommitVersionStrategy.GitTag) {
+                        project.procRunFailLog("git", "push", "--follow-tags")
+                    } else {
+                        project.procRunFailLog("git", "push")
+                    }
+                }
             }
         }
 
