@@ -24,7 +24,7 @@ After running this command your working directory will have two files `deploykey
 ssh agent in your CI actions in order to pull/push from the podspec repo. 
 
 To add the deploy key, go to settings in the podspec repo (you'll need admin access) and look for `Deploy Keys`. Click
-Add New, give it a meaningful name like, and copy the contents of `deploykey.pub`. Make sure to allow write access so your 
+Add New, give it a meaningful name like `deploykey`, and copy the contents of `deploykey.pub`. Make sure to allow write access so your 
 build can push to it. Once you save these changes you can delete `deploykey.pub` from your machine. 
 
 ### Using Deploy Key in CI 
@@ -81,7 +81,8 @@ kmmbridge {
 }
 ```
 
-You'll also need to change how you add the Podspec source in your Podfiles so it can change based on the local environment. 
+You'll also need to change how you add the Podspec source in your Podfiles so it can change based on the local environment 
+to include authentication in CI. 
 To do that we'll add the repo globally and have the Podfile refer to the local reference rather than a URL. 
 
 ```ruby
@@ -117,7 +118,7 @@ run: |
   ...
 ```
 
-### HTTPS Locally
+### Running Locally
 If you've set your build up to take the podspec URL as a property either for CI or to allow developers to use SSH or HTTPS, 
 you'll need to make sure that is available in your local environment. 
 
@@ -127,5 +128,5 @@ To set up the gradle property, you can either set an environment variable or set
 // gradle.properties
 PODSPEC_URL=<https or ssh url>
 // .bashrc/.zshrc/etc 
-export ORG_GRADLE_PROJECT_PODSPEC_URL=https\://github.com/touchlab/PodSpecs.git
+export ORG_GRADLE_PROJECT_PODSPEC_URL=<https or ssh url> 
 ```
