@@ -77,7 +77,7 @@ interface KmmBridgeExtension {
 
         val specRepo = if (specRepoUrl == null) SpecRepo.Trunk else SpecRepo.Private(specRepoUrl)
 
-        val dependencyManager = MultiRepoCocoapodsDependencyManager(specRepo)
+        val dependencyManager = CocoapodsDependencyManager(specRepo)
         dependencyManagers.set(dependencyManagers.getOrElse(emptyList()) + dependencyManager)
     }
 }

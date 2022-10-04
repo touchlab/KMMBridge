@@ -11,7 +11,7 @@ sealed class SpecRepo {
     class Private(val url: String) : SpecRepo()
 }
 
-class MultiRepoCocoapodsDependencyManager(
+class CocoapodsDependencyManager(
     private val specRepo: SpecRepo,
     private val allowWarnings: Boolean = true
 ) : DependencyManager {
