@@ -9,7 +9,13 @@ import java.io.File
 import java.io.IOException
 import java.time.Duration
 
-class FaktoryServerArtifactManager : ArtifactManager {
+class FaktoryServerArtifactManager(
+    faktoryReadKey: String?,
+    project: Project,
+) : ArtifactManager {
+
+    private val faktoryReadKey: String = faktoryReadKey ?: project.findStringProperty("FAKTORY_READ_KEY")
+    ?: error("Must provide faktoryReadKey as argument to factoryServer() or gradle property \"FAKTORY_READ_KEY\"")
 
     override fun deployArtifact(project: Project, zipFilePath: File): String {
         val fileName = obscureFileName(project, project.kmmBridgeVersion)
@@ -18,8 +24,7 @@ class FaktoryServerArtifactManager : ArtifactManager {
     }
 
     private fun deployUrl(project: Project, zipFileName: String): String {
-        val faktoryKey = project.faktoryReadKey ?: error("No Faktory key provided!")
-        return faktoryReadUrl(zipFileName, faktoryKey)
+        return faktoryReadUrl(zipFileName, faktoryReadKey)
     }
 
     private fun uploadArtifact(project: Project, zipFilePath: File, fileName: String) {
@@ -69,6 +74,4 @@ private val FAKTORY_SERVER = if (isDev) {
     "https://api.touchlab.dev"
 }
 
-private val Project.faktoryReadKey: String?
-    get() = project.kmmBridgeExtension.faktoryReadKey.orNull ?: findStringProperty("FAKTORY_READ_KEY")
 private val Project.faktorySecretKey: String? get() = findStringProperty("FAKTORY_SECRET_KEY")
