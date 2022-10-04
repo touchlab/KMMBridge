@@ -17,8 +17,8 @@ class FaktoryServerArtifactManager(
     private val faktoryReadKey: String = faktoryReadKey ?: project.findStringProperty("FAKTORY_READ_KEY")
     ?: error("Must provide faktoryReadKey as argument to factoryServer() or gradle property \"FAKTORY_READ_KEY\"")
 
-    override fun deployArtifact(project: Project, zipFilePath: File): String {
-        val fileName = obscureFileName(project, project.kmmBridgeVersion)
+    override fun deployArtifact(project: Project, zipFilePath: File, version: String): String {
+        val fileName = obscureFileName(project, version)
         uploadArtifact(project, zipFilePath, fileName)
         return deployUrl(project, fileName)
     }

@@ -30,7 +30,7 @@ class GithubReleaseArtifactManager(
         OkHttpClient.Builder().callTimeout(Duration.ofMinutes(5)).connectTimeout(Duration.ofMinutes(2))
             .writeTimeout(Duration.ofMinutes(5)).readTimeout(Duration.ofMinutes(2)).build()
 
-    override fun deployArtifact(project: Project, zipFilePath: File): String {
+    override fun deployArtifact(project: Project, zipFilePath: File, version: String): String {
         val repoName: String = repoArg ?: (project.findStringProperty("GITHUB_REPO")
             ?: throw IllegalArgumentException("GithubReleaseArtifactManager needs a repo param or property GITHUB_REPO"))
 
@@ -55,7 +55,7 @@ class GithubReleaseArtifactManager(
 
         val body: RequestBody = zipFilePath.asRequestBody("application/zip".toMediaTypeOrNull())
 
-        val fileName = artifactName(project, project.kmmBridgeVersion)
+        val fileName = artifactName(project, version)
 
         val uploadRequest = Request.Builder().url(
             "https://uploads.github.com/repos/${repoName}/releases/${idReply}/assets?name=${

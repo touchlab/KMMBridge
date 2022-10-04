@@ -94,7 +94,7 @@ interface ArtifactManager {
     /**
      * Send the thing, and return a link to the thing...
      */
-    fun deployArtifact(project: Project, zipFilePath: File): String
+    fun deployArtifact(project: Project, zipFilePath: File, version: String): String
 }
 
 interface VersionManager {
@@ -200,10 +200,12 @@ class KMMBridgePlugin : Plugin<Project> {
 
             dependsOn(zipTask)
             inputs.file(zipFile)
-            outputs.file(urlFile)
+            outputs.files(urlFile, versionFile)
 
             doLast {
-                val deployUrl = artifactManager.deployArtifact(project, zipFile)
+                val version = extension.versionManager.get().getVersion(project, extension.versionPrefix.get())
+                versionFile.writeText(version)
+                val deployUrl = artifactManager.deployArtifact(project, zipFile, version)
                 urlFile.writeText(deployUrl)
             }
         }

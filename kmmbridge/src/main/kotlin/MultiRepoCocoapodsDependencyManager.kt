@@ -21,7 +21,7 @@ class MultiRepoCocoapodsDependencyManager(
             "${project.buildDir}/XCFrameworks/${project.kmmBridgeExtension.buildType.get().name.toLowerCase()}/${project.kotlin.cocoapods.name}.podspec"
 
         val generatePodspecTask = project.task("generateReleasePodspec") {
-            inputs.file(project.urlFile)
+            inputs.files(project.urlFile, project.versionFile)
             outputs.file(podSpecFile)
             dependsOn(uploadTask)
             doLast {
@@ -76,7 +76,7 @@ private fun Project.generatePodspec(outputFile: File) = with(kotlin.cocoapods) {
     val customSpec = extraSpecAttributes.map { "|    spec.${it.key} = ${it.value}" }.joinToString("\n")
 
     val url = urlFile.readText()
-    val version = kmmBridgeVersion
+    val version = versionFile.readText()
 
     // 'Accept: application/octet-stream' needed for github release file downloads
     outputFile.writeText(
