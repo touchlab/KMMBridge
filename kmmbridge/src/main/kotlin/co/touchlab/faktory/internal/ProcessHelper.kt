@@ -38,3 +38,16 @@ internal fun Project.procRunFailLog(vararg params: String):List<String>{
     }
     return output
 }
+
+/**
+ * Run a process. If it fails, write output to gradle warn log and keep going.
+ */
+internal fun Project.procRunWarnLog(vararg params: String):List<String>{
+    val output = mutableListOf<String>()
+    try {
+        procRun(*params){ line, _ -> output.add(line)}
+    } catch (e: Exception) {
+        output.forEach { logger.warn("warn: $it") }
+    }
+    return output
+}
