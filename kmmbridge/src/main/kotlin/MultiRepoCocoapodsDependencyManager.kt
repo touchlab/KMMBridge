@@ -78,6 +78,7 @@ private fun Project.generatePodspec(outputFile: File) = with(kotlin.cocoapods) {
     val url = urlFile.readText()
     val version = kmmBridgeVersion
 
+    // 'Accept: application/octet-stream' needed for github release file downloads
     outputFile.writeText(
         """
             |Pod::Spec.new do |spec|
@@ -86,7 +87,8 @@ private fun Project.generatePodspec(outputFile: File) = with(kotlin.cocoapods) {
             |    spec.homepage                 = ${homepage.orEmpty().surroundWithSingleQuotesIfNeeded()}
             |    spec.source                   = { 
             |                                      :http => '${url}',
-            |                                      :type => 'zip'
+            |                                      :type => 'zip',
+            |                                      :headers => ['Accept: application/octet-stream']
             |                                    }
             |    spec.authors                  = ${authors.orEmpty().surroundWithSingleQuotesIfNeeded()}
             |    spec.license                  = ${license.orEmpty().surroundWithSingleQuotesIfNeeded()}

@@ -14,12 +14,11 @@ import kotlin.reflect.KProperty
 internal val Project.kotlin: KotlinMultiplatformExtension get() = extensions.getByType()
 internal val Project.kmmBridgeExtension get() = extensions.getByType<KmmBridgeExtension>()
 
+internal val Project.urlFile get() = file("$buildDir/faktory/url")
+
 // Cocoapods is an extension of KMP extension so you can't just do project.extensions.getByType<CocoapodsExtension>()
 internal val KotlinMultiplatformExtension.cocoapods get() = (this as ExtensionAware).extensions.findByType<CocoapodsExtension>()
     ?: error("You must apply the org.jetbrains.kotlin.native.cocoapods plugin to use cocoapods() configuration")
-
-internal val Project.urlFile get() = file("$buildDir/faktory/url")
-
 
 internal fun Project.zipFilePath(): File {
     val tempDir = file("$buildDir/faktory/zip")

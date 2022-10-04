@@ -1,6 +1,6 @@
 package co.touchlab.faktory
 
-import org.gradle.api.GradleException
+import co.touchlab.faktory.co.touchlab.faktory.internal.procRunFailLog
 import org.gradle.api.Project
 import org.gradle.api.Task
 import java.io.ByteArrayOutputStream
@@ -11,10 +11,11 @@ class SpmDependencyManager(
     /**
      * Folder where the Package.swift file lives
      */
-    private val swiftPackageFolder: String
+    private val swiftPackageFolder: String,
+    private val packageName: String
 ) : DependencyManager {
 
-    private val swiftPackageFile: String
+    private val swiftPackageFilePath: String
         get() = "${stripEndSlash(swiftPackageFolder)}/Package.swift"
 
     override fun doExtraConfiguration(project: Project, uploadTask: Task, publishRemoteTask: Task) {
@@ -24,19 +25,39 @@ class SpmDependencyManager(
             inputs.files(zipFile, project.urlFile)
 
             doLast {
+                val originalPackageFile = project.readPackageFile()
+
                 val checksum = project.findSpmChecksum(zipFile)
                 val url = project.urlFile.readText()
 
-                project.alterPackageFile(url, checksum)
+                project.writePackageFile(packageName, url, checksum)
                 val versionFile = project.versionFile
                 versionFile.parentFile.mkdirs()
                 val version = project.kmmBridgeVersion
                 versionFile.writeText(version)
+
+                project.procRunFailLog("git", "add", ".")
+                project.procRunFailLog("git", "commit", "-m", "KMM SPM package release for $version")
+                project.procRunFailLog("git", "tag", "-a", version, "-m", "KMM release version $version")
+
+                project.writePackageFile(originalPackageFile)
+
+                project.procRunFailLog("git", "add", ".")
+                project.procRunFailLog("git", "commit", "-m", "KMM SPM package file revert")
+                project.procRunFailLog("git", "push", "--follow-tags")
+
             }
         }
 
         updatePackageSwiftTask.dependsOn(uploadTask)
         publishRemoteTask.dependsOn(updatePackageSwiftTask)
+    }
+
+    private fun Project.writePackageFile(packageName: String, url: String, checksum: String){
+        val swiftPackageFile = file(swiftPackageFilePath)
+        val packageText = makePackageFileText(packageName, url, checksum)
+        swiftPackageFile.parentFile.mkdirs()
+        swiftPackageFile.writeText(packageText)
     }
 
     private fun Project.findSpmChecksum(zipFilePath: File): String {
@@ -67,64 +88,9 @@ class SpmDependencyManager(
         return os.toByteArray().toString(Charset.defaultCharset()).trim()
     }
 
-    private fun <R> Project.reviewPackageFile(block: (List<String>) -> R): R {
-        val swiftPackageFile = file(swiftPackageFile)
-
-        val allLines = swiftPackageFile.readLines().toList()
-
-        return block(allLines)
-    }
-
-    private fun Project.alterPackageFileByLine(block: (String) -> String) {
-        val swiftPackageFile = file(swiftPackageFile)
-        val sb = StringBuilder()
-
-        swiftPackageFile.forEachLine { line ->
-            sb.append(block(line)).append("\n")
-        }
-
-        swiftPackageFile.delete()
-
-        swiftPackageFile.outputStream().bufferedWriter().use {
-            it.write(
-                sb.toString()
-            )
-        }
-    }
-
-    private fun Project.alterPackageFile(remoteUrl: String, checksum: String) {
-        validateFieldsInPackageSwift()
-
-        val checksumFound = reviewPackageFile { lines ->
-            lines.find { it.contains(checksum) } != null
-        }
-
-        alterPackageFileByLine { line ->
-            if (!checksumFound && line.contains("let remoteKotlinUrl")) {
-                val i = line.indexOf("let remoteKotlinUrl")
-                return@alterPackageFileByLine "let remoteKotlinUrl = \"${remoteUrl}\"".padStart(i)
-            }
-
-            if (!checksumFound && line.contains("let remoteKotlinChecksum")) {
-                val i = line.indexOf("let remoteKotlinChecksum")
-                return@alterPackageFileByLine "let remoteKotlinChecksum = \"${checksum}\"".padStart(i)
-            }
-
-            return@alterPackageFileByLine line
-        }
-
-//        outputs.file(swiftPackageFile)
-    }
-
-    private fun Project.validateFieldsInPackageSwift() {
-        val validPackageFile = reviewPackageFile { lines ->
-            lines.find { it.contains("let remoteKotlinUrl") } != null &&
-                    lines.find { it.contains("let remoteKotlinChecksum") } != null
-        }
-
-        if (!validPackageFile) {
-            throw GradleException("Invalid Package.swift file")
-        }
+    private fun Project.readPackageFile(): String = file(swiftPackageFilePath).readText()
+    private fun Project.writePackageFile(data:String){
+        file(swiftPackageFilePath).writeText(data)
     }
 }
 
@@ -137,3 +103,33 @@ internal fun stripEndSlash(path: String): String {
 }
 
 private val Project.versionFile get() = file("$buildDir/faktory/version")
+
+private fun makePackageFileText(packageName: String, url:String, checksum: String): String = """
+// swift-tools-version:5.3
+import PackageDescription
+
+let remoteKotlinUrl = "$url"
+let remoteKotlinChecksum = "$checksum"
+let packageName = "$packageName"
+
+let package = Package(
+    name: packageName,
+    platforms: [
+        .iOS(.v13)
+    ],
+    products: [
+        .library(
+            name: packageName,
+            targets: [packageName]
+        ),
+    ],
+    targets: [
+        .binaryTarget(
+            name: packageName,
+            url: remoteKotlinUrl,
+            checksum: remoteKotlinChecksum
+        )
+        ,
+    ]
+)
+""".trimIndent()

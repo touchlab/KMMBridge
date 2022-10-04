@@ -20,7 +20,7 @@ fun KmmBridgeExtension.githubRelease(
     repo: String? = null, artifactRelease: String? = null
 ) {
     artifactManager.set(GithubReleaseArtifactManager(repo, artifactRelease))
-    versionManager.set(GithubReleaseVersionManager(repo))
+    versionManager.set(GitTagVersionManager)
 }
 
 class GithubReleaseArtifactManager(
@@ -32,7 +32,7 @@ class GithubReleaseArtifactManager(
 
     override fun deployArtifact(project: Project, zipFilePath: File): String {
         val repoName: String = repoArg ?: (project.findStringProperty("GITHUB_REPO")
-            ?: throw IllegalArgumentException("GithubReleaseArtifactManager needs a repo param or property GITHUB_REPO")) as String
+            ?: throw IllegalArgumentException("GithubReleaseArtifactManager needs a repo param or property GITHUB_REPO"))
 
         val artifactReleaseTag = artifactReleaseArg ?: "kmm-artifacts-${project.kmmBridgeExtension.versionPrefix.get()}"
 
