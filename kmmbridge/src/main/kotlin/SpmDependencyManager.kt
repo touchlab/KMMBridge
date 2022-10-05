@@ -2,6 +2,7 @@ package co.touchlab.faktory
 
 import co.touchlab.faktory.co.touchlab.faktory.internal.GithubCalls
 import co.touchlab.faktory.co.touchlab.faktory.internal.procRunFailLog
+import co.touchlab.faktory.co.touchlab.faktory.internal.procRunWarnLog
 import org.gradle.api.Project
 import org.gradle.api.Task
 import java.io.ByteArrayOutputStream
@@ -42,7 +43,7 @@ class SpmDependencyManager(
                 if (commitVersionStrategy != CommitVersionStrategy.None) {
 
                     project.procRunFailLog("git", "add", ".")
-                    project.procRunFailLog("git", "commit", "-m", "KMM SPM package release for $version")
+                    project.procRunWarnLog("git", "commit", "-m", "KMM SPM package release for $version")
                     if (commitVersionStrategy == CommitVersionStrategy.GitTag) {
                         project.procRunFailLog("git", "tag", "-a", version, "-m", "KMM release version $version")
                     } else {
@@ -51,14 +52,18 @@ class SpmDependencyManager(
                         GithubCalls.createRelease(project, project.githubRepo, version, commitId)
                     }
 
-                    project.writePackageFile(originalPackageFile)
+                    // Only overwrite if original file existed
+                    if(originalPackageFile != null)
+                        project.writePackageFile(originalPackageFile)
+                    else
+                        project.deletePackageFile()
 
                     project.procRunFailLog("git", "add", ".")
-                    project.procRunFailLog("git", "commit", "-m", "KMM SPM package file revert")
+                    project.procRunWarnLog("git", "commit", "-m", "KMM SPM package file revert")
                     if (commitVersionStrategy == CommitVersionStrategy.GitTag) {
                         project.procRunFailLog("git", "push", "--follow-tags")
                     } else {
-                        project.procRunFailLog("git", "push")
+                        project.procRunWarnLog("git", "push")
                     }
                 }
             }
@@ -103,9 +108,23 @@ class SpmDependencyManager(
         return os.toByteArray().toString(Charset.defaultCharset()).trim()
     }
 
-    private fun Project.readPackageFile(): String = file(swiftPackageFilePath).readText()
+    private fun Project.readPackageFile(): String? {
+        val file = file(swiftPackageFilePath)
+        return if (file.exists()) {
+            file.readText()
+        } else {
+            null
+        }
+    }
+
     private fun Project.writePackageFile(data:String){
         file(swiftPackageFilePath).writeText(data)
+    }
+
+    private fun Project.deletePackageFile(){
+        val pfile = file(swiftPackageFilePath)
+        if(pfile.exists())
+            pfile.delete()
     }
 }
 
