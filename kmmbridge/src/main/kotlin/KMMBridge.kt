@@ -59,16 +59,24 @@ interface KmmBridgeExtension {
         )
     }
 
+    fun githubRelease(
+        artifactRelease: String? = null
+    ) {
+        artifactManager.set(GithubReleaseArtifactManager(artifactRelease))
+        versionManager.set(GitTagVersionManager)
+    }
+
     fun Project.faktoryServer(faktoryReadKey: String? = null) {
         artifactManager.set(FaktoryServerArtifactManager(faktoryReadKey, this))
     }
 
     fun Project.spm(
         spmDirectory: String? = null,
+        commitVersionStrategy: SpmDependencyManager.CommitVersionStrategy = SpmDependencyManager.CommitVersionStrategy.GitTag,
         packageName: String = project.name,
     ) {
         val swiftPackageFolder = spmDirectory ?: projectDir.path
-        val dependencyManager = SpmDependencyManager(swiftPackageFolder, packageName)
+        val dependencyManager = SpmDependencyManager(swiftPackageFolder, commitVersionStrategy, packageName)
         dependencyManagers.set(dependencyManagers.getOrElse(emptyList()) + dependencyManager)
     }
 
@@ -94,7 +102,7 @@ interface ArtifactManager {
     /**
      * Send the thing, and return a link to the thing...
      */
-    fun deployArtifact(project: Project, zipFilePath: File): String
+    fun deployArtifact(project: Project, zipFilePath: File, version: String): String
 }
 
 interface VersionManager {
@@ -200,10 +208,12 @@ class KMMBridgePlugin : Plugin<Project> {
 
             dependsOn(zipTask)
             inputs.file(zipFile)
-            outputs.file(urlFile)
+            outputs.files(urlFile, versionFile)
 
             doLast {
-                val deployUrl = artifactManager.deployArtifact(project, zipFile)
+                val version = extension.versionManager.get().getVersion(project, extension.versionPrefix.get())
+                versionFile.writeText(version)
+                val deployUrl = artifactManager.deployArtifact(project, zipFile, version)
                 urlFile.writeText(deployUrl)
             }
         }

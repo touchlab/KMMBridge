@@ -18,8 +18,8 @@ class AwsS3PublicArtifactManager(
     private val altBaseUrl: String?,
 ) : ArtifactManager {
 
-    override fun deployArtifact(project: Project, zipFilePath: File): String {
-        val fileName = obscureFileName(project, project.kmmBridgeVersion)
+    override fun deployArtifact(project: Project, zipFilePath: File, version: String): String {
+        val fileName = obscureFileName(project, version)
         uploadArtifact(zipFilePath, fileName)
         return deployUrl(fileName)
     }
