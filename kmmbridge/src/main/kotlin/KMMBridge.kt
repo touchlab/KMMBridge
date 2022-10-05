@@ -122,7 +122,7 @@ class KMMBridgePlugin : Plugin<Project> {
         val extension = extensions.create<KmmBridgeExtension>(EXTENSION_NAME)
         extension.dependencyManagers.convention(emptyList())
         extension.buildType.convention(NativeBuildType.RELEASE)
-        extension.versionManager.convention(TimestampVersionManager())
+        extension.versionManager.convention(ManualVersionManager)
 
         // Don't call `kotlin.cocoapods` because that will throw if we don't have cocoapods plugin applied
         val fallbackVersion =
