@@ -75,3 +75,7 @@ object GithubCalls {
 
 data class CreateReleaseWithCommitBody(val tag_name: String, val target_commitish: String)
 data class CreateReleaseBody(val tag_name: String)
+
+data class IdReply(var id: Int)
+
+data class UploadReply(var url: String)

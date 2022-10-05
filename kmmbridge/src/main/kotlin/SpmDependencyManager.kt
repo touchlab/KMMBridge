@@ -28,7 +28,7 @@ class SpmDependencyManager(
         val updatePackageSwiftTask = project.task("updatePackageSwift") {
             group = TASK_GROUP_NAME
             val zipFile = project.zipFilePath()
-            inputs.files(zipFile, project.urlFile)
+            inputs.files(zipFile, project.urlFile, project.versionFile)
 
             doLast {
                 val originalPackageFile = project.readPackageFile()
@@ -37,10 +37,7 @@ class SpmDependencyManager(
                 val url = project.urlFile.readText()
 
                 project.writePackageFile(packageName, url, checksum)
-                val versionFile = project.versionFile
-                versionFile.parentFile.mkdirs()
-                val version = project.kmmBridgeVersion
-                versionFile.writeText(version)
+                val version = project.versionFile.readText()
 
                 if (commitVersionStrategy != CommitVersionStrategy.None) {
 
@@ -119,8 +116,6 @@ internal fun stripEndSlash(path: String): String {
         path
     }
 }
-
-private val Project.versionFile get() = file("$buildDir/faktory/version")
 
 private fun makePackageFileText(packageName: String, url:String, checksum: String): String = """
 // swift-tools-version:5.3
