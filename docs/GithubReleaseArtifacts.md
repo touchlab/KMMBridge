@@ -1,48 +1,57 @@
 # Github Release Artifacts
 
-Publishing binary Xcode Frameworks requires a place to publish and host your artifacts. Github doesn't provide raw file hosting like AWS S3, but does provide various methods to host files. One simple method is to upload files to a Github release. The benefits are:
+Publishing binary Xcode Frameworks requires a place to publish and host your artifacts. This really just needs to be a file bucket that you can read/write to. Github doesn't provide raw file hosting like AWS S3, but does provide various methods to host files. One simple method is to upload files to a Github release. The benefits are:
 
 * You can publish as many files as you want to a release
 * There is no (published) total limit on files, although each file has to be 2 gigabytes or less.
 * There are no (published) restrictions on bandwidth.
 
-When we publish a build from Kotlin, the ideal solution would be to push the zip binary along with the release. However, that is not so simple. For Cocoapods, we need an external repo for podspecs, so that would work.
+Logically, it would make sense to publish your binary files with a versioned github release. However, we need a binary URL to be able to publish releases, at least for SPM, so you have a chicken/egg problem.
 
-SPM uses git tags to manage versioning. SPM's metadata file, `Package.swift`, needs the url of the binary file, which isn't available until you publish the release. It's a chicken/egg problem. You need the url before you publish the release, but you need to publish the release before you can get the URL.
+However, you can add binary files to an existing release. We're going to use special Github releases as "file buckets". They only exist to add binary files to for hosting. While this seems a bit hacky, there are benefits to this approach:
 
-You can't change the commit of a tag/release, but in Github, you can *add* files to a release after it's been created. As a simple workaround, we will create a special release that only exists to host binaries. When publishing a new build, the binary is added to that special release, which gives us the URL necessary to complete the rest of the release process.
+* It is simple
+* You can use it for public or private deployments
+* It works for SPM or Cocoapods
+* Access is handled by Github, so you can add or remove developers as you normally would
+
+![image-20221004164855858](https://tl-navigator-images.s3.us-east-1.amazonaws.com/docimages/2022-10-04_16-48-image-20221004164855858.png)
 
 ## Note: Experimental
 
-This is experimental. Github has no published limits on release file uploads, but we don't yet know what happens if you have very large numbers of assets in a single release. Github also makes no mention of total file hosting limits, but it seems reasonable to assume there will be a time when they start to notice huge additional file sizes. For example, if you published 2 releases per day of a fairly large project build, you could easily have 25 to 50 gigs of binary uploads in a year. Gihub also says there are no badwidth limits, and that seems like a less likely problem, but it's also not hard to imagine there are unpublished limits to wide distribution.
+This is experimental. According to GIthub docs and policies, this will work fine, but it's not exactly the way they intend you to use releases. There are no published limits to uploads or bandwidth, but if you're using this a lot, there may be upper bounds we haven't encountered yet. However, for most standard use cases this should be fine.
 
 ## Config
 
 ### Gradle Build
 
-The artifact manager needs a few parameters:
+If you are using our Github Actions CI [touchlab/KMMBridgeGithubWorkflow](https://github.com/touchlab/KMMBridgeGithubWorkflow), you don't need to pass any parameters. Just add this to your `kmmbridge` config in your Gradle build file.
 
-* Repo owner
-* Repo name
-* Release tag
+```koltin
+kmmbridge {
+    githubRelease()
+}
+```
 
-The repo owner and name will usually be the repo you are currently in. We may be able to auto-detect that eventurally, but for now you should specify. You can also push to a different repo in cases where that makes sense.
+The CI script passes some arguments to Gradle directly that allow KMM Bridge to publish zip files to releases.  If you aren't using our CI script, you'll need to add those parameters on your own. Here is the relevant code from our CI script:
 
-The release tag is important. It is the release that we will upload to. At major releases, it may make sense to update this, if only to avoid releases with huge numbers of artifacts (we may add some kind of auto-incrementing to handle this).
+```yaml
+./gradlew kmmBridgePublish -PGITHUB_PUBLISH_TOKEN=${{ secrets.GITHUB_TOKEN }} -PGITHUB_REPO=${{ github.repository }}
+```
 
-You will also need to supply the token used to access the repo, as a Gradle property called `GITHUB_PUBLISH_TOKEN`. This is usually passed in from a Github Actions workflow secret `${{ secrets.GITHUB_TOKEN }}`. For local builds, or to publish to a different repo, you'll need to create and store this value (TODO).
+`GITHUB_PUBLISH_TOKEN` is the access token we pass to Github. `GITHUB_REPO` is the repo we'll be publishing to.
 
 ### iOS Build
 
 #### Public Repos
 
-For public projects, you should not need to do any configuration. SPM can access public release files.
+For public projects, you should not need to do any configuration. Cocoapods and SPM can access public release files directly with no auth.
 
 #### Private Repos
 
 For private builds, you'll need to tell the local machine how to access the private file. You can do this either by editing the `~/.netrc` file, or by adding the info to your local keychain.
 
-First, get a personal access token from GIthub. Make sure it has at least `repo` permissions. You can add an expiration, but you'll need to remember to create a new one later :)
+First, get a personal access token from GIthub. Make sure it has at least `repo` permissions. You can add an expiration, but if you do, you'll need to remember to create a new one later...
 
 ![Screen Shot 2022-09-29 at 8.16.31 AM](https://tl-navigator-images.s3.us-east-1.amazonaws.com/docimages/2022-09-29_08-17-Screen%20Shot%202022-09-29%20at%208.16.31%20AM.png)
 
@@ -56,4 +65,4 @@ machine api.github.com
 
 Once that is set up, assuming you have access to the private repo where the artifacts are stored, you should be able to sync and build Xcode successfully.
 
-Alternatively, to set up access with your local keychain TODO
+Alternatively, you can use the Mac's keychain to manage access. See [this blog post for more detail](https://medium.com/geekculture/xcode-13-3-supports-spm-binary-dependency-in-private-github-release-8d60a47d5e45). Also, a big thanks to the author of that post for connecting a lot of the dots!

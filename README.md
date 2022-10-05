@@ -1,45 +1,71 @@
 # Faktory: KMM Bridge
 
+KMM Bridge is a set of Gradle tooling that facilitates publishing and consuming pre-built KMM (Kotlin Multiplatform Mobile) Xcode Framework binaries.
+
+The modules can be published to various back ends, public or private, and (currently) consumed by either Cocoapods or Swift Package Manager.
+
+## Who is this for?
+
 Different types of teams and different types of projects use Kotlin Multiplatform in different ways. Native mobile dev teams often want to start by including a prebuilt Xcode Framework in the iOS build rather than having every member of the team building Kotlin locally. This is especially true when adding KMM to an existing app, and/or when the teams are larger than 2-3 developers.
 
-Building and publishing binary Xcode Frameworks from Kotlin is certainly possible, but not easily supported "out of the box". Where those binaries are published, and how they are included in the iOS build, also varies. Most teams we have talked to go through the same process getting started. They build this piece of infrastructure, and often go through the same stages (and make the same mistakes).
+Building and publishing binary Xcode Frameworks from Kotlin is certainly possible, but not easily supported "out of the box". Where those binaries are published, and how they are included in the iOS build, also varies. Most teams we have talked to go through the same process getting started. They first need to build some kind of publishing architecture, which is non-trivial, and make a lot of the same mistakes along the way.
 
-KMM Bridge is a set of tooling that facilitates publishing and consuming pre-built KMM Xcode Framework binaries.
+For more context, see Nate Ebel’s talk from Droidcon NYC 2022: [Adopting Kotlin Multiplatform in Brownfield Applications](https://www.droidcon.com/2022/09/29/adopting-kotlin-multiplatform-in-brownfield-applications/). It's a very good overview of the startup issues teams face.
 
 ## Configuration
 
-The plugin is currently published to the maven central snapshots repo. To include it, add the snapshots repo to `pluginManagement` or the `buildscript` block:
+The plugin is currently published to the maven central repo. If needed, makes sure to add the `mavenCentral()` repo to `pluginManagement` or the `buildscript` block:
 
 ```kotlin
 pluginManagement {
     repositories {
         gradlePluginPortal()
         mavenCentral()
-        maven("https://oss.sonatype.org/content/repositories/snapshots")
     }
 }
 ```
 
-Then add the plugin to the module, in the `build.gradle.kts` file, that is building the Xcode Framework:
+Then add the plugin to the module that is actually building the Xcode Framework. In the `build.gradle.kts` file:
 
 ```kotlin
 plugins {
     kotlin("multiplatform")
-    id("co.touchlab.faktory.kmmbridge") version "0.1.2-SNAPSHOT"
+    id("co.touchlab.faktory.kmmbridge") version "0.1.15"
 }
 ```
 
-The various configuration arguments go in the `kmmbridge` extension block:
+At the top level in the same file, put the `kmmbridge` configuration:
 
 ```kotlin
 kmmbridge {
-    faktoryReadKey.set("1EE4B4A7CFEF438A8C0DAF8981")
+    githubRelease()
     spm("..")
     cocoapods("git@github.com:touchlab/PodSpecs.git")
+    versionPrefix.set("0.3")
     //etc
 }
 ```
 
-## Local Development
+## Basic Flow
 
-For faktory server hosting, there's a local dev doc that needs an update...
+The basic concept is that after making some changes to Kotlin code, you'll want to publish an updated iOS Framework that Xcode can grab and use. Generally speaking, there are separate Android and iOS repos, and a KMM module is added to the Android repo, or a third "shared Kotlin" repo is created to publish from.
+
+Changes are made and tested to the shared Kotlin, then pushed to source control. When that happens, you can run CI to publish a new build. Doing that will:
+
+* Create a new version number
+* Publish the Xcode Framework zip
+* Generate `Package.swift` file and/or a Cocoapods podspec file
+
+## Components
+
+### Artifact Managers
+
+Artifact Manager handle uploading the binary and generating the url that will be used to access the binary. These implementations are very specific to the back end hosting being used. There are currently implementations for Github Releases, S3, and Faktory (our server). Standard Gradle/Maven repo publishing is coming soon.
+
+### Dependency Managers
+
+Dependency managers handle integration with Cocoapods and SPM. They manage generating the config files (podspec or Package.swift), and the publishing of the releases. There are currently only two implementations: CocoapodsDependencyManager and  SpmDependencyManager.
+
+### Version Managers
+
+Version managers take a version prefix and append a new version to it on every publish. Doing this makes publishing multiple dev versions easier, but you can also opt for explicit versioning. Currently implementations either append a timestamp, use git tags, or Github releases.

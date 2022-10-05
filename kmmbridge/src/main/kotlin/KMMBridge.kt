@@ -59,16 +59,24 @@ interface KmmBridgeExtension {
         )
     }
 
+    fun githubRelease(
+        artifactRelease: String? = null
+    ) {
+        artifactManager.set(GithubReleaseArtifactManager(artifactRelease))
+        versionManager.set(GitTagVersionManager)
+    }
+
     fun Project.faktoryServer(faktoryReadKey: String? = null) {
         artifactManager.set(FaktoryServerArtifactManager(faktoryReadKey, this))
     }
 
     fun Project.spm(
         spmDirectory: String? = null,
+        commitVersionStrategy: SpmDependencyManager.CommitVersionStrategy = SpmDependencyManager.CommitVersionStrategy.GitTag,
         packageName: String = project.name,
     ) {
         val swiftPackageFolder = spmDirectory ?: projectDir.path
-        val dependencyManager = SpmDependencyManager(swiftPackageFolder, packageName)
+        val dependencyManager = SpmDependencyManager(swiftPackageFolder, commitVersionStrategy, packageName)
         dependencyManagers.set(dependencyManagers.getOrElse(emptyList()) + dependencyManager)
     }
 
@@ -77,7 +85,7 @@ interface KmmBridgeExtension {
 
         val specRepo = if (specRepoUrl == null) SpecRepo.Trunk else SpecRepo.Private(specRepoUrl)
 
-        val dependencyManager = MultiRepoCocoapodsDependencyManager(specRepo)
+        val dependencyManager = CocoapodsDependencyManager(specRepo)
         dependencyManagers.set(dependencyManagers.getOrElse(emptyList()) + dependencyManager)
     }
 }
