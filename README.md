@@ -56,16 +56,13 @@ Changes are made and tested to the shared Kotlin, then pushed to source control.
 * Publish the Xcode Framework zip
 * Generate `Package.swift` file and/or a Cocoapods podspec file
 
-## Components
+## Simple Getting Started Setup
 
-### Artifact Managers
+If you are using Github for source control, and are OK with using Github Actions to build and Github releases for published artifacts, we have a very simple setup flow you can use. It is the easiest default to start from.
 
-Artifact Manager handle uploading the binary and generating the url that will be used to access the binary. These implementations are very specific to the back end hosting being used. There are currently implementations for Github Releases, S3, and Faktory (our server). Standard Gradle/Maven repo publishing is coming soon.
+See [DEFAULT_GITHUB_FLOW](docs/DEFAULT_GITHUB_FLOW.md) for setup instructions.
 
-### Dependency Managers
+## Detailed Configuration Documentation
 
-Dependency managers handle integration with Cocoapods and SPM. They manage generating the config files (podspec or Package.swift), and the publishing of the releases. There are currently only two implementations: CocoapodsDependencyManager and  SpmDependencyManager.
+For non-Github installations, other artifact locations, etc, see [CONFIGURATION_OVERVIEW](docs/CONFIGURATION_OVERVIEW.md).
 
-### Version Managers
-
-Version managers take a version prefix and append a new version to it on every publish. Doing this makes publishing multiple dev versions easier, but you can also opt for explicit versioning. Currently implementations either append a timestamp, use git tags, or Github releases.
