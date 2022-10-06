@@ -1,4 +1,4 @@
-package co.touchlab.faktory.co.touchlab.faktory.internal
+package co.touchlab.faktory.internal
 
 import org.gradle.api.GradleException
 import org.gradle.api.Project

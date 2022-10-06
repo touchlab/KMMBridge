@@ -1,6 +1,6 @@
 package co.touchlab.faktory
 
-import co.touchlab.faktory.co.touchlab.faktory.internal.GithubCalls
+import co.touchlab.faktory.internal.GithubCalls
 import org.gradle.api.Project
 import java.io.File
 
