@@ -78,7 +78,7 @@ interface KmmBridgeExtension {
     }
 
     fun githubReleaseVersions() {
-        versionManager.set(GitReleaseVersionManager)
+        versionManager.set(GithubReleaseVersionManager)
     }
 
     fun Project.spm(
