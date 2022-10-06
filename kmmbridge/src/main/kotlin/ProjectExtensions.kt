@@ -16,7 +16,8 @@ internal val Project.urlFile get() = file("$buildDir/faktory/url")
 internal val Project.versionFile get() = file("$buildDir/faktory/version")
 
 // Cocoapods is an extension of KMP extension so you can't just do project.extensions.getByType<CocoapodsExtension>()
-internal val KotlinMultiplatformExtension.cocoapods get() = (this as ExtensionAware).extensions.findByType<CocoapodsExtension>()
+internal val KotlinMultiplatformExtension.cocoapodsOrNull get() = (this as ExtensionAware).extensions.findByType<CocoapodsExtension>()
+internal val KotlinMultiplatformExtension.cocoapods get() = cocoapodsOrNull
     ?: error("You must apply the org.jetbrains.kotlin.native.cocoapods plugin to use cocoapods() configuration")
 
 internal val Project.githubPublishToken

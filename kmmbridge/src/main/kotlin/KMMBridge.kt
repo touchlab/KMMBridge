@@ -140,9 +140,10 @@ class KMMBridgePlugin : Plugin<Project> {
         extension.buildType.convention(NativeBuildType.RELEASE)
         extension.versionManager.convention(ManualVersionManager)
 
-        // Don't call `kotlin.cocoapods` because that will throw if we don't have cocoapods plugin applied
-        val fallbackVersion =
-            (kotlin as ExtensionAware).extensions.findByType<CocoapodsExtension>()?.version ?: version.toString()
+        // Don't call `kotlin` directly as that'd create an order dependency on the Kotlin Multiplatform plugin
+        val fallbackVersion = project.provider {
+            kotlin.cocoapodsOrNull?.version ?: version.toString()
+        }
         extension.versionPrefix.convention(fallbackVersion)
 
         afterEvaluate {
@@ -254,4 +255,3 @@ internal fun Project.findXCFrameworkAssembleTask(buildType: NativeBuildType? = n
         throw UnknownTaskException("Cannot find XCFramework assemble task. Tried ${taskWithName} and ${taskWithoutName}.")
     }
 }
-
