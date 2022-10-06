@@ -33,6 +33,18 @@ pluginManagement {
 }
 ```
 
+Note: If you're using a SNAPSHOT version of the plugin, add the SNAPSHOT repo as well:
+
+```kotlin
+pluginManagement {
+    repositories {
+        gradlePluginPortal()
+        mavenCentral()
+        maven("https://oss.sonatype.org/content/repositories/snapshots")
+    }
+}
+```
+
 ### 2 Modify the Gradle Build
 
 Find the `build.gradle.kts` file where you configure the multiplatform module you'd like to publish. Add the KMM Bridge Gradle plugin:

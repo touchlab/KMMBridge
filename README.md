@@ -25,6 +25,18 @@ pluginManagement {
 }
 ```
 
+Note: If you're using a SNAPSHOT version of the plugin, add the SNAPSHOT repo as well:
+
+```kotlin
+pluginManagement {
+    repositories {
+        gradlePluginPortal()
+        mavenCentral()
+        maven("https://oss.sonatype.org/content/repositories/snapshots")
+    }
+}
+```
+
 Then add the plugin to the module that is actually building the Xcode Framework. In the `build.gradle.kts` file:
 
 ```kotlin
