@@ -217,10 +217,12 @@ class KMMBridgePlugin : Plugin<Project> {
             dependsOn(zipTask)
             inputs.file(zipFile)
             outputs.files(urlFile, versionFile)
+            outputs.upToDateWhen { false } // We want to always upload when this task is called
 
             doLast {
                 val version = extension.versionManager.get().getVersion(project, extension.versionPrefix.get())
                 versionFile.writeText(version)
+                logger.info("Uploading XCFramework version $version")
                 val deployUrl = artifactManager.deployArtifact(project, zipFile, version)
                 urlFile.writeText(deployUrl)
             }
