@@ -163,6 +163,8 @@ class KMMBridgePlugin : Plugin<Project> {
         val extension = extensions.getByType<KmmBridgeExtension>()
         var xcFrameworkConfig: XCFrameworkConfig? = null
 
+        val spmBuildTargets: Set<String> = project.spmBuildTargets?.split(",")?.map { it.trim() }?.filter { it.isNotEmpty() }?.toSet() ?: emptySet()
+
         kotlin.targets
             .withType<KotlinNativeTarget>()
             .filter { it.konanTarget.family.isAppleFamily }
@@ -177,24 +179,14 @@ class KMMBridgePlugin : Plugin<Project> {
                         throw IllegalStateException("Only one framework name currently allowed. Found $currentName and $theName")
                     }
                 }
-                if (xcFrameworkConfig == null) {
-                    xcFrameworkConfig = XCFramework(theName)
+                val shouldAddTarget = spmBuildTargets.isEmpty() || spmBuildTargets.contains(framework.target.konanTarget.name)
+                if(shouldAddTarget) {
+                    if (xcFrameworkConfig == null) {
+                        xcFrameworkConfig = XCFramework(theName)
+                    }
+                    xcFrameworkConfig!!.add(framework)
                 }
-                xcFrameworkConfig!!.add(framework)
             }
-    }
-
-    private fun Project.findXCFrameworkAssembleTask(): Task {
-        val extension = extensions.getByType<KmmBridgeExtension>()
-        val name = extension.frameworkName.get()
-        val buildTypeString = extension.buildType.get().getName().capitalize()
-        val taskWithoutName = "assemble${buildTypeString}XCFramework"
-        val taskWithName = "assemble${name.capitalize()}${buildTypeString}XCFramework"
-        return try {
-            tasks.findByName(taskWithName) ?: tasks.findByPath(taskWithoutName)!!
-        } catch (e: Exception) {
-            throw UnknownTaskException("Cannot find XCFramework assemble task. Tried ${taskWithName} and ${taskWithoutName}.")
-        }
     }
 
     private fun Project.configureDeploy() {
@@ -245,6 +237,19 @@ class KMMBridgePlugin : Plugin<Project> {
         for (dependencyManager in dependencyManagers) {
             dependencyManager.configure(this, uploadTask, publishRemoteTask)
         }
+    }
+}
+
+internal fun Project.findXCFrameworkAssembleTask(buildType: NativeBuildType? = null): Task {
+    val extension = extensions.getByType<KmmBridgeExtension>()
+    val name = extension.frameworkName.get()
+    val buildTypeString = (buildType ?: extension.buildType.get()).getName().capitalize()
+    val taskWithoutName = "assemble${buildTypeString}XCFramework"
+    val taskWithName = "assemble${name.capitalize()}${buildTypeString}XCFramework"
+    return try {
+        tasks.findByName(taskWithName) ?: tasks.findByPath(taskWithoutName)!!
+    } catch (e: Exception) {
+        throw UnknownTaskException("Cannot find XCFramework assemble task. Tried ${taskWithName} and ${taskWithoutName}.")
     }
 }
 
