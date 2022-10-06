@@ -1,5 +1,6 @@
 package co.touchlab.faktory
 
+import org.gradle.api.Action
 import org.gradle.api.Project
 import org.gradle.api.Task
 import org.gradle.api.tasks.Exec
@@ -24,9 +25,12 @@ class CocoapodsDependencyManager(
             inputs.files(project.urlFile, project.versionFile)
             outputs.file(podSpecFile)
             dependsOn(uploadTask)
-            doLast {
-                project.generatePodspec(project.file(podSpecFile))
-            }
+            @Suppress("ObjectLiteralToLambda")
+            doLast(object : Action<Task> {
+                override fun execute(t: Task) {
+                    project.generatePodspec(project.file(podSpecFile))
+                }
+            })
         }
 
         val pushRemotePodspecTask = project.task<Exec>("pushRemotePodspec") {

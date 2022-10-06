@@ -1,6 +1,7 @@
 package co.touchlab.faktory
 
 import co.touchlab.faktory.internal.procRunFailLog
+import org.gradle.api.Action
 import org.gradle.api.Project
 import org.gradle.api.Task
 import org.jetbrains.kotlin.gradle.plugin.mpp.NativeBuildType
@@ -24,18 +25,21 @@ class SpmDependencyManager(
             val zipFile = project.zipFilePath()
             inputs.files(zipFile, project.urlFile, project.versionFile)
 
-            doLast {
-                val checksum = project.findSpmChecksum(zipFile)
-                val url = project.urlFile.readText()
+            @Suppress("ObjectLiteralToLambda")
+            doLast(object : Action<Task> {
+                override fun execute(t: Task) {
+                    val checksum = project.findSpmChecksum(zipFile)
+                    val url = project.urlFile.readText()
 
-                project.writePackageFile(packageName, url, checksum)
+                    project.writePackageFile(packageName, url, checksum)
 
-                val version = project.versionFile.readText()
+                    val version = project.versionFile.readText()
 
-                project.procRunFailLog("git", "add", ".")
-                project.procRunFailLog("git", "commit", "-m", "KMM SPM package release for $version")
-                project.procRunFailLog("git", "push")
-            }
+                    project.procRunFailLog("git", "add", ".")
+                    project.procRunFailLog("git", "commit", "-m", "KMM SPM package release for $version")
+                    project.procRunFailLog("git", "push")
+                }
+            })
         }
 
         updatePackageSwiftTask.dependsOn(uploadTask)
