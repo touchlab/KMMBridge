@@ -40,7 +40,7 @@ Find the `build.gradle.kts` file where you configure the multiplatform module yo
 ```kotlin
 plugins {
     kotlin("multiplatform")
-    id("co.touchlab.faktory.kmmbridge") version "0.1.15"
+    id("co.touchlab.faktory.kmmbridge") version "0.1.XX"
 }
 ```
 
@@ -48,18 +48,21 @@ Later in the same file, add the `kmmbridge` config block:
 
 ```kotlin
 kmmbridge {
-    githubRelease()
+    githubReleaseArtifacts()
+    githubReleaseVersions()
     spm("..")
     cocoapods("git@github.com:touchlab/PodSpecs.git")
     versionPrefix.set("0.3")
 }
 ```
 
-`githubRelease()` is mandatory for this flow. Without that, files will not be published anywhere (there are other publishing options available).
+`githubReleaseArtifacts()` is mandatory for this flow. Without that, files will not be published anywhere (there are other publishing options available).
 
-`spm("..")` only needs to be added if you want to support SPM. The parameter points at the root directory of your repo. In this case, we have the KMP module in a folder under the repo, so the repo root is one level up. This is where your `Package.swift` files should be stored.
+`githubReleaseVersions()` is highly recommended. This will use Github releases for release tracking and incrementing.
 
-Note: this config is only for SPM publishing. To understand how to locally develop with SPM and Kotlin, see [SPM_DEVELOPMENT](SPM_DEVELOPMENT.md).
+`spm("..")` only needs to be added if you want to support SPM. The parameter points at the root directory of your repo. In this case, we have the KMP module in a folder under the repo, so the repo root is one level up. This is where your `Package.swift` file should be stored.
+
+Note: this config is only for SPM publishing. To understand how to integrate an SPM build into Xcode, and how to locally build and test Kotlin changes, see [IOS_SPM](IOS_SPM.md).
 
 `cocoapods("[some git repo].git")` is only needed if you plan to publish for Cocoapods. You will need the spec repo mentioned above, properly configured for deployment. See  [COCOAPODS_GITHUB_PODSPEC](COCOAPODS_GITHUB_PODSPEC.md) for details on getting the podspec repo configured.
 
