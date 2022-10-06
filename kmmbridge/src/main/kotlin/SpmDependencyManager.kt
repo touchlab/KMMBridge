@@ -3,6 +3,7 @@ package co.touchlab.faktory
 import co.touchlab.faktory.internal.procRunFailLog
 import org.gradle.api.Project
 import org.gradle.api.Task
+import org.jetbrains.kotlin.gradle.plugin.mpp.NativeBuildType
 import java.io.ByteArrayOutputStream
 import java.io.File
 import java.nio.charset.Charset
@@ -39,6 +40,12 @@ class SpmDependencyManager(
 
         updatePackageSwiftTask.dependsOn(uploadTask)
         publishRemoteTask.dependsOn(updatePackageSwiftTask)
+
+        project.task("spmDevBuild") {
+            group = TASK_GROUP_NAME
+            dependsOn(project.findXCFrameworkAssembleTask(NativeBuildType.DEBUG))
+            project.writePackageFile(makeLocalDevPackageFileText(packageName, project))
+        }
     }
 
     private fun Project.writePackageFile(packageName: String, url: String, checksum: String){
@@ -88,6 +95,40 @@ internal fun stripEndSlash(path: String): String {
     } else {
         path
     }
+}
+
+private fun makeLocalDevPackageFileText(packageName: String, project: Project): String {
+    val extension = project.kmmBridgeExtension
+
+    val xcFrameworkPath = extension.xcFrameworkPath.getOrElse("${project.projectDir.name}/build/XCFrameworks/${NativeBuildType.DEBUG.getName()}")
+    val packageFileString = """
+// swift-tools-version:5.3
+import PackageDescription
+
+let packageName = "$packageName"
+
+let package = Package(
+    name: packageName,
+    platforms: [
+        .iOS(.v13)
+    ],
+    products: [
+        .library(
+            name: packageName,
+            targets: [packageName]
+        ),
+    ],
+    targets: [
+        .binaryTarget(
+            name: packageName,
+            path: "./${xcFrameworkPath}/\(packageName).xcframework"
+        )
+        ,
+    ]
+)
+""".trimIndent()
+
+    return packageFileString
 }
 
 private fun makePackageFileText(packageName: String, url:String, checksum: String): String = """

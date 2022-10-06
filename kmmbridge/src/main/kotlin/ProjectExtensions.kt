@@ -27,6 +27,9 @@ internal val Project.githubRepo
     get() = (project.findStringProperty("GITHUB_REPO")
         ?: throw IllegalArgumentException("KMM Bridge Github operations need a repo param or property GITHUB_REPO"))
 
+internal val Project.spmBuildTargets: String?
+    get() = project.findStringProperty("spmBuildTargets")
+
 internal fun Project.zipFilePath(): File {
     val tempDir = file("$buildDir/faktory/zip")
     val artifactName = "frameworkarchive.zip"
