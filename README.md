@@ -30,7 +30,7 @@ Then add the plugin to the module that is actually building the Xcode Framework.
 ```kotlin
 plugins {
     kotlin("multiplatform")
-    id("co.touchlab.faktory.kmmbridge") version "0.1.15"
+    id("co.touchlab.faktory.kmmbridge") version "0.1.XX"
 }
 ```
 
@@ -38,7 +38,8 @@ At the top level in the same file, put the `kmmbridge` configuration:
 
 ```kotlin
 kmmbridge {
-    githubRelease()
+    githubReleaseArtifacts()
+    githubReleaseVersions()
     spm("..")
     cocoapods("git@github.com:touchlab/PodSpecs.git")
     versionPrefix.set("0.3")
