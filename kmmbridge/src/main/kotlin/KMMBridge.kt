@@ -39,7 +39,7 @@ interface KmmBridgeExtension {
 
     val versionPrefix: Property<String>
 
-    fun s3Public(
+    fun s3PublicArtifacts(
         region: String,
         bucket: String,
         accessKeyId: String,
@@ -59,24 +59,34 @@ interface KmmBridgeExtension {
         )
     }
 
-    fun githubRelease(
+    fun githubReleaseArtifacts(
         artifactRelease: String? = null
     ) {
         artifactManager.set(GithubReleaseArtifactManager(artifactRelease))
+    }
+
+    fun Project.faktoryServerArtifacts(faktoryReadKey: String? = null) {
+        artifactManager.set(FaktoryServerArtifactManager(faktoryReadKey, this))
+    }
+
+    fun timestampVersions() {
+        versionManager.set(TimestampVersionManager)
+    }
+
+    fun gitTagVersions() {
         versionManager.set(GitTagVersionManager)
     }
 
-    fun Project.faktoryServer(faktoryReadKey: String? = null) {
-        artifactManager.set(FaktoryServerArtifactManager(faktoryReadKey, this))
+    fun githubReleaseVersions() {
+        versionManager.set(GitReleaseVersionManager)
     }
 
     fun Project.spm(
         spmDirectory: String? = null,
-        commitVersionStrategy: SpmDependencyManager.CommitVersionStrategy = SpmDependencyManager.CommitVersionStrategy.GitTag,
         packageName: String = project.name,
     ) {
         val swiftPackageFolder = spmDirectory ?: projectDir.path
-        val dependencyManager = SpmDependencyManager(swiftPackageFolder, commitVersionStrategy, packageName)
+        val dependencyManager = SpmDependencyManager(swiftPackageFolder, packageName)
         dependencyManagers.set(dependencyManagers.getOrElse(emptyList()) + dependencyManager)
     }
 
@@ -110,6 +120,12 @@ interface VersionManager {
      * Compute a final version to use for publication, based on the plugin versionPrefix
      */
     fun getVersion(project: Project, versionPrefix: String): String
+
+    /**
+     * Versions that need to write somewhere need to do it after everything else is done.
+     * Called after dependency managers are done.
+     */
+    fun recordVersion(project: Project, versionString: String)
 }
 
 internal const val TASK_GROUP_NAME = "kmmbridge"
@@ -221,6 +237,9 @@ class KMMBridgePlugin : Plugin<Project> {
         val publishRemoteTask = task("kmmBridgePublish") {
             group = TASK_GROUP_NAME
             dependsOn(uploadTask)
+            doLast {
+                extension.versionManager.get().recordVersion(project, versionFile.readText())
+            }
         }
 
         for (dependencyManager in dependencyManagers) {
