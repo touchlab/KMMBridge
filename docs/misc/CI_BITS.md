@@ -7,7 +7,7 @@ If you have a multirepo setup, and you want your separate iOS repo to be able to
 for CI, you'll need to repeat the steps for creating, adding, and using a deploy key above. When you add a deploy key for
 a consumer only you should leave write access off to limit the permissions as much as possible.
 
-See [the accompanying iOS repo](https://github.com/touchlab/FaktoryMultirepoDemoXcode) for an example.
+[//]: # (See [the accompanying iOS repo]&#40;https://github.com/touchlab/FaktoryMultirepoDemoXcode&#41; for an example.)
 
 ## Using HTTPS
 If you need to be able to access the Podspec repo via HTTPS in CI you'll need to do a bit of extra configuration in your

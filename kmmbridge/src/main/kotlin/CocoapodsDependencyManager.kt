@@ -18,7 +18,7 @@ class CocoapodsDependencyManager(
     override fun configure(project: Project, uploadTask: Task, publishRemoteTask: Task) {
 
         val podSpecFile =
-            "${project.buildDir}/XCFrameworks/${project.kmmBridgeExtension.buildType.get().name.toLowerCase()}/${project.kotlin.cocoapods.name}.podspec"
+            "${project.buildDir}/faktory/podspec/${project.kmmBridgeExtension.buildType.get().name.toLowerCase()}/${project.kotlin.cocoapods.name}.podspec"
 
         val generatePodspecTask = project.task("generateReleasePodspec") {
             inputs.files(project.urlFile, project.versionFile)
