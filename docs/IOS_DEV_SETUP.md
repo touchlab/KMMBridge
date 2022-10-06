@@ -12,9 +12,7 @@ If you are using private Github artifacts, you'll need to add auth info for that
 
 ## Using Cocoapods
 
-* Add spec repo
-* Add module to Podfile
-* Make sure to specify versions such that 'pod update' gets new versions (optimistic operator) https://guides.cocoapods.org/using/the-podfile.html
+See:  [IOS_COCOAPODS](IOS_COCOAPODS.md)
 
 ## Using SPM
 
