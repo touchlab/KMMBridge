@@ -69,7 +69,6 @@ which will handle adding the private key to the ssh agent with `ssh-add` so that
 ```
 
 For this to work you'll need to make sure you use the ssh address of your repo in the KMM Bridge config block, not the `https` address.
-If you need to access your podspec repo over HTTPS see [CocoapodsCIHttps.md](#CocoapodsCIHttps)
 
 ```kotlin
 kmmbridge {
