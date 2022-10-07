@@ -34,7 +34,7 @@ class CocoapodsDependencyManager(
         }
 
         val pushRemotePodspecTask = project.task<Exec>("pushRemotePodspec") {
-            group = "faktory"
+            group = TASK_GROUP_NAME
             inputs.files(podSpecFile)
             dependsOn(generatePodspecTask)
 
