@@ -1,17 +1,16 @@
 package co.touchlab.faktory
 
+import co.touchlab.faktory.internal.procRunFailLog
 import org.gradle.api.Action
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.api.Task
 import org.gradle.api.UnknownTaskException
-import org.gradle.api.plugins.ExtensionAware
 import org.gradle.api.provider.ListProperty
 import org.gradle.api.provider.Property
 import org.gradle.api.tasks.*
 import org.gradle.api.tasks.bundling.Zip
 import org.gradle.kotlin.dsl.*
-import org.jetbrains.kotlin.gradle.plugin.cocoapods.CocoapodsExtension
 import org.jetbrains.kotlin.gradle.plugin.mpp.*
 import org.jetbrains.kotlin.gradle.plugin.mpp.apple.XCFramework
 import org.jetbrains.kotlin.gradle.plugin.mpp.apple.XCFrameworkConfig
@@ -102,6 +101,11 @@ interface DependencyManager {
      * [uploadTask] and are dependencies of [publishRemoteTask].
      */
     fun configure(project: Project, uploadTask: Task, publishRemoteTask: Task) {}
+
+    /**
+     * True if this type of dependency needs git tags to function properly (currently SPM true, Cocoapods false)
+     */
+    val needsGitTags: Boolean
 }
 
 interface ArtifactManager {
@@ -122,6 +126,14 @@ interface VersionManager {
      * Called after dependency managers are done.
      */
     fun recordVersion(project: Project, versionString: String)
+}
+
+/**
+ * Write version to git tags
+ */
+internal fun writeGitTagVersion(project: Project, versionString: String) {
+    project.procRunFailLog("git", "tag", "-a", versionString, "-m", "KMM release version $versionString")
+    project.procRunFailLog("git", "push", "--follow-tags")
 }
 
 internal const val TASK_GROUP_NAME = "kmmbridge"

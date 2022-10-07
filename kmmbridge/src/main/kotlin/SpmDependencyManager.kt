@@ -97,6 +97,8 @@ class SpmDependencyManager(
     private fun Project.writePackageFile(data:String){
         file(swiftPackageFilePath).writeText(data)
     }
+
+    override val needsGitTags: Boolean = true
 }
 
 internal fun stripEndSlash(path: String): String {

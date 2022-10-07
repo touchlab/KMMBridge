@@ -7,6 +7,8 @@ object TimestampVersionManager : VersionManager {
         "${versionPrefix}.${System.currentTimeMillis()}"
 
     override fun recordVersion(project: Project, versionString: String) {
-        // Not needed
+        if(project.alwaysWriteGitTags){
+            writeGitTagVersion(project, versionString)
+        }
     }
 }
