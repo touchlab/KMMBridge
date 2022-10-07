@@ -68,7 +68,7 @@ Generally speaking, you should use GitTagVersionManager over TimestampVersionMan
 
 No automatic versioning. This version manager will get the version from Gradle (or the Jetbrains Cocoapods config, if set separately there). You'll need to make sure to increment this version if you're publishing a new version.
 
-(Note: https://github.com/touchlab/KMMBridge/issues/58 is pending. Cocoapods may overwrite rather than fail when publishing)
+(Note: KMMBridge/issues/58 is pending. Cocoapods may overwrite rather than fail when publishing)
 
 ```kotlin
 kmmbridge {
