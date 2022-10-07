@@ -51,6 +51,8 @@ class CocoapodsDependencyManager(
 
         publishRemoteTask.dependsOn(pushRemotePodspecTask)
     }
+
+    override val needsGitTags: Boolean = false
 }
 
 // Adapted from spec generation logic in the kotlin.cocoapods plugin, but we skip script phases and some other details,

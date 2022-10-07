@@ -8,6 +8,8 @@ import org.gradle.api.Project
 object ManualVersionManager : VersionManager {
     override fun getVersion(project: Project, versionPrefix: String): String = versionPrefix
     override fun recordVersion(project: Project, versionString: String) {
-        // Not needed
+        if(project.alwaysWriteGitTags){
+            writeGitTagVersion(project, versionString)
+        }
     }
 }

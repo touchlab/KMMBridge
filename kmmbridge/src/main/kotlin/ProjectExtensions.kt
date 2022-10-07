@@ -31,6 +31,9 @@ internal val Project.githubRepo
 internal val Project.spmBuildTargets: String?
     get() = project.findStringProperty("spmBuildTargets")
 
+internal val Project.alwaysWriteGitTags: Boolean
+    get() = kmmBridgeExtension.dependencyManagers.get().any { it.needsGitTags }
+
 internal fun Project.zipFilePath(): File {
     val tempDir = file("$buildDir/faktory/zip")
     val artifactName = "frameworkarchive.zip"
