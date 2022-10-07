@@ -25,6 +25,17 @@ internal fun procRun(vararg params: String, processLines: (String, Int) -> Unit)
         throw GradleException("Process failed: ${params.joinToString(" ")}")
 }
 
+//https://github.com/touchlab/KMMBridge/issues/77
+internal fun procRunIterator(vararg params: String): Iterator<String> {
+    val output = mutableListOf<String>()
+    try {
+        procRun(*params){ line, _ -> output.add(line)}
+    } catch (e: Exception) {
+        throw e
+    }
+    return output.iterator()
+}
+
 /**
  * Run a process. If it fails, write output to gradle error log and throw exception.
  */
