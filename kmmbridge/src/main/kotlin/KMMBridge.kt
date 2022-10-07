@@ -262,8 +262,8 @@ internal fun Project.findXCFrameworkAssembleTask(buildType: NativeBuildType? = n
     val taskWithoutName = "assemble${buildTypeString}XCFramework"
     val taskWithName = "assemble${name.capitalize()}${buildTypeString}XCFramework"
     return try {
-        tasks.findByName(taskWithName) ?: tasks.findByPath(taskWithoutName)!!
-    } catch (e: Exception) {
-        throw UnknownTaskException("Cannot find XCFramework assemble task. Tried ${taskWithName} and ${taskWithoutName}.")
+        tasks.findByName(taskWithName) ?: tasks.findByName(taskWithoutName)!!
+    } catch (e: NullPointerException) {
+        throw UnknownTaskException("Cannot find XCFramework assemble task. Tried ${taskWithName} and ${taskWithoutName}.", e)
     }
 }
