@@ -1,4 +1,4 @@
-KMMBridge for Teams
+# KMMBridge for Teams
 
 KMMBridge is a set of Gradle tooling that facilitates publishing and consuming pre-built KMM (Kotlin Multiplatform Mobile) Xcode Framework binaries.
 
