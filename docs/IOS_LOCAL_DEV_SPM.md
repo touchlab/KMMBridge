@@ -2,11 +2,11 @@
 
 After you have [integrated your Kotlin module into Xcode using SPM](IOS_SPM.md), you may want to locally build and test your Kotlin code when making changes.
 
-***Experimental:*** *While all of KMM Bridge is relatively new, the SPM dev flow is very experimental. The most likely issues with be path resolutions.*
+***Experimental:*** *While all of KMMBridge is relatively new, the SPM dev flow is very experimental. The most likely issues with be path resolutions.*
 
 > As mentioned, SPM is not really integrated out of the box with Kotlin, and SPM itself does not make integrations easy (generally speaking). We have some support for local dev flow, but we are looking for feedback and improvements.
 
-Since KMM Bridge is generating your `Package.swift` files, the first step is to run a dev build step to build the local dev `Package.swift` and locally build a debug version of the Kotlin code.
+Since KMMBridge is generating your `Package.swift` files, the first step is to run a dev build step to build the local dev `Package.swift` and locally build a debug version of the Kotlin code.
 
 ```shell
 ./gradlew spmDevBuild

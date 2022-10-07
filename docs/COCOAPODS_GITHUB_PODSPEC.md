@@ -12,7 +12,7 @@ can do either. Our documentation generally assumes a CI configuration.
 
 ## Overview
 
-When using the KMM Bridge Cocoapods configuration to publish to a private podspec repo,
+When using the KMMBridge Cocoapods configuration to publish to a private podspec repo,
 you'll need to do some extra setup in your CI action to give the runner access to the podspec repo. This doc will
 give examples for GitHub actions but the same general steps should apply to other CI setups.
 
@@ -24,7 +24,7 @@ work on an empty repository that contains no commits.
 
 ## Adding the Spec Repo to Your Project
 
-Once you've created a spec repo, you'll need to pass the url to KMM Bridge in the configuration block. Make sure to use the
+Once you've created a spec repo, you'll need to pass the url to KMMBridge in the configuration block. Make sure to use the
 ssh url and not the http url or the CI setup described here won't work. 
 
 ```kotlin
@@ -70,13 +70,13 @@ In the repo for the KMM code you want to publish, go to Settings -> Secrets -> A
 
 ![img_1.png](settings_secrets.png)
 
-Click *Add Secret* and name your secret `PODSPEC_SSH_KEY`. You must match this secret name exactly for the KMM Bridge GitHub
+Click *Add Secret* and name your secret `PODSPEC_SSH_KEY`. You must match this secret name exactly for the KMMBridge GitHub
 workflow to work properly.
 
 Paste the entire contents of `deploykey` into the *Secrets* field then click *Add Secret* 
 
 ![img.png](add_secret_ssh.png)
 
-Once these keys are added, you can use the KMM Bridge workflow to handle adding the key to the ssh agent and calling 
+Once these keys are added, you can use the KMMBridge workflow to handle adding the key to the ssh agent and calling 
 the publish task to push a remote podspec to your podspec repo. For a more manual workflow setup, see [this section](https://github.com/touchlab/KMMBridgeGithubWorkflow/blob/f6075b60151caf15b8759c811b0d2458fbdd08a7/.github/workflows/faktorybuild.yml#L21) 
 in our workflow to see how the deploy key is used. 

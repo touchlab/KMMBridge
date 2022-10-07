@@ -33,4 +33,4 @@ After running `pod install`, close and reopen the `xcworkspace` file. You should
 
 > Note: It is *highly* recommended that you run `linkPodDebugFrameworkIosX64` or `linkPodDebugFrameworkIosSimulatorArm64`, depending on your Mac architecture, before you run `pod install`, due to a minor issue with the Kotlin Cocoapods integration.
 
-Once your changes are complete, push them to your repo and run the KMM Bridge build process again. When complete, you should be able to remove the local dev flow by removing the environment variable and running `pod install` again.
+Once your changes are complete, push them to your repo and run the KMMBridge build process again. When complete, you should be able to remove the local dev flow by removing the environment variable and running `pod install` again.

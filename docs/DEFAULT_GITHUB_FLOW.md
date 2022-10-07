@@ -47,7 +47,7 @@ pluginManagement {
 
 ### 2 Modify the Gradle Build
 
-Find the `build.gradle.kts` file where you configure the multiplatform module you'd like to publish. Add the KMM Bridge Gradle plugin:
+Find the `build.gradle.kts` file where you configure the multiplatform module you'd like to publish. Add the KMMBridge Gradle plugin:
 
 ```kotlin
 plugins {
@@ -85,7 +85,7 @@ Note: this config is only for SPM publishing. To understand how to integrate an 
 At the top of your project, if it does not already exist, add the folders `.github/workflows`. Add a file called `kmmbridgepnblish.yml` there, and copy the following into it.
 
 ```yaml
-name: KMM Bridge Publish Release
+name: KMMBridge Publish Release
 on: workflow_dispatch
 
 jobs:
@@ -96,7 +96,7 @@ jobs:
 Note: if you are using Cocoapods and a podspec repo, your file should look like the following:
 
 ```yaml
-name: KMM Bridge Publish Release
+name: KMMBridge Publish Release
 on: workflow_dispatch
 
 jobs:
@@ -114,7 +114,7 @@ Push your changes to Github, and make sure they're in the default branch.
 
 ## Publish a Build!
 
-Assuming your configuration is set up correctly, you should be able to publish your first build. In the Kotlin repo's Github home page, go to "Actions", select "KMM Bridge Publish Release", and manually run it.
+Assuming your configuration is set up correctly, you should be able to publish your first build. In the Kotlin repo's Github home page, go to "Actions", select "KMMBridge Publish Release", and manually run it.
 
 ![runbuild](https://tl-navigator-images.s3.us-east-1.amazonaws.com/docimages/2022-10-04_21-14-runbuild.png)
 

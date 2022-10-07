@@ -1,6 +1,6 @@
-# Faktory: KMM Bridge
+KMMBridge for Teams
 
-KMM Bridge is a set of Gradle tooling that facilitates publishing and consuming pre-built KMM (Kotlin Multiplatform Mobile) Xcode Framework binaries.
+KMMBridge is a set of Gradle tooling that facilitates publishing and consuming pre-built KMM (Kotlin Multiplatform Mobile) Xcode Framework binaries.
 
 The modules can be published to various back ends, public or private, and (currently) consumed by either Cocoapods or Swift Package Manager.
 
@@ -85,7 +85,7 @@ For non-Github installations, other artifact locations, etc, see [CONFIGURATION_
 
 ## Local Kotlin Testing
 
-KMM Bridge also provides some support for locally building and testing Kotlin-generated Frameworks directly in your Xcode project. You can "flip a switch" to run your Xcode project against Kotlin locally, to test your changes. This process differs depending on if you're using [Cocoapods](docs/IOS_LOCAL_DEV_COCOAPODS.md) and [SPM](docs/IOS_LOCAL_DEV_SPM.md).
+KMMBridge also provides some support for locally building and testing Kotlin-generated Frameworks directly in your Xcode project. You can "flip a switch" to run your Xcode project against Kotlin locally, to test your changes. This process differs depending on if you're using [Cocoapods](docs/IOS_LOCAL_DEV_COCOAPODS.md) and [SPM](docs/IOS_LOCAL_DEV_SPM.md).
 
 ## Project Status
 

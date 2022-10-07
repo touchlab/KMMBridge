@@ -22,11 +22,11 @@ internal val KotlinMultiplatformExtension.cocoapods get() = cocoapodsOrNull
 
 internal val Project.githubPublishToken
     get() = (project.property("GITHUB_PUBLISH_TOKEN")
-        ?: throw IllegalArgumentException("KMM Bridge Github operations need property GITHUB_PUBLISH_TOKEN")) as String
+        ?: throw IllegalArgumentException("KMMBridge Github operations need property GITHUB_PUBLISH_TOKEN")) as String
 
 internal val Project.githubRepo
     get() = (project.findStringProperty("GITHUB_REPO")
-        ?: throw IllegalArgumentException("KMM Bridge Github operations need a repo param or property GITHUB_REPO"))
+        ?: throw IllegalArgumentException("KMMBridge Github operations need a repo param or property GITHUB_REPO"))
 
 internal val Project.spmBuildTargets: String?
     get() = project.findStringProperty("spmBuildTargets")

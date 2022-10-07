@@ -41,11 +41,11 @@ This will take care of uploading a new binary to your artifact storage, as well 
 spec repo so the library can be consumed from non-Kotlin-aware iOS projects.
 
 The Podspec will be generated based on the same configuration used by the kotlin.cocoapods plugin, except that
-the `source` and `version` will be overridden by the KMM Bridge plugin.
+the `source` and `version` will be overridden by the KMMBridge plugin.
 
 ### Version numbering
 
-The KMM Bridge plugin does some automated version management in order to ensure that new library versions are published
+The KMMBridge plugin does some automated version management in order to ensure that new library versions are published
 with a consistently increasing version number. A base version is set either in the `cocoapods` block or directly on the
 gradle project, as managed by the kotlin.cocoapods plugin.
 

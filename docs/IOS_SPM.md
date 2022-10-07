@@ -6,11 +6,11 @@ Out of the box, the Kotlin tools are far less integrated into SPM. We have some 
 
 ## Kotlin Project Configuration
 
-After setting up KMM Bridge in your Kotlin project, you should configure SPM for library publishing. Generally speaking, SPM wants to have the `Package.swift` file in the root of the repo. Xcode and SPM use git repos as an organizational and discovery unit. The `Package.swift` file goes in the root, and Xcode clones from Github (or others) to read info about the library and source code.
+After setting up KMMBridge in your Kotlin project, you should configure SPM for library publishing. Generally speaking, SPM wants to have the `Package.swift` file in the root of the repo. Xcode and SPM use git repos as an organizational and discovery unit. The `Package.swift` file goes in the root, and Xcode clones from Github (or others) to read info about the library and source code.
 
-If you don't have a `Package.swift` file, or don't know how to set one up, that's OK. KMM Bridge currently generates these files for you.
+If you don't have a `Package.swift` file, or don't know how to set one up, that's OK. KMMBridge currently generates these files for you.
 
-> Note: If you'd prefer, or need to, manage your own `Package.swift` file, please reach out. An earlier version of the plugin modified the file rather than replacing it. We may add that feature back after KMM Bridge is more stable.
+> Note: If you'd prefer, or need to, manage your own `Package.swift` file, please reach out. An earlier version of the plugin modified the file rather than replacing it. We may add that feature back after KMMBridge is more stable.
 
 In the `kmmbridge` block, add `spm()`, and point the parameter to the root folder of your repo.
 
@@ -52,7 +52,7 @@ Once added, you should be able to import the Kotlin module into Swift/Objc files
 
 ## Updating Builds
 
-Run the KMM Bridge build again. It should automatically create another build version and publish that to the Github repo. In Xcode, you can update your imported version by right-clicking on the module and selecting "Update Package":
+Run the KMMBridge build again. It should automatically create another build version and publish that to the Github repo. In Xcode, you can update your imported version by right-clicking on the module and selecting "Update Package":
 
 ![updatepackage](https://tl-navigator-images.s3.us-east-1.amazonaws.com/docimages/2022-10-06_07-04-updatepackage.png)
 

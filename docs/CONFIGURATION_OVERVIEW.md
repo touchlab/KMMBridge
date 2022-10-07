@@ -21,7 +21,7 @@ Dependency managers handle integration with Cocoapods and SPM. They manage gener
 
 ### Version Managers
 
-KMM Bridge is designed to allow you to publish updates to your iOS Kotlin code as development progresses. That often means several minor versions in between major ones. To support this, we've added an interface called `VersionManager` that handles this for you.
+KMMBridge is designed to allow you to publish updates to your iOS Kotlin code as development progresses. That often means several minor versions in between major ones. To support this, we've added an interface called `VersionManager` that handles this for you.
 
 The basic process involves setting the `versionPrefix` property to, say, "0.3", and setting the version manager to something that increments automatically, then as you publish you get release history like the following:
 
@@ -30,7 +30,7 @@ The basic process involves setting the `versionPrefix` property to, say, "0.3", 
 * 0.3.2
 * etc...
 
-We (currently) don't set a version manager by default, so you'll need to select something. The version managers provided with KMM Bridge are the following:
+We (currently) don't set a version manager by default, so you'll need to select something. The version managers provided with KMMBridge are the following:
 
 #### GitTagVersionManager
 
