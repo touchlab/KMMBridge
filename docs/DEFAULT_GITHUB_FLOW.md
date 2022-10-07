@@ -70,7 +70,7 @@ kmmbridge {
 
 `githubReleaseArtifacts()` is mandatory for this flow. Without that, files will not be published anywhere (there are other publishing options available).
 
-`githubReleaseVersions()` is highly recommended. This will use Github releases for release tracking and incrementing. You can use a different version manager, but you need to configure one. See: [Version Managers](docs/CONFIGURATION_OVERVIEW.md#version-managers) for more detail.
+`githubReleaseVersions()` is highly recommended. This will use Github releases for release tracking and incrementing. You can use a different version manager, but you need to configure one. See: [Version Managers](docs/CONFIGURATION_OVERVIEW.md) for more detail.
 
 `spm("..")` only needs to be added if you want to support SPM. The parameter points at the root directory of your repo. In this case, we have the KMP module in a folder under the repo, so the repo root is one level up. This is where your `Package.swift` file should be stored.
 
