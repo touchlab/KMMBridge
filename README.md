@@ -85,7 +85,7 @@ For non-Github installations, other artifact locations, etc, see [CONFIGURATION_
 
 ## Local Kotlin Testing
 
-KMM Bridge also provides some support for locally building and testing Kotlin-generated Frameworks dircetly in your Xcode project. You can "flip a switch" to run your Xcode project against Kotlin locally, to test your changes. This process differs depending on if you're using [Cocoapods](docs/IOS_LOCAL_DEV_COCOAPODS.md) and [SPM](docs/IOS_LOCAL_DEV_SPM.md).
+KMM Bridge also provides some support for locally building and testing Kotlin-generated Frameworks directly in your Xcode project. You can "flip a switch" to run your Xcode project against Kotlin locally, to test your changes. This process differs depending on if you're using [Cocoapods](docs/IOS_LOCAL_DEV_COCOAPODS.md) and [SPM](docs/IOS_LOCAL_DEV_SPM.md).
 
 ## Project Status
 
