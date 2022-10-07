@@ -11,7 +11,7 @@ If you see `kotlin("native.cocoapods")` or `id("org.jetbrains.kotlin.native.coco
 plugins {
     kotlin("multiplatform")
     kotlin("native.cocoapods") // <--- This
-    id("co.touchlab.faktory.kmmbridge") version "0.x.y"
+    id("co.touchlab.faktory.kmmbridge") version "x.y.z"
 }
 ```
 

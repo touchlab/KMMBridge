@@ -62,7 +62,7 @@ Then add the plugin to the module that is actually building the Xcode Framework.
 ```kotlin
 plugins {
     kotlin("multiplatform")
-    id("co.touchlab.faktory.kmmbridge") version "0.1.XX"
+    id("co.touchlab.faktory.kmmbridge") version "0.2.0"
 }
 ```
 
