@@ -81,4 +81,4 @@ For non-Github installations, other artifact locations, etc, see [CONFIGURATION_
 
 ## See Also
 
-[TROUBLESHOOTING](TROUBLESHOOTING.md)
+[TROUBLESHOOTING](docs/TROUBLESHOOTING.md)
