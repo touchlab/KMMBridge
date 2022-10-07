@@ -21,7 +21,7 @@ Dependency managers handle integration with Cocoapods and SPM. They manage gener
 
 ### Version Managers
 
-By default, when you publish a build with KMM Bridge, it'll get the version from Gradle, so you'll need to update that version manually every time you want to publish a new version. However, for ongoing development, incrementing minor versions automatically can be more productive.
+KMM Bridge is designed to allow you to publish updates to your iOS Kotlin code as development progresses. That often means several minor versions in between major ones. To support this, we've added an interface called `VersionManager` that handles this for you.
 
 The basic process involves setting the `versionPrefix` property to, say, "0.3", and setting the version manager to something that increments automatically, then as you publish you get release history like the following:
 
@@ -30,11 +30,7 @@ The basic process involves setting the `versionPrefix` property to, say, "0.3", 
 * 0.3.2
 * etc...
 
-The version managers provided with KMM Bridge are the following:
-
-#### ManualVersionManager
-
- Default. No automatic versioning. Just use Gradle's version.
+We (currently) don't set a version manager by default, so you'll need to select something. The version managers provided with KMM Bridge are the following:
 
 #### GitTagVersionManager
 
@@ -67,3 +63,15 @@ kmmbridge {
 ```
 
 Generally speaking, you should use GitTagVersionManager over TimestampVersionManager, but both will work fine.
+
+#### ManualVersionManager
+
+No automatic versioning. This version manager will get the version from Gradle (or the Jetbrains Cocoapods config, if set separately there). You'll need to make sure to increment this version if you're publishing a new version.
+
+(Note: https://github.com/touchlab/KMMBridge/issues/58 is pending. Cocoapods may overwrite rather than fail when publishing)
+
+```kotlin
+kmmbridge {
+  manualVersions()
+}
+```

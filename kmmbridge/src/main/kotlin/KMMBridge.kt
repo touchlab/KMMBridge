@@ -2,6 +2,7 @@ package co.touchlab.faktory
 
 import co.touchlab.faktory.internal.procRunFailLog
 import org.gradle.api.Action
+import org.gradle.api.GradleException
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.api.Task
@@ -76,6 +77,10 @@ interface KmmBridgeExtension {
         versionManager.set(GithubReleaseVersionManager)
     }
 
+    fun manualVersions() {
+        versionManager.set(ManualVersionManager)
+    }
+
     fun Project.spm(
         spmDirectory: String? = null,
         packageName: String = project.name,
@@ -146,7 +151,6 @@ class KMMBridgePlugin : Plugin<Project> {
         val extension = extensions.create<KmmBridgeExtension>(EXTENSION_NAME)
         extension.dependencyManagers.convention(emptyList())
         extension.buildType.convention(NativeBuildType.RELEASE)
-        extension.versionManager.convention(ManualVersionManager)
 
         // Don't call `kotlin` directly as that'd create an order dependency on the Kotlin Multiplatform plugin
         val fallbackVersion = project.provider {
@@ -223,7 +227,8 @@ class KMMBridgePlugin : Plugin<Project> {
             @Suppress("ObjectLiteralToLambda")
             doLast(object : Action<Task> {
                 override fun execute(t: Task) {
-                    val version = extension.versionManager.get().getVersion(project, extension.versionPrefix.get())
+                    val versionManager = extension.versionManager.orNull ?: throw GradleException("versionManager must be specified")
+                    val version = versionManager.getVersion(project, extension.versionPrefix.get())
                     versionFile.writeText(version)
                     logger.info("Uploading XCFramework version $version")
                     val deployUrl = artifactManager.deployArtifact(project, zipFile, version)
