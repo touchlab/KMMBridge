@@ -1,6 +1,5 @@
 package co.touchlab.faktory
 
-import org.gradle.api.Project
 import java.lang.Integer.max
 
 internal fun prepVersionString(versionPrefix: String): String {
@@ -18,8 +17,8 @@ internal fun prepVersionString(versionPrefix: String): String {
     return versionWithDot
 }
 
-internal fun maxVersion(versionPrefixTrimmed: String, versions: Iterator<String>): Int {
-    return (versions.asSequence()
+internal fun maxVersion(versionPrefixTrimmed: String, versions: Sequence<String>): Int {
+    return (versions
         .map { line ->
             val versionNumber = findVersionNumber(versionPrefixTrimmed, line)
             versionNumber

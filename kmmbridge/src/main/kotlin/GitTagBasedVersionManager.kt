@@ -1,7 +1,6 @@
 package co.touchlab.faktory
 
-import co.touchlab.faktory.internal.procRun
-import co.touchlab.faktory.internal.procRunIterator
+import co.touchlab.faktory.internal.procRunSequence
 import co.touchlab.faktory.internal.procRunWarnLog
 import org.gradle.api.Project
 
@@ -13,7 +12,11 @@ abstract class GitTagBasedVersionManager : VersionManager {
         // more complex git setups. If call fails, we'll get a warning but keep going.
         project.procRunWarnLog("git", "pull", "--tags")
 
-        val maxCount = maxVersion(versionPrefixTrimmed, procRunIterator("git", "tag"))
+        var maxCount = 0
+
+        procRunSequence("git", "tag") { sequence ->
+            maxCount = maxVersion(versionPrefixTrimmed, sequence)
+        }
 
         return "${versionPrefixTrimmed}${maxCount + 1}"
     }
