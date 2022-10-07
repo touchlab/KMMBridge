@@ -27,11 +27,6 @@ interface KmmBridgeExtension {
 
     val dependencyManagers: ListProperty<DependencyManager>
 
-    /**
-     * If the code is built externally, just pass in a path.
-     */
-    val xcFrameworkPath: Property<String>
-
     val artifactManager: Property<ArtifactManager>
 
     val buildType: Property<NativeBuildType>
@@ -152,10 +147,7 @@ class KMMBridgePlugin : Plugin<Project> {
                 error("You must apply an artifact manager! Call `artifactManager.set(...)` or a configuration function like `githubRelease()` in your `kmmbridge {}` block.")
             }
 
-            if (extension.xcFrameworkPath.orNull == null) {
-                configureXcFramework()
-            }
-
+            configureXcFramework()
             configureDeploy()
         }
     }
@@ -194,18 +186,13 @@ class KMMBridgePlugin : Plugin<Project> {
     private fun Project.configureDeploy() {
         val extension = extensions.getByType<KmmBridgeExtension>()
 
-        val jbXcFrameworkBuild = extension.xcFrameworkPath.orNull == null
-
-        val xcFrameworkPath = extension.xcFrameworkPath
-            .getOrElse("$buildDir/XCFrameworks/${extension.buildType.get().getName()}")
+        val xcFrameworkPath = "$buildDir/XCFrameworks/${extension.buildType.get().getName()}"
         val artifactManager = extension.artifactManager.get()
         val zipFile = zipFilePath()
 
         val zipTask = task<Zip>("zipXCFramework") {
             group = TASK_GROUP_NAME
-            if (jbXcFrameworkBuild) {
-                dependsOn(findXCFrameworkAssembleTask())
-            }
+            dependsOn(findXCFrameworkAssembleTask())
 
             from(xcFrameworkPath)
             destinationDirectory.set(zipFile.parentFile)
