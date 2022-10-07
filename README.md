@@ -12,6 +12,12 @@ Building and publishing binary Xcode Frameworks from Kotlin is certainly possibl
 
 For more context, see Nate Ebel’s talk from Droidcon NYC 2022: [Adopting Kotlin Multiplatform in Brownfield Applications](https://www.droidcon.com/2022/09/29/adopting-kotlin-multiplatform-in-brownfield-applications/). It's a very good overview of the startup issues teams face.
 
+## Simple Getting Started Setup
+
+If you are using Github for source control, and are OK with using Github Actions to build and Github releases for published artifacts, we have a simple setup flow you can use. It is the easiest default to start from.
+
+See [DEFAULT_GITHUB_FLOW](docs/DEFAULT_GITHUB_FLOW.md) for setup instructions.
+
 ## Configuration
 
 The plugin is currently published to the maven central repo. If needed, makes sure to add the `mavenCentral()` repo to `pluginManagement` or the `buildscript` block:
@@ -69,15 +75,17 @@ Changes are made and tested to the shared Kotlin, then pushed to source control.
 * Publish the Xcode Framework zip
 * Generate `Package.swift` file and/or a Cocoapods podspec file
 
-## Simple Getting Started Setup
+The iOS app can then include these frameworks through SPM or Cocoapods.
 
-If you are using Github for source control, and are OK with using Github Actions to build and Github releases for published artifacts, we have a very simple setup flow you can use. It is the easiest default to start from.
-
-See [DEFAULT_GITHUB_FLOW](docs/DEFAULT_GITHUB_FLOW.md) for setup instructions.
+![kmmbridge_diagram2](https://tl-navigator-images.s3.us-east-1.amazonaws.com/docimages/2022-10-07_09-13-kmmbridge_diagram2.png)
 
 ## Detailed Configuration Documentation
 
 For non-Github installations, other artifact locations, etc, see [CONFIGURATION_OVERVIEW](docs/CONFIGURATION_OVERVIEW.md).
+
+## Local Development Flow
+
+KMM Bridge also provides some support for locally building and testing Kotlin-generated Frameworks dircetly in your Xcode project. You can "flip a switch" to run your Xcode project against Kotlin locally, to test your changes. This process differs depending on if you're using [Cocoapods](docs/IOS_LOCAL_DEV_COCOAPODS.md) and [SPM](IOS_LOCAL_DEV_SPM.md).
 
 ## Project Status
 
