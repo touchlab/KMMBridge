@@ -18,6 +18,20 @@ If you are using Github for source control, and are OK with using Github Actions
 
 See [DEFAULT_GITHUB_FLOW](docs/DEFAULT_GITHUB_FLOW.md) for setup instructions.
 
+## Basic Flow
+
+The basic concept is that after making some changes to Kotlin code, you'll want to publish an updated iOS Framework that Xcode can grab and use. Most native mobile projects exist as 2 separate repos: one for Android and one for iOS. To add some shared Kotlin code, you can either add a KMM module to the Android project, or create a separte repo just for the shared Kotlin code. In either configuration, you publish the iOS Framework and integrate it into the Xcode project.
+
+Changes are made and tested to the shared Kotlin, then pushed to source control. When that happens, you can run CI to publish a new build. Doing that will:
+
+* Create a new version number
+* Publish the Xcode Framework zip
+* Generate `Package.swift` file and/or a Cocoapods podspec file
+
+The iOS app can then include these frameworks through SPM or Cocoapods.
+
+![kmmbridge_diagram2](https://tl-navigator-images.s3.us-east-1.amazonaws.com/docimages/2022-10-07_09-13-kmmbridge_diagram2.png)
+
 ## Configuration
 
 The plugin is currently published to the maven central repo. If needed, makes sure to add the `mavenCentral()` repo to `pluginManagement` or the `buildscript` block:
@@ -65,25 +79,11 @@ kmmbridge {
 }
 ```
 
-## Basic Flow
-
-The basic concept is that after making some changes to Kotlin code, you'll want to publish an updated iOS Framework that Xcode can grab and use. Most native mobile projects exist as 2 separate repos: one for Android and one for iOS. To add some shared Kotlin code, you can either add a KMM module to the Android project, or create a separte repo just for the shared Kotlin code. In either configuration, you publish the iOS Framework and integrate it into the Xcode project.
-
-Changes are made and tested to the shared Kotlin, then pushed to source control. When that happens, you can run CI to publish a new build. Doing that will:
-
-* Create a new version number
-* Publish the Xcode Framework zip
-* Generate `Package.swift` file and/or a Cocoapods podspec file
-
-The iOS app can then include these frameworks through SPM or Cocoapods.
-
-![kmmbridge_diagram2](https://tl-navigator-images.s3.us-east-1.amazonaws.com/docimages/2022-10-07_09-13-kmmbridge_diagram2.png)
-
 ## Detailed Configuration Documentation
 
 For non-Github installations, other artifact locations, etc, see [CONFIGURATION_OVERVIEW](docs/CONFIGURATION_OVERVIEW.md).
 
-## Local Development Flow
+## Local Kotlin Testing
 
 KMM Bridge also provides some support for locally building and testing Kotlin-generated Frameworks dircetly in your Xcode project. You can "flip a switch" to run your Xcode project against Kotlin locally, to test your changes. This process differs depending on if you're using [Cocoapods](docs/IOS_LOCAL_DEV_COCOAPODS.md) and [SPM](IOS_LOCAL_DEV_SPM.md).
 
