@@ -1,6 +1,6 @@
 # CI Bits
 
-Some parts pulled from the cocoapods ci setup. We may want to add some back, but I don't think we need all of this.
+Some parts pulled from the CocoaPods ci setup. We may want to add some back, but I don't think we need all of this.
 
 ### Reading from iOS Repo
 If you have a multirepo setup, and you want your separate iOS repo to be able to pull the remote podspec from a private repo
@@ -32,7 +32,7 @@ to include authentication in CI.
 To do that we'll add the repo globally and have the Podfile refer to the local reference rather than a URL.
 
 ```ruby
-// This handles users who have a custom cocoapods home directory
+// This handles users who have a custom CocoaPods home directory
 if ENV.include?("CP_HOME_DIR")
   source ENV["CP_HOME_DIR"] + '/repos/touchlab'
 else

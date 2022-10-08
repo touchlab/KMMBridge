@@ -12,7 +12,7 @@ However, you can add binary files to an existing release. We're going to use spe
 
 * It is simple
 * You can use it for public or private deployments
-* It works for SPM or Cocoapods
+* It works for SPM or CocoaPods
 * Access is handled by GitHub, so you can add or remove developers as you normally would
 
 ![image-20221004164855858](https://tl-navigator-images.s3.us-east-1.amazonaws.com/docimages/2022-10-04_16-48-image-20221004164855858.png)
@@ -48,7 +48,7 @@ The CI script passes some arguments to Gradle directly that allow KMMBridge to p
 
 #### Public Repos
 
-For public projects, you should not need to do any configuration. Cocoapods and SPM can access public release files directly with no auth.
+For public projects, you should not need to do any configuration. CocoaPods and SPM can access public release files directly with no auth.
 
 #### Private Repos
 
