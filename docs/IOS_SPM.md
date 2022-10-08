@@ -6,7 +6,7 @@ Out of the box, the Kotlin tools are far less integrated into SPM. We have some 
 
 ## Kotlin Project Configuration
 
-After setting up KMMBridge in your Kotlin project, you should configure SPM for library publishing. Generally speaking, SPM wants to have the `Package.swift` file in the root of the repo. Xcode and SPM use git repos as an organizational and discovery unit. The `Package.swift` file goes in the root, and Xcode clones from Github (or others) to read info about the library and source code.
+After setting up KMMBridge in your Kotlin project, you should configure SPM for library publishing. Generally speaking, SPM wants to have the `Package.swift` file in the root of the repo. Xcode and SPM use Git repos as an organizational and discovery unit. The `Package.swift` file goes in the root, and Xcode clones from Github (or others) to read info about the library and source code.
 
 If you don't have a `Package.swift` file, or don't know how to set one up, that's OK. KMMBridge currently generates these files for you.
 
@@ -25,7 +25,7 @@ In the example above, the Kotlin module is one folder down, so we add the parent
 
 ![spmfolder](https://tl-navigator-images.s3.us-east-1.amazonaws.com/docimages/2022-10-06_06-43-spmfolder.png)
 
-SPM uses git for versioning, so you'll want to use either git tag or GitHub release version managers, and likely want to use GitHub artifacts.
+SPM uses Git for versioning, so you'll want to use either Git tag or GitHub release version managers, and likely want to use GitHub artifacts.
 
 Here is the suggested config for SPM:
 

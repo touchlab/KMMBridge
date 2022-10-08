@@ -12,7 +12,7 @@ a consumer only you should leave write access off to limit the permissions as mu
 ## Using HTTPS
 If you need to be able to access the Podspec repo via HTTPS in CI you'll need to do a bit of extra configuration in your
 `build.gradle` and `Podfile`. GitHub recommends Deploy Keys to access private repos from CI, but these changes can also
-be helpful if your team is split between using HTTPS and ssh to clone git repos.
+be helpful if your team is split between using HTTPS and ssh to clone Git repos.
 
 ### Taking Podspec URL as a Property
 Accessing a private GitHub repo from CI requires us to change the Podspec repo URL to include a username and Personal Access Token which

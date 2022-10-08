@@ -34,7 +34,7 @@ We (currently) don't set a version manager by default, so you'll need to select 
 
 #### GitTagVersionManager
 
-Versions with git tags. Increments by one each time.
+Versions with Git tags. Increments by one each time.
 
 ```kotlin
 kmmbridge {
@@ -44,7 +44,7 @@ kmmbridge {
 
 #### GithubReleaseVersionManager
 
-Similar to GitTagVersionManager, but calls the GitHub api to create a git release. Only usable with GitHub, but prefferred to GitTagVersionManager if you are using GitHub.
+Similar to GitTagVersionManager, but calls the GitHub api to create a Git release. Only usable with GitHub, but prefferred to GitTagVersionManager if you are using GitHub.
 
 ```kotlin
 kmmbridge {
