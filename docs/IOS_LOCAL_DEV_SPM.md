@@ -17,7 +17,7 @@ This should:
 * Build a debug version of the XCFramework
 * Write a local dev path to `Package.swift`
 
-Next, you need to manually copy the whole Kotlin project into Xcode. That means, quite liteally, drag the Kotlin project's folder into Xcode.
+Next, you need to manually copy the whole Kotlin project into Xcode. That means, quite literally, drag the Kotlin project's folder into Xcode.
 
 <video src="dragspm.mp4"></video>
 

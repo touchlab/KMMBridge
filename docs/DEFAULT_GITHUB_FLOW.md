@@ -8,7 +8,7 @@ This flow allows you to do the following:
 
 * Publish to public or private repos
 * Upload Xcode Framework artifacts to GitHub releases. No external storage or auth configuration is required.
-* Can use either Cocoapods, SPM, or both
+* Can use either CocoaPods, SPM, or both
 
 ## Kotlin Repo
 
@@ -16,7 +16,7 @@ You'll need find or add the Kotlin Multiplatform module to publish. This module 
 
 ## Spec Repo
 
-If you are going to publish for Cocoapods, you'll also need a Cocoapods spec repo. This is a separate repo that Cocoapods uses to store published version information. This config is somewhat more complex, but still reasonably straightforward to configure.
+If you are going to publish for CocoaPods, you'll also need a CocoaPods spec repo. This is a separate repo that CocoaPods uses to store published version information. This config is somewhat more complex, but still reasonably straightforward to configure.
 
 ## Configure The Kotlin Repo
 
@@ -76,7 +76,7 @@ kmmbridge {
 
 Note: this config is only for SPM publishing. To understand how to integrate an SPM build into Xcode, and how to locally build and test Kotlin changes, see [IOS_SPM](IOS_SPM.md).
 
-`cocoapods("[some git repo].git")` is only needed if you plan to publish for Cocoapods. You will need the spec repo mentioned above, properly configured for deployment. See  [COCOAPODS_GITHUB_PODSPEC](COCOAPODS_GITHUB_PODSPEC.md) for details on getting the podspec repo configured.
+`cocoapods("[some git repo].git")` is only needed if you plan to publish for CocoaPods. You will need the spec repo mentioned above, properly configured for deployment. See  [COCOAPODS_GITHUB_PODSPEC](COCOAPODS_GITHUB_PODSPEC.md) for details on getting the podspec repo configured.
 
 `versionPrefix` is not technically necessary but highly encouraged. As you publish builds, the semantic version number will be incremented and appended onto the prefix. So, in the example above, the first version would be `0.3.0`, next `0.3.1`, and so on.
 
@@ -93,7 +93,7 @@ jobs:
     uses: touchlab/KMMBridgeGithubWorkflow/.github/workflows/faktorybuild.yml@main
 ```
 
-Note: if you are using Cocoapods and a podspec repo, your file should look like the following:
+Note: if you are using CocoaPods and a podspec repo, your file should look like the following:
 
 ```yaml
 name: KMMBridge Publish Release

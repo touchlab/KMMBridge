@@ -2,7 +2,7 @@
 
 KMMBridge is a set of Gradle tooling that facilitates publishing and consuming pre-built KMM (Kotlin Multiplatform Mobile) Xcode Framework binaries.
 
-The modules can be published to various back ends, public or private, and (currently) consumed by either Cocoapods or Swift Package Manager.
+The modules can be published to various back ends, public or private, and (currently) consumed by either CocoaPods or Swift Package Manager.
 
 ## Who is this for?
 
@@ -26,9 +26,9 @@ Changes are made and tested to the shared Kotlin, then pushed to source control.
 
 * Create a new version number
 * Publish the Xcode Framework zip
-* Generate `Package.swift` file and/or a Cocoapods podspec file
+* Generate `Package.swift` file and/or a CocoaPods podspec file
 
-The iOS app can then include these frameworks through SPM or Cocoapods.
+The iOS app can then include these frameworks through SPM or CocoaPods.
 
 ![kmmbridge_diagram2](https://tl-navigator-images.s3.us-east-1.amazonaws.com/docimages/2022-10-07_09-13-kmmbridge_diagram2.png)
 
@@ -85,7 +85,7 @@ For non-GitHub installations, other artifact locations, etc, see [CONFIGURATION_
 
 ## Local Kotlin Testing
 
-KMMBridge also provides some support for locally building and testing Kotlin-generated Frameworks directly in your Xcode project. You can "flip a switch" to run your Xcode project against Kotlin locally, to test your changes. This process differs depending on if you're using [Cocoapods](docs/IOS_LOCAL_DEV_COCOAPODS.md) and [SPM](docs/IOS_LOCAL_DEV_SPM.md).
+KMMBridge also provides some support for locally building and testing Kotlin-generated Frameworks directly in your Xcode project. You can "flip a switch" to run your Xcode project against Kotlin locally, to test your changes. This process differs depending on if you're using [CocoaPods](docs/IOS_LOCAL_DEV_COCOAPODS.md) and [SPM](docs/IOS_LOCAL_DEV_SPM.md).
 
 ## Project Status
 

@@ -14,7 +14,7 @@ Standard Gradle/Maven repo publishing is coming soon. This should allow a wider 
 
 ### Dependency Managers
 
-Dependency managers handle integration with Cocoapods and SPM. They manage generating the config files (podspec or Package.swift), and the publishing of the releases. There are currently only two implementations:
+Dependency managers handle integration with CocoaPods and SPM. They manage generating the config files (podspec or Package.swift), and the publishing of the releases. There are currently only two implementations:
 
 * CocoapodsDependencyManager: [IOS_COCOAPODS.md](IOS_COCOAPODS.md) 
 * SpmDependencyManager: [IOS_SPM](IOS_SPM.md)
@@ -66,9 +66,9 @@ Generally speaking, you should use GitTagVersionManager over TimestampVersionMan
 
 #### ManualVersionManager
 
-No automatic versioning. This version manager will get the version from Gradle (or the Jetbrains Cocoapods config, if set separately there). You'll need to make sure to increment this version if you're publishing a new version.
+No automatic versioning. This version manager will get the version from Gradle (or the Jetbrains CocoaPods config, if set separately there). You'll need to make sure to increment this version if you're publishing a new version.
 
-(Note: KMMBridge/issues/58 is pending. Cocoapods may overwrite rather than fail when publishing)
+(Note: KMMBridge/issues/58 is pending. CocoaPods may overwrite rather than fail when publishing)
 
 ```kotlin
 kmmbridge {
