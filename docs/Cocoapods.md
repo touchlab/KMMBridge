@@ -60,7 +60,7 @@ kotlin {
 
 ```
 
-When publishing a new cocoapod, Faktory will append a timestamp to this version to ensure a unique and increasing
+When publishing a new CocoaPod, Faktory will append a timestamp to this version to ensure a unique and increasing
 version number. This will result in a published version like `1.2.1663779589077`. To maintain semver compatibility, you
 should set the base version using only a major and minor version (1.2, rather than 1.2.3) so that the timestamp piece
 becomes the patch version.
