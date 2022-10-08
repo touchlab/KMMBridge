@@ -81,7 +81,7 @@ kmmbridge {
 
 ## Detailed Configuration Documentation
 
-For non-Github installations, other artifact locations, etc, see [CONFIGURATION_OVERVIEW](docs/CONFIGURATION_OVERVIEW.md).
+For non-GitHub installations, other artifact locations, etc, see [CONFIGURATION_OVERVIEW](docs/CONFIGURATION_OVERVIEW.md).
 
 ## Local Kotlin Testing
 
@@ -95,7 +95,7 @@ and code written for specific use cases. Please let us know if you run into issu
 ### Some notes
 
 * Groovy was not a focus during dev. All testing effort has been with Kotlin Gradle scripts. See [GROOVY_BUILD_SCRIPTS](docs/GROOVY_BUILD_SCRIPTS.md) for suggestions and samples if needed.
-* We are working on a more standard Gradle/Maven back end that should let you use things like Github packages and Artifactory. If you have alternate implementation ideas, we'd love to hear from you.
+* We are working on a more standard Gradle/Maven back end that should let you use things like GitHub packages and Artifactory. If you have alternate implementation ideas, we'd love to hear from you.
 
 ## See Also
 
