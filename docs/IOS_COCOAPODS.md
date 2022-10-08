@@ -4,7 +4,7 @@ You'll need an Xcode project with Cocoapods set up. That means you'll have a `Po
 
 You'll need to add the podspec repo to Cocoapods and to your `Podfile`. First, tell Cocoapods about it. In our case, we're using `https://github.com/touchlab/PublicPodspecs.git`
 
-> Note: You can use either ssh or https, depending on how your git/Github access is configured.
+> Note: You can use either ssh or https, depending on how your git/GitHub access is configured.
 
 ```shell
 pod repo add touchlabpublic https://github.com/touchlab/PublicPodspecs.git

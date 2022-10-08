@@ -25,7 +25,7 @@ In the example above, the Kotlin module is one folder down, so we add the parent
 
 ![spmfolder](https://tl-navigator-images.s3.us-east-1.amazonaws.com/docimages/2022-10-06_06-43-spmfolder.png)
 
-SPM uses git for versioning, so you'll want to use either git tag or Github release version managers, and likely want to use Github artifacts.
+SPM uses git for versioning, so you'll want to use either git tag or GitHub release version managers, and likely want to use GitHub artifacts.
 
 Here is the suggested config for SPM:
 
@@ -42,7 +42,7 @@ Once this is all set up, run a build so you have at least one version available.
 
 ## Xcode Configuration
 
-Open or create an Xcode project. To add an SPM package, go to `File > Add Packages` in the Xcode menu. Add your source control account (presumably Github). You can usually browse for the package at that point, but depending on how many repos you have, it may be easier to copy/paste the repo URL in the top/right search bar. After finding the package, you should generally add the pacakge by version ("Up to Next Major Version" suggested).
+Open or create an Xcode project. To add an SPM package, go to `File > Add Packages` in the Xcode menu. Add your source control account (presumably GitHub). You can usually browse for the package at that point, but depending on how many repos you have, it may be easier to copy/paste the repo URL in the top/right search bar. After finding the package, you should generally add the pacakge by version ("Up to Next Major Version" suggested).
 
 ![addpackages](https://tl-navigator-images.s3.us-east-1.amazonaws.com/docimages/2022-10-06_06-57-addpackages.png)
 
@@ -52,7 +52,7 @@ Once added, you should be able to import the Kotlin module into Swift/Objc files
 
 ## Updating Builds
 
-Run the KMMBridge build again. It should automatically create another build version and publish that to the Github repo. In Xcode, you can update your imported version by right-clicking on the module and selecting "Update Package":
+Run the KMMBridge build again. It should automatically create another build version and publish that to the GitHub repo. In Xcode, you can update your imported version by right-clicking on the module and selecting "Update Package":
 
 ![updatepackage](https://tl-navigator-images.s3.us-east-1.amazonaws.com/docimages/2022-10-06_07-04-updatepackage.png)
 

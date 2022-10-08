@@ -6,7 +6,7 @@
 
 Artifact Manager handle uploading the binary and generating the url that will be used to access the binary. These implementations are very specific to the back end hosting being used. Current implementations:
 
-* GithubReleaseArtifactManager:  [GITHUB_RELEASE_ARTIFACTS](GITHUB_RELEASE_ARTIFACTS.md) (recommended if using Github)
+* GithubReleaseArtifactManager:  [GITHUB_RELEASE_ARTIFACTS](GITHUB_RELEASE_ARTIFACTS.md) (recommended if using GitHub)
 * AwsS3PublicArtifactManager:  [S3_PUBLIC_ARTIFACTS](S3_PUBLIC_ARTIFACTS.md)
 * FaktoryServerArtifactManager:  [FAKTORY_ARTIFACTS](FAKTORY_ARTIFACTS.md) (private testing currently)
 
@@ -44,7 +44,7 @@ kmmbridge {
 
 #### GithubReleaseVersionManager
 
-Similar to GitTagVersionManager, but calls the Github api to create a git release. Only usable with Github, but prefferred to GitTagVersionManager if you are using Github.
+Similar to GitTagVersionManager, but calls the GitHub api to create a git release. Only usable with GitHub, but prefferred to GitTagVersionManager if you are using GitHub.
 
 ```kotlin
 kmmbridge {
