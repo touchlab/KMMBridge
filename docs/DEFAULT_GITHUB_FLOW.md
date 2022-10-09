@@ -108,6 +108,19 @@ jobs:
 
 You need to pass the ssh key configured earlier.
 
+There are actually 2 versions of the workflow script. When using SPM, the config file `Package.swift` gets updated to reflect the published url file. If pushed to the main branch, that will force you to pull the latest and mergh when trying to update the code later. It can also result in a conflict for that file. As an alternative, you can use `faktorybuildbranches.yml`:
+
+```yaml
+name: KMMBridge Publish Release
+on: workflow_dispatch
+
+jobs:
+  call-kmmbridge-publish:
+    uses: touchlab/KMMBridgeGithubWorkflow/.github/workflows/faktorybuildbranches.yml@main
+```
+
+That script will publish builds to a new branch (named with a random UUID), which will allow publishing new versions without potential file conflicts.
+
 ### 4 Add and push your code
 
 Push your changes to Github, and make sure they're in the default branch.
