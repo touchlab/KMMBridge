@@ -42,6 +42,7 @@ jobs:
       - name: Publish website
         run: |
           cd website
+          npm install
           GIT_USER=runner GIT_PASS=${{ secrets.GITHUB_TOKEN }} yarn deploy
 
 env:
