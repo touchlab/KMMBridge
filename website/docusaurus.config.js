@@ -182,76 +182,95 @@ const config = {
   ],
 
   themeConfig:
-    /** @type {import('@docusaurus/preset-classic').ThemeConfig} */
-    ({
-      colorMode: {
-        defaultMode: 'dark',
-      },
-      navbar: {
-        title: 'KMMBridge',
-        // style: 'dark',
-        logo: {
-          alt: 'Touchlab Logo',
-          src: 'img/Touchlab_Gradient.png',
+  /** @type {import('@docusaurus/preset-classic').ThemeConfig} */
+      ({
+        colorMode: {
+          defaultMode: 'dark',
         },
-        items: [
-          {to: '/blog', label: 'Blog', position: 'left'},
-          {
-            href: 'https://touchlab.co/',
-            label: 'Touchlab Site',
-            position: 'right',
+        navbar: {
+        title: 'KMMBridge',
+          // style: 'dark',
+          logo: {
+            alt: 'Touchlab Logo',
+            src: 'img/Touchlab_Gradient.png',
           },
-          {
-            href: 'https://github.com/touchlab',
-            label: 'GitHub',
-            position: 'right',
-          },
-        ],
-      },
-      footer: {
-        style: 'dark',
-        links: [
-          {
-            title: 'Touchlab',
-            items: [
-              {
-                label: 'Website',
-                href: 'https://touchlab.co/',
-              },
-              {
-                label: 'Github',
-                href: 'https://github.com/touchlab',
-              },
-            ],
-          },
-          {
-            title: 'Community',
-            items: [
-              {
-                label: 'Twitter',
-                href: 'https://twitter.com/TouchlabHQ',
-              },
-            ],
-          },
-          {
-            title: 'More',
-            items: [
-              {
-                label: 'GitHub',
-                href: 'https://github.com/touchlab',
-              },
-            ],
-          },
-        ],
-        copyright: `Copyright © ${new Date().getFullYear()} Touchlab`,
-      },
-      prism: {
-        // theme: require('./src/utils/DarkTheme').theme,
-        theme: lightCodeTheme,//require('prism-react-renderer/themes/nightOwl'),
-        darkTheme: codeTheme,
-        additionalLanguages: ['kotlin', 'java', 'ruby', 'swift', 'toml'],
-      },
-    }),
+          items: [
+            {
+              type: 'doc',
+              docId: 'intro',
+              position: 'left',
+              label: 'Docs',
+            },
+            {to: '/blog', label: 'Blog', position: 'left'},
+            {
+              href: 'https://touchlab.co/',
+              label: 'Touchlab Site',
+              position: 'right',
+            },
+            {
+              href: 'https://github.com/touchlab',
+              label: 'GitHub',
+              position: 'right',
+            },
+          ],
+        },
+        footer: {
+          style: 'dark',
+          links: [
+            {
+              title: 'Touchlab',
+              items: [
+                {
+                  label: 'Website',
+                  href: 'https://touchlab.co/',
+                },
+                {
+                  label: 'Github',
+                  href: 'https://github.com/touchlab',
+                },
+              ],
+            },
+            {
+              title: 'Docs',
+              items: [
+                {
+                  label: 'Best Practice',
+                  to: '/docs/category/best-practice',
+                },
+              ],
+            },
+            {
+              title: 'Community',
+              items: [
+                {
+                  label: 'Twitter',
+                  href: 'https://twitter.com/TouchlabHQ',
+                },
+              ],
+            },
+            {
+              title: 'More',
+              items: [
+                {
+                  label: 'Blog',
+                  to: '/blog',
+                },
+                {
+                  label: 'GitHub',
+                  href: 'https://github.com/touchlab',
+                },
+              ],
+            },
+          ],
+          copyright: `Copyright © ${new Date().getFullYear()} Touchlab`,
+        },
+        prism: {
+          // theme: require('./src/utils/DarkTheme').theme,
+          theme: lightCodeTheme,//require('prism-react-renderer/themes/nightOwl'),
+          darkTheme: codeTheme,
+          additionalLanguages: ['kotlin', 'java', 'ruby', 'swift', 'toml'],
+        },
+      }),
 };
 
 module.exports = config;
