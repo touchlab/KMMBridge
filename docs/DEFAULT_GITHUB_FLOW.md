@@ -62,7 +62,7 @@ Later in the same file, add the `kmmbridge` config block:
 kmmbridge {
     githubReleaseArtifacts()
     githubReleaseVersions()
-    spm("..")
+    spm()
     cocoapods("git@github.com:touchlab/PodSpecs.git")
     versionPrefix.set("0.3")
 }
@@ -72,7 +72,7 @@ kmmbridge {
 
 `githubReleaseVersions()` is highly recommended. This will use Github releases for release tracking and incrementing. You can use a different version manager, but you need to configure one. See: [Version Managers](CONFIGURATION_OVERVIEW.md#version-managers) for more detail.
 
-`spm("..")` only needs to be added if you want to support SPM. The parameter points at the root directory of your repo. In this case, we have the KMP module in a folder under the repo, so the repo root is one level up. This is where your `Package.swift` file should be stored.
+`spm()` only needs to be added if you want to support SPM. The parameter points at the root directory of your repo. In this case, we have the KMP module in a folder under the repo, so the repo root is one level up. This is where your `Package.swift` file should be stored.
 
 Note: this config is only for SPM publishing. To understand how to integrate an SPM build into Xcode, and how to locally build and test Kotlin changes, see [IOS_SPM](IOS_SPM.md).
 

@@ -72,7 +72,7 @@ At the top level in the same file, put the `kmmbridge` configuration:
 kmmbridge {
     githubReleaseArtifacts()
     githubReleaseVersions()
-    spm("..")
+    spm()
     cocoapods("git@github.com:touchlab/PodSpecs.git")
     versionPrefix.set("0.3")
     //etc

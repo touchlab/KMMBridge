@@ -2,7 +2,7 @@
 
 Swift Package Manager is a newer dependency manager directly from Apple. In some ways it's more integrated into Xcode, but is also less flexible than Cocoapods. Much of that seems by design, as it's very difficult to introduce side effects into the `Package.swift` build scripts. While that is likely to result in more reliable builds for the average Xcode project, for Kotlin builds, that means some more manual processes at present.
 
-Out of the box, the Kotlin tools are far less integrated into SPM. We have some basic support for SPM development, but this is a work in progress. Feedback welcome.
+Out of the box, the official Kotlin tools are far less integrated into SPM. We have some basic support for SPM development, but this is a work in progress. Feedback welcome.
 
 ## Kotlin Project Configuration
 
@@ -12,11 +12,11 @@ If you don't have a `Package.swift` file, or don't know how to set one up, that'
 
 > Note: If you'd prefer, or need to, manage your own `Package.swift` file, please reach out. An earlier version of the plugin modified the file rather than replacing it. We may add that feature back after KMMBridge is more stable.
 
-In the `kmmbridge` block, add `spm()`, and point the parameter to the root folder of your repo.
+In the `kmmbridge` block, add `spm()`. If you call it without parameters, KMMBridge assumes you want the `Package.swift` file at the root of your repo (we also assume you're using git).
 
 ```kotlin
 kmmbridge {
-    spm("..")
+    spm()
     // Other config...
 }
 ```
@@ -34,7 +34,7 @@ kmmbridge {
     githubReleaseArtifacts()
     githubReleaseVersions()
     versionPrefix.set("0.1")
-    spm("..")
+    spm()
 }
 ```
 
