@@ -104,7 +104,7 @@ and code written for specific use cases. Please let us know if you run into issu
 
 ## See Also
 
-[TROUBLESHOOTING](general/TROUBLESHOOTING.md)
+[TROUBLESHOOTING](TROUBLESHOOTING.md)
 
 > ## Subscribe!
 >
