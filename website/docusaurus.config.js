@@ -231,15 +231,6 @@ const config = {
               ],
             },
             {
-              title: 'Docs',
-              items: [
-                {
-                  label: 'Best Practice',
-                  to: '/docs/category/best-practice',
-                },
-              ],
-            },
-            {
               title: 'Community',
               items: [
                 {
