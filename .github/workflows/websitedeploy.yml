@@ -1,4 +1,4 @@
-name: deploy
+name: websitedeploy
 on: workflow_dispatch
 
 jobs:
