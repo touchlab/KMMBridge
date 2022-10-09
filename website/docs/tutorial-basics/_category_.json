@@ -1,0 +1,8 @@
+{
+  "label": "Docusaurus Basics",
+  "position": 5,
+  "link": {
+    "type": "generated-index",
+    "description": "Basic Docusaurus concepts"
+  }
+}

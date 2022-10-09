@@ -1,0 +1,48 @@
+name: deploy
+on: workflow_dispatch
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout the repo
+        uses: actions/checkout@v2
+
+      - name: Validate Gradle Wrapper
+        uses: gradle/wrapper-validation-action@v1
+
+      - name: Cache gradle
+        uses: actions/cache@v2
+        with:
+          path: ~/.gradle/caches
+          key: ${{ runner.os }}-gradle-${{ hashFiles('*.gradle.kts') }}
+          restore-keys: |
+            ${{ runner.os }}-gradle-
+
+#      - name: Publish
+#        run: ./gradlew publish --no-daemon --stacktrace --no-build-cache
+#        env:
+#          ORG_GRADLE_PROJECT_mavenCentralUsername: ${{ secrets.SONATYPE_NEXUS_USERNAME }}
+#          ORG_GRADLE_PROJECT_mavenCentralPassword: ${{ secrets.SONATYPE_NEXUS_PASSWORD }}
+#          ORG_GRADLE_PROJECT_signingInMemoryKey: ${{ secrets.SIGNING_KEY }}
+
+      - name: Read version from gradle.properties
+        id: read_version
+        uses: christian-draeger/read-properties@1.0.1
+        with:
+          path: './gradle.properties'
+          property: 'VERSION_NAME'
+
+#      - name: Create Release
+#        uses: touchlab/release-action@v1.10.0
+#        with:
+#          tag: ${{ steps.read_version.outputs.value }}
+
+      - name: Publish website
+        run: |
+          cd website
+          GIT_USER=runner GIT_PASS=${{ secrets.GITHUB_TOKEN }} yarn deploy
+
+env:
+  GRADLE_OPTS: -Dkotlin.incremental=false -Dorg.gradle.jvmargs="-Xmx3g -XX:MaxPermSize=2048m -XX:+HeapDumpOnOutOfMemoryError -Dfile.encoding=UTF-8 -XX:MaxMetaspaceSize=512m"
