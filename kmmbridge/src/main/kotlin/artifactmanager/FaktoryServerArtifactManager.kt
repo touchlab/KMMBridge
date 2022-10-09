@@ -1,5 +1,7 @@
-package co.touchlab.faktory
+package co.touchlab.faktory.artifactmanager
 
+import co.touchlab.faktory.findStringProperty
+import co.touchlab.faktory.internal.obscureFileName
 import com.google.gson.Gson
 import okhttp3.OkHttpClient
 import okhttp3.Request

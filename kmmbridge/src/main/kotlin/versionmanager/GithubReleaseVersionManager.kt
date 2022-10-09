@@ -1,5 +1,6 @@
-package co.touchlab.faktory
+package co.touchlab.faktory.versionmanager
 
+import co.touchlab.faktory.githubRepo
 import co.touchlab.faktory.internal.GithubCalls
 import co.touchlab.faktory.internal.procRunFailLog
 import org.gradle.api.Project

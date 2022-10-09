@@ -1,5 +1,7 @@
-package co.touchlab.faktory
+package co.touchlab.faktory.dependencymanager
 
+import co.touchlab.faktory.*
+import co.touchlab.faktory.kotlin
 import org.gradle.api.Action
 import org.gradle.api.Project
 import org.gradle.api.Task

@@ -1,5 +1,7 @@
-package co.touchlab.faktory
+package co.touchlab.faktory.versionmanager
 
+import co.touchlab.faktory.alwaysWriteGitTags
+import co.touchlab.faktory.writeGitTagVersion
 import org.gradle.api.Project
 
 /**

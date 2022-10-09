@@ -1,12 +1,16 @@
 package co.touchlab.faktory
 
+import co.touchlab.faktory.internal.procRunFailLog
 import org.gradle.api.Project
+import org.gradle.api.Task
+import org.gradle.api.UnknownTaskException
 import org.gradle.api.plugins.ExtensionAware
 import org.gradle.api.plugins.ExtraPropertiesExtension
 import org.gradle.kotlin.dsl.findByType
 import org.gradle.kotlin.dsl.getByType
 import org.jetbrains.kotlin.gradle.dsl.KotlinMultiplatformExtension
 import org.jetbrains.kotlin.gradle.plugin.cocoapods.CocoapodsExtension
+import org.jetbrains.kotlin.gradle.plugin.mpp.NativeBuildType
 import java.io.File
 
 internal val Project.kotlin: KotlinMultiplatformExtension get() = extensions.getByType()
@@ -46,4 +50,28 @@ internal fun Project.findStringProperty(name: String): String? {
             return get(name).toString()
     }
     return null
+}
+
+/**
+ * Write version to git tags
+ */
+internal fun writeGitTagVersion(project: Project, versionString: String) {
+    project.procRunFailLog("git", "tag", "-a", versionString, "-m", "KMM release version $versionString")
+    project.procRunFailLog("git", "push", "--follow-tags")
+}
+
+internal const val TASK_GROUP_NAME = "kmmbridge"
+internal const val EXTENSION_NAME = "kmmbridge"
+
+internal fun Project.findXCFrameworkAssembleTask(buildType: NativeBuildType? = null): Task {
+    val extension = extensions.getByType<KmmBridgeExtension>()
+    val name = extension.frameworkName.get()
+    val buildTypeString = (buildType ?: extension.buildType.get()).getName().capitalize()
+    val taskWithoutName = "assemble${buildTypeString}XCFramework"
+    val taskWithName = "assemble${name.capitalize()}${buildTypeString}XCFramework"
+    return try {
+        tasks.findByName(taskWithName) ?: tasks.findByName(taskWithoutName)!!
+    } catch (e: NullPointerException) {
+        throw UnknownTaskException("Cannot find XCFramework assemble task. Tried ${taskWithName} and ${taskWithoutName}.", e)
+    }
 }

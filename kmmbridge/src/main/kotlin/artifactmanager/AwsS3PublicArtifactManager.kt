@@ -1,5 +1,6 @@
-package co.touchlab.faktory
+package co.touchlab.faktory.artifactmanager
 
+import co.touchlab.faktory.internal.obscureFileName
 import org.gradle.api.Project
 import software.amazon.awssdk.auth.credentials.AwsBasicCredentials
 import software.amazon.awssdk.core.sync.RequestBody

@@ -1,5 +1,6 @@
-package co.touchlab.faktory
+package co.touchlab.faktory.internal
 
+import co.touchlab.faktory.kmmBridgeExtension
 import org.gradle.api.Project
 import java.util.*
 

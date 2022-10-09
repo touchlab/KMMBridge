@@ -1,148 +1,19 @@
 package co.touchlab.faktory
 
-import co.touchlab.faktory.internal.procRunFailLog
 import org.gradle.api.Action
 import org.gradle.api.GradleException
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.api.Task
-import org.gradle.api.UnknownTaskException
-import org.gradle.api.provider.ListProperty
-import org.gradle.api.provider.Property
-import org.gradle.api.tasks.*
 import org.gradle.api.tasks.bundling.Zip
 import org.gradle.kotlin.dsl.*
-import org.jetbrains.kotlin.gradle.plugin.mpp.*
+import org.jetbrains.kotlin.gradle.plugin.mpp.Framework
+import org.jetbrains.kotlin.gradle.plugin.mpp.KotlinNativeTarget
+import org.jetbrains.kotlin.gradle.plugin.mpp.NativeBuildType
 import org.jetbrains.kotlin.gradle.plugin.mpp.apple.XCFramework
 import org.jetbrains.kotlin.gradle.plugin.mpp.apple.XCFrameworkConfig
 import java.io.*
 import java.util.*
-
-interface KmmBridgeExtension {
-    /**
-     * The name of the kotlin framework, which will be wrapped into a cocoapod. May be the same or different from podName.
-     * This should be the same as
-     */
-    val frameworkName: Property<String>
-
-    val dependencyManagers: ListProperty<DependencyManager>
-
-    val artifactManager: Property<ArtifactManager>
-
-    val buildType: Property<NativeBuildType>
-
-    val versionManager: Property<VersionManager>
-
-    val versionPrefix: Property<String>
-
-    fun s3PublicArtifacts(
-        region: String,
-        bucket: String,
-        accessKeyId: String,
-        secretAccessKey: String,
-        makeArtifactsPublic: Boolean = true,
-        altBaseUrl: String? = null,
-    ) {
-        artifactManager.set(
-            AwsS3PublicArtifactManager(
-                region,
-                bucket,
-                accessKeyId,
-                secretAccessKey,
-                makeArtifactsPublic,
-                altBaseUrl
-            )
-        )
-    }
-
-    fun githubReleaseArtifacts(
-        artifactRelease: String? = null
-    ) {
-        artifactManager.set(GithubReleaseArtifactManager(artifactRelease))
-    }
-
-    fun Project.faktoryServerArtifacts(faktoryReadKey: String? = null) {
-        artifactManager.set(FaktoryServerArtifactManager(faktoryReadKey, this))
-    }
-
-    fun timestampVersions() {
-        versionManager.set(TimestampVersionManager)
-    }
-
-    fun gitTagVersions() {
-        versionManager.set(GitTagVersionManager)
-    }
-
-    fun githubReleaseVersions() {
-        versionManager.set(GithubReleaseVersionManager)
-    }
-
-    fun manualVersions() {
-        versionManager.set(ManualVersionManager)
-    }
-
-    fun Project.spm(
-        spmDirectory: String? = null,
-        packageName: String = project.name,
-    ) {
-        val swiftPackageFolder = spmDirectory ?: projectDir.path
-        val dependencyManager = SpmDependencyManager(swiftPackageFolder, packageName)
-        dependencyManagers.set(dependencyManagers.getOrElse(emptyList()) + dependencyManager)
-    }
-
-    fun Project.cocoapods(specRepoUrl: String?) {
-        kotlin.cocoapods // This will throw error if we didn't apply cocoapods plugin
-
-        val specRepo = if (specRepoUrl == null) SpecRepo.Trunk else SpecRepo.Private(specRepoUrl)
-
-        val dependencyManager = CocoapodsDependencyManager(specRepo)
-        dependencyManagers.set(dependencyManagers.getOrElse(emptyList()) + dependencyManager)
-    }
-}
-
-interface DependencyManager {
-    /**
-     * Do configuration specific to this `DependencyManager`. Generally this involves creating tasks that depend on
-     * [uploadTask] and are dependencies of [publishRemoteTask].
-     */
-    fun configure(project: Project, uploadTask: Task, publishRemoteTask: Task) {}
-
-    /**
-     * True if this type of dependency needs git tags to function properly (currently SPM true, Cocoapods false)
-     */
-    val needsGitTags: Boolean
-}
-
-interface ArtifactManager {
-    /**
-     * Send the thing, and return a link to the thing...
-     */
-    fun deployArtifact(project: Project, zipFilePath: File, version: String): String
-}
-
-interface VersionManager {
-    /**
-     * Compute a final version to use for publication, based on the plugin versionPrefix
-     */
-    fun getVersion(project: Project, versionPrefix: String): String
-
-    /**
-     * Versions that need to write somewhere need to do it after everything else is done.
-     * Called after dependency managers are done.
-     */
-    fun recordVersion(project: Project, versionString: String)
-}
-
-/**
- * Write version to git tags
- */
-internal fun writeGitTagVersion(project: Project, versionString: String) {
-    project.procRunFailLog("git", "tag", "-a", versionString, "-m", "KMM release version $versionString")
-    project.procRunFailLog("git", "push", "--follow-tags")
-}
-
-internal const val TASK_GROUP_NAME = "kmmbridge"
-private const val EXTENSION_NAME = "kmmbridge"
 
 @Suppress("unused")
 class KMMBridgePlugin : Plugin<Project> {
@@ -252,18 +123,5 @@ class KMMBridgePlugin : Plugin<Project> {
         for (dependencyManager in dependencyManagers) {
             dependencyManager.configure(this, uploadTask, publishRemoteTask)
         }
-    }
-}
-
-internal fun Project.findXCFrameworkAssembleTask(buildType: NativeBuildType? = null): Task {
-    val extension = extensions.getByType<KmmBridgeExtension>()
-    val name = extension.frameworkName.get()
-    val buildTypeString = (buildType ?: extension.buildType.get()).getName().capitalize()
-    val taskWithoutName = "assemble${buildTypeString}XCFramework"
-    val taskWithName = "assemble${name.capitalize()}${buildTypeString}XCFramework"
-    return try {
-        tasks.findByName(taskWithName) ?: tasks.findByName(taskWithoutName)!!
-    } catch (e: NullPointerException) {
-        throw UnknownTaskException("Cannot find XCFramework assemble task. Tried ${taskWithName} and ${taskWithoutName}.", e)
     }
 }
