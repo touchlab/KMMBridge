@@ -48,9 +48,11 @@ jobs:
 
       - name: Publish website
         run: |
+          git config --global user.email "kgalligan@gmail.com"
+          git config --global user.name "Kevin Galligan"
           cd website
           npm install
-          GIT_USER=runner GIT_PASS=${{ secrets.GITHUB_TOKEN }} yarn deploy
+          GIT_USER=ciuser GIT_PASS=${{ secrets.GITHUB_TOKEN }} yarn deploy
 
 env:
   GRADLE_OPTS: -Dkotlin.incremental=false -Dorg.gradle.jvmargs="-Xmx3g -XX:MaxPermSize=2048m -XX:+HeapDumpOnOutOfMemoryError -Dfile.encoding=UTF-8 -XX:MaxMetaspaceSize=512m"
