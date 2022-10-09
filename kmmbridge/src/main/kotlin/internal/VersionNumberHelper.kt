@@ -1,4 +1,4 @@
-package co.touchlab.faktory
+package co.touchlab.faktory.internal
 
 /**
  * Checking Github for the next version. Using kind of a binary search to find it. First we query x*2 till we find an upper

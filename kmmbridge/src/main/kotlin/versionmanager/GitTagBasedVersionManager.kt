@@ -1,5 +1,6 @@
-package co.touchlab.faktory
+package co.touchlab.faktory.versionmanager
 
+import co.touchlab.faktory.internal.findNextVersion
 import co.touchlab.faktory.internal.procRun
 import co.touchlab.faktory.internal.procRunWarnLog
 import org.gradle.api.Project

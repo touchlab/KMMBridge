@@ -1,6 +1,8 @@
-package co.touchlab.faktory
+package co.touchlab.faktory.artifactmanager
 
+import co.touchlab.faktory.githubRepo
 import co.touchlab.faktory.internal.GithubCalls
+import co.touchlab.faktory.kmmBridgeExtension
 import org.gradle.api.Project
 import java.io.File
 

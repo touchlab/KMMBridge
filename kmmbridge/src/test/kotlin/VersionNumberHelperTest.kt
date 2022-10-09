@@ -1,4 +1,4 @@
-package co.touchlab.faktory
+package co.touchlab.faktory.internal
 
 import org.junit.Test
 import kotlin.test.assertEquals
