@@ -6,9 +6,9 @@
 
 Artifact Manager handle uploading the binary and generating the url that will be used to access the binary. These implementations are very specific to the back end hosting being used. Current implementations:
 
-* GithubReleaseArtifactManager:  [GITHUB_RELEASE_ARTIFACTS](GITHUB_RELEASE_ARTIFACTS.md) (recommended if using Github)
-* AwsS3PublicArtifactManager:  [S3_PUBLIC_ARTIFACTS](S3_PUBLIC_ARTIFACTS.md)
-* FaktoryServerArtifactManager:  [FAKTORY_ARTIFACTS](FAKTORY_ARTIFACTS.md) (private testing currently)
+* GithubReleaseArtifactManager:  [GITHUB_RELEASE_ARTIFACTS](../artifacts/GITHUB_RELEASE_ARTIFACTS.md) (recommended if using Github)
+* AwsS3PublicArtifactManager:  [S3_PUBLIC_ARTIFACTS](../artifacts/S3_PUBLIC_ARTIFACTS.md)
+* FaktoryServerArtifactManager:  [FAKTORY_ARTIFACTS](../artifacts/FAKTORY_ARTIFACTS.md) (private testing currently)
 
 Standard Gradle/Maven repo publishing is coming soon. This should allow a wider range of existing backend repository hosts.
 
@@ -16,8 +16,8 @@ Standard Gradle/Maven repo publishing is coming soon. This should allow a wider 
 
 Dependency managers handle integration with Cocoapods and SPM. They manage generating the config files (podspec or Package.swift), and the publishing of the releases. There are currently only two implementations:
 
-* CocoapodsDependencyManager: [IOS_COCOAPODS.md](IOS_COCOAPODS.md) 
-* SpmDependencyManager: [IOS_SPM](IOS_SPM.md)
+* CocoapodsDependencyManager: [IOS_COCOAPODS.md](../cocoapods/IOS_COCOAPODS.md) 
+* SpmDependencyManager: [IOS_SPM](../spm/IOS_SPM.md)
 
 ### Version Managers
 

@@ -21,7 +21,7 @@ For more context, see Nate Ebel’s talk from Droidcon NYC 2022: [Adopting Kotli
 
 If you are using Github for source control, and are OK with using Github Actions to build and Github releases for published artifacts, we have a simple setup flow you can use. It is the easiest default to start from.
 
-See [DEFAULT_GITHUB_FLOW](docs/DEFAULT_GITHUB_FLOW.md) for setup instructions.
+See [DEFAULT_GITHUB_FLOW](general/DEFAULT_GITHUB_FLOW.md) for setup instructions.
 
 ## Basic Flow
 
@@ -86,11 +86,11 @@ kmmbridge {
 
 ## Detailed Configuration Documentation
 
-For non-Github installations, other artifact locations, etc, see [CONFIGURATION_OVERVIEW](docs/CONFIGURATION_OVERVIEW.md).
+For non-Github installations, other artifact locations, etc, see [CONFIGURATION_OVERVIEW](general/CONFIGURATION_OVERVIEW.md).
 
 ## Local Kotlin Testing
 
-KMMBridge also provides some support for locally building and testing Kotlin-generated Frameworks directly in your Xcode project. You can "flip a switch" to run your Xcode project against Kotlin locally, to test your changes. This process differs depending on if you're using [Cocoapods](docs/IOS_LOCAL_DEV_COCOAPODS.md) and [SPM](docs/IOS_LOCAL_DEV_SPM.md).
+KMMBridge also provides some support for locally building and testing Kotlin-generated Frameworks directly in your Xcode project. You can "flip a switch" to run your Xcode project against Kotlin locally, to test your changes. This process differs depending on if you're using [Cocoapods](cocoapods/IOS_LOCAL_DEV_COCOAPODS.md) and [SPM](spm/IOS_LOCAL_DEV_SPM.md).
 
 ## Project Status
 
@@ -99,12 +99,12 @@ and code written for specific use cases. Please let us know if you run into issu
 
 ### Some notes
 
-* Groovy was not a focus during dev. All testing effort has been with Kotlin Gradle scripts. See [GROOVY_BUILD_SCRIPTS](docs/GROOVY_BUILD_SCRIPTS.md) for suggestions and samples if needed.
+* Groovy was not a focus during dev. All testing effort has been with Kotlin Gradle scripts. See [GROOVY_BUILD_SCRIPTS](general/GROOVY_BUILD_SCRIPTS.md) for suggestions and samples if needed.
 * We are working on a more standard Gradle/Maven back end that should let you use things like Github packages and Artifactory. If you have alternate implementation ideas, we'd love to hear from you.
 
 ## See Also
 
-[TROUBLESHOOTING](docs/TROUBLESHOOTING.md)
+[TROUBLESHOOTING](general/TROUBLESHOOTING.md)
 
 > ## Subscribe!
 >

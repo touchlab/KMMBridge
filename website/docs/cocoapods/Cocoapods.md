@@ -19,7 +19,7 @@ Add the Faktory plugin to your project, in the same module where the Kotlin coco
 plugins {
     kotlin("multiplatform")
     kotlin("native.cocoapods")
-    id("co.touchlab.faktory.kmmbridge") version "0.2.0"
+    id("co.touchlab.faktory.kmmbridge") version "{{VERSION_NAME}}"
 }
 ```
 
