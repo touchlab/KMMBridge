@@ -8,6 +8,7 @@ import co.touchlab.faktory.dependencymanager.CocoapodsDependencyManager
 import co.touchlab.faktory.dependencymanager.DependencyManager
 import co.touchlab.faktory.dependencymanager.SpecRepo
 import co.touchlab.faktory.dependencymanager.SpmDependencyManager
+import co.touchlab.faktory.internal.procRunFailLog
 import co.touchlab.faktory.versionmanager.GitTagVersionManager
 import co.touchlab.faktory.versionmanager.GithubReleaseVersionManager
 import co.touchlab.faktory.versionmanager.ManualVersionManager
@@ -17,6 +18,7 @@ import org.gradle.api.Project
 import org.gradle.api.provider.ListProperty
 import org.gradle.api.provider.Property
 import org.jetbrains.kotlin.gradle.plugin.mpp.NativeBuildType
+import java.io.File
 
 interface KmmBridgeExtension {
     /**
@@ -85,7 +87,7 @@ interface KmmBridgeExtension {
         spmDirectory: String? = null,
         packageName: String = project.name,
     ) {
-        val swiftPackageFolder = spmDirectory ?: projectDir.path
+        val swiftPackageFolder = spmDirectory ?: findRepoRoot()
         val dependencyManager = SpmDependencyManager(swiftPackageFolder, packageName)
         dependencyManagers.set(dependencyManagers.getOrElse(emptyList()) + dependencyManager)
     }
@@ -98,4 +100,9 @@ interface KmmBridgeExtension {
         val dependencyManager = CocoapodsDependencyManager(specRepo)
         dependencyManagers.set(dependencyManagers.getOrElse(emptyList()) + dependencyManager)
     }
+}
+
+private fun Project.findRepoRoot(): String {
+    val repoFile = File(procRunFailLog("git", "rev-parse", "--show-toplevel").first())
+    return projectDir.toPath().relativize(repoFile.toPath()).toString()
 }

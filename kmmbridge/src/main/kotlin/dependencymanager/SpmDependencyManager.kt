@@ -94,7 +94,6 @@ class SpmDependencyManager(
         return os.toByteArray().toString(Charset.defaultCharset()).trim()
     }
 
-    private fun Project.readPackageFile(): String = file(swiftPackageFilePath).readText()
     private fun Project.writePackageFile(data:String){
         file(swiftPackageFilePath).writeText(data)
     }
