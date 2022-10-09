@@ -7,7 +7,7 @@ title: iOS Dev Setup
 
 To use the published Xcode Framework, you'll need to integrate it into your Xcode project. You'll also need to understand how to add authentication information, if required by your artifact storage.
 
-For developers editing Kotlin, you will want to test locally-built Kotlin code directly in your Xcode project from time to time. How that works differs depending on which dependency manager you use. For Cocoapods see  [IOS_LOCAL_DEV_COCOAPODS](cocoapods/IOS_LOCAL_DEV_COCOAPODS.md). For SPM see  [IOS_LOCAL_DEV_SPM](spm/IOS_LOCAL_DEV_SPM.md).
+For developers editing Kotlin, you will want to test locally-built Kotlin code directly in your Xcode project from time to time. How that works differs depending on which dependency manager you use. For Cocoapods see  [IOS_LOCAL_DEV_COCOAPODS](cocoapods/02_IOS_LOCAL_DEV_COCOAPODS.md). For SPM see  [IOS_LOCAL_DEV_SPM](spm/02_IOS_LOCAL_DEV_SPM.md).
 
 ## Private Github Releases
 

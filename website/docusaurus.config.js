@@ -208,7 +208,7 @@ const config = {
               position: 'right',
             },
             {
-              href: 'https://github.com/touchlab',
+              href: 'https://github.com/touchlab/KMMBridge',
               label: 'GitHub',
               position: 'right',
             },
@@ -226,7 +226,7 @@ const config = {
                 },
                 {
                   label: 'Github',
-                  href: 'https://github.com/touchlab',
+                  href: 'https://github.com/touchlab/KMMBridge',
                 },
               ],
             },
@@ -248,7 +248,7 @@ const config = {
                 },
                 {
                   label: 'GitHub',
-                  href: 'https://github.com/touchlab',
+                  href: 'https://github.com/touchlab/KMMBridge',
                 },
               ],
             },
