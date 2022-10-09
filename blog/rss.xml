@@ -2,7 +2,7 @@
 <rss version="2.0">
     <channel>
         <title>KMMBridge Blog</title>
-        <link>https://touchlab.github.io/KMMBridge/blog</link>
+        <link>https://touchlab.github.io/KMMBridge/KMMBridge/blog</link>
         <description>KMMBridge Blog</description>
         <lastBuildDate>Wed, 31 Aug 2022 13:30:00 GMT</lastBuildDate>
         <docs>https://validator.w3.org/feed/docs/rss2.html</docs>
@@ -10,7 +10,7 @@
         <language>en</language>
         <item>
             <title><![CDATA[Hello!]]></title>
-            <link>https://touchlab.github.io/KMMBridge/blog/2022/10/09/hello</link>
+            <link>https://touchlab.github.io/KMMBridge/KMMBridge/blog/2022/10/09/hello</link>
             <guid>/2022/10/09/hello</guid>
             <pubDate>Wed, 31 Aug 2022 13:30:00 GMT</pubDate>
         </item>
