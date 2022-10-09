@@ -21,7 +21,7 @@ For more context, see Nate Ebel’s talk from Droidcon NYC 2022: [Adopting Kotli
 
 If you are using Github for source control, and are OK with using Github Actions to build and Github releases for published artifacts, we have a simple setup flow you can use. It is the easiest default to start from.
 
-See [DEFAULT_GITHUB_FLOW](general/DEFAULT_GITHUB_FLOW.md) for setup instructions.
+See [DEFAULT_GITHUB_FLOW](DEFAULT_GITHUB_FLOW.md) for setup instructions.
 
 ## Basic Flow
 

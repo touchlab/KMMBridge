@@ -1,3 +1,8 @@
+---
+sidebar_position: 3
+title: Default Github Workflow
+---
+
 # Default Github Flow
 
 If you are hosting your repos in Github and can use Github Actions for CI, the Default Github Flow is the simplest way to start publishing Kotlin builds for iOS.
@@ -74,7 +79,7 @@ kmmbridge {
 
 `spm()` only needs to be added if you want to support SPM. The parameter points at the root directory of your repo. In this case, we have the KMP module in a folder under the repo, so the repo root is one level up. This is where your `Package.swift` file should be stored.
 
-Note: this config is only for SPM publishing. To understand how to integrate an SPM build into Xcode, and how to locally build and test Kotlin changes, see [IOS_SPM](../spm/IOS_SPM.md).
+Note: this config is only for SPM publishing. To understand how to integrate an SPM build into Xcode, and how to locally build and test Kotlin changes, see [IOS_SPM](spm/IOS_SPM.md).
 
 `cocoapods("[some git repo].git")` is only needed if you plan to publish for Cocoapods. You will need the spec repo mentioned above, properly configured for deployment. See  [COCOAPODS_GITHUB_PODSPEC](../cocoapods/COCOAPODS_GITHUB_PODSPEC.md) for details on getting the podspec repo configured.
 

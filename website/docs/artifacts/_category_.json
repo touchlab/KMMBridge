@@ -1,6 +1,6 @@
 {
   "label": "Artifact Managers",
-  "position": 4,
+  "position": 20,
   "link": {
     "type": "generated-index",
     "description": "Documentation for setting up artifact deployment managers"
