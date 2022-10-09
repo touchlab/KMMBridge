@@ -39,6 +39,13 @@ jobs:
 #        with:
 #          tag: ${{ steps.read_version.outputs.value }}
 
+      - name: Find and Replace Version
+        uses: jacobtomlinson/gha-find-replace@v2
+        with:
+          find: "{{VERSION_NAME}}"
+          replace: ${{ steps.read_version.outputs.value }}
+          regex: false
+
       - name: Publish website
         run: |
           cd website
