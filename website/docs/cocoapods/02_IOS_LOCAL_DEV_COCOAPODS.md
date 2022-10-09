@@ -1,6 +1,6 @@
 # Cocoapods Local Dev Flow
 
-After you have [integrated Cocoapods into Xcode](IOS_COCOAPODS.md), you can run local dev builds by adding the Kotlin code as a local dev Cocoapod.
+After you have [integrated Cocoapods into Xcode](01_IOS_COCOAPODS.md), you can run local dev builds by adding the Kotlin code as a local dev Cocoapod.
 
 > For this example, we will assume you have cloned both the Xcode repo and the Kotln repo to the same directory, although you can clone them anywhere on your local drive. Just replace the path accordingly.
 

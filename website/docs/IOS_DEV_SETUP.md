@@ -17,9 +17,9 @@ If you are using private Github artifacts, you'll need to add auth info for that
 
 ## Using Cocoapods
 
-See:  [IOS_COCOAPODS](cocoapods/IOS_COCOAPODS.md)
+See:  [IOS_COCOAPODS](cocoapods/01_IOS_COCOAPODS.md)
 
 ## Using SPM
 
-See: [IOS_SPM](spm/IOS_SPM.md)
+See: [IOS_SPM](spm/01_IOS_SPM.md)
 

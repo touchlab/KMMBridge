@@ -60,4 +60,4 @@ Run the KMMBridge build again. It should automatically create another build vers
 
 ## Local Kotlin Dev
 
-If you are going to locally build and test Kotlin with SPM, see  [IOS_LOCAL_DEV_SPM](IOS_LOCAL_DEV_SPM.md).
+If you are going to locally build and test Kotlin with SPM, see  [IOS_LOCAL_DEV_SPM](02_IOS_LOCAL_DEV_SPM.md).

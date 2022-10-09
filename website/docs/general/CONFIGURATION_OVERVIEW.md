@@ -16,8 +16,8 @@ Standard Gradle/Maven repo publishing is coming soon. This should allow a wider 
 
 Dependency managers handle integration with Cocoapods and SPM. They manage generating the config files (podspec or Package.swift), and the publishing of the releases. There are currently only two implementations:
 
-* CocoapodsDependencyManager: [IOS_COCOAPODS.md](../cocoapods/IOS_COCOAPODS.md) 
-* SpmDependencyManager: [IOS_SPM](../spm/IOS_SPM.md)
+* CocoapodsDependencyManager: [IOS_COCOAPODS.md](../cocoapods/01_IOS_COCOAPODS.md) 
+* SpmDependencyManager: [IOS_SPM](../spm/01_IOS_SPM.md)
 
 ### Version Managers
 

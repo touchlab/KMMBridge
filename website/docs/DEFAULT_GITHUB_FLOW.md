@@ -79,9 +79,9 @@ kmmbridge {
 
 `spm()` only needs to be added if you want to support SPM. The parameter points at the root directory of your repo. In this case, we have the KMP module in a folder under the repo, so the repo root is one level up. This is where your `Package.swift` file should be stored.
 
-Note: this config is only for SPM publishing. To understand how to integrate an SPM build into Xcode, and how to locally build and test Kotlin changes, see [IOS_SPM](spm/IOS_SPM.md).
+Note: this config is only for SPM publishing. To understand how to integrate an SPM build into Xcode, and how to locally build and test Kotlin changes, see [IOS_SPM](spm/01_IOS_SPM.md).
 
-`cocoapods("[some git repo].git")` is only needed if you plan to publish for Cocoapods. You will need the spec repo mentioned above, properly configured for deployment. See  [COCOAPODS_GITHUB_PODSPEC](cocoapods/COCOAPODS_GITHUB_PODSPEC.md) for details on getting the podspec repo configured.
+`cocoapods("[some git repo].git")` is only needed if you plan to publish for Cocoapods. You will need the spec repo mentioned above, properly configured for deployment. See  [COCOAPODS_GITHUB_PODSPEC](cocoapods/03_COCOAPODS_GITHUB_PODSPEC.md) for details on getting the podspec repo configured.
 
 `versionPrefix` is not technically necessary but highly encouraged. As you publish builds, the semantic version number will be incremented and appended onto the prefix. So, in the example above, the first version would be `0.3.0`, next `0.3.1`, and so on.
 

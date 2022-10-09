@@ -41,4 +41,4 @@ After you run `pod install`, Cocoapods generates an `xcworkspace` file. There is
 
 ## Local Kotlin Dev
 
-If you are editing Kotlin, you will probably want to test it locally. To do that, see  [IOS_LOCAL_DEV_COCOAPODS](IOS_LOCAL_DEV_COCOAPODS.md).
+If you are editing Kotlin, you will probably want to test it locally. To do that, see  [IOS_LOCAL_DEV_COCOAPODS](02_IOS_LOCAL_DEV_COCOAPODS.md).

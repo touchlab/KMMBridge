@@ -1,6 +1,6 @@
 # SPM Local Dev Flow
 
-After you have [integrated your Kotlin module into Xcode using SPM](IOS_SPM.md), you may want to locally build and test your Kotlin code when making changes.
+After you have [integrated your Kotlin module into Xcode using SPM](01_IOS_SPM.md), you may want to locally build and test your Kotlin code when making changes.
 
 ***Experimental:*** *While all of KMMBridge is relatively new, the SPM dev flow is very experimental. The most likely issues with be path resolutions.*
 
