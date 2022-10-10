@@ -15,6 +15,7 @@ plugins {
     `kotlin-dsl`
     kotlin("jvm")
     id("java-gradle-plugin")
+    id("com.vanniktech.maven.publish.base")
     id("com.gradle.plugin-publish") version "1.0.0"
 }
 
@@ -69,4 +70,8 @@ val VERSION_NAME: String by project
 group = GROUP
 version = VERSION_NAME
 
-apply(plugin = "com.vanniktech.maven.publish")
+mavenPublishing {
+    publishToMavenCentral()
+    signAllPublications()
+    pomFromGradleProperties()
+}
