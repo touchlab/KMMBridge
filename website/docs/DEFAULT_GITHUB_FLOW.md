@@ -85,6 +85,13 @@ Note: this config is only for SPM publishing. To understand how to integrate an 
 
 `versionPrefix` is not technically necessary but highly encouraged. As you publish builds, the semantic version number will be incremented and appended onto the prefix. So, in the example above, the first version would be `0.3.0`, next `0.3.1`, and so on.
 
+:::caution
+
+If you are using GitHub Release Artifacts and your repo is private, you *must* add auth to GitHub for those files. See [GITHUB_RELEASE_ARTIFACTS](artifacts/GITHUB_RELEASE_ARTIFACTS.md)
+
+:::
+
+
 ### 3 Add the GitHub Actions workflow call
 
 At the top of your project, if it does not already exist, add the folders `.github/workflows`. Add a file called `kmmbridgepnblish.yml` there, and copy the following into it.
