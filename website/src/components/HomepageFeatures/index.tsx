@@ -11,16 +11,16 @@ type FeatureItem = {
 };
 
 const FeatureList: FeatureItem[] = [
-  {
-    title: 'KMMBridge Documentation',
-    Svg: require('@site/static/img/books.svg').default,
-    url: '/intro',
-    description: (
-        <>
-          Start Here
-        </>
-    ),
-  },
+  // {
+  //   title: 'KMMBridge Documentation',
+  //   Svg: require('@site/static/img/books.svg').default,
+  //   url: '/intro',
+  //   description: (
+  //       <>
+  //         Start Here
+  //       </>
+  //   ),
+  // },
 
 ];
 
