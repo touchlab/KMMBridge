@@ -9,7 +9,7 @@ There are currently two workflow options available. One builds and publishes fro
 
 Same branch: [faktorybuild.yml](https://github.com/touchlab/KMMBridgeGithubWorkflow/blob/main/.github/workflows/faktorybuild.yml)
 
-Build branch: [faktorybuild.yml](https://github.com/touchlab/KMMBridgeGithubWorkflow/blob/main/.github/workflows/faktorybuild.yml)
+Build branch: [faktorybuildbranches.yml](https://github.com/touchlab/KMMBridgeGithubWorkflow/blob/main/.github/workflows/faktorybuildbranches.yml)
 
 :::tip
 

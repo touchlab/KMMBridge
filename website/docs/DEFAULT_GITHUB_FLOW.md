@@ -95,7 +95,7 @@ on: workflow_dispatch
 
 jobs:
   call-kmmbridge-publish:
-    uses: touchlab/KMMBridgeGithubWorkflow/.github/workflows/faktorybuild.yml@main
+    uses: touchlab/KMMBridgeGithubWorkflow/.github/workflows/faktorybuild.yml@v0.3
 ```
 
 Note: if you are using CocoaPods and a podspec repo, your file should look like the following:
@@ -106,7 +106,7 @@ on: workflow_dispatch
 
 jobs:
   call-kmmbridge-publish:
-    uses: touchlab/KMMBridgeGithubWorkflow/.github/workflows/faktorybuild.yml@main
+    uses: touchlab/KMMBridgeGithubWorkflow/.github/workflows/faktorybuild.yml@v0.3
     secrets:
       PODSPEC_SSH_KEY: ${{ secrets.PODSPEC_SSH_KEY }}
 ```
@@ -121,7 +121,7 @@ on: workflow_dispatch
 
 jobs:
   call-kmmbridge-publish:
-    uses: touchlab/KMMBridgeGithubWorkflow/.github/workflows/faktorybuildbranches.yml@main
+    uses: touchlab/KMMBridgeGithubWorkflow/.github/workflows/faktorybuildbranches.yml@v0.3
 ```
 
 That script will publish builds to a new branch (named with a random UUID), which will allow publishing new versions without potential file conflicts.
