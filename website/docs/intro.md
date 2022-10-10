@@ -85,7 +85,7 @@ kmmbridge {
     githubReleaseArtifacts()
     githubReleaseVersions()
     spm()
-    cocoapods("git@github.com:touchlab/PodSpecs.git")
+    cocoapods("git@github.com:touchlab/PublicPodSpecs.git")
     versionPrefix.set("0.3")
     //etc
 }
