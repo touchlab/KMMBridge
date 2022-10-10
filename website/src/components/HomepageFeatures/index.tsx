@@ -12,12 +12,12 @@ type FeatureItem = {
 
 const FeatureList: FeatureItem[] = [
   {
-    title: 'Blog',
-    Svg: require('@site/static/img/blog_icon.svg').default,
-    url: '/blog',
+    title: 'KMMBridge Documentation',
+    Svg: require('@site/static/img/books.svg').default,
+    url: '/docs/intro',
     description: (
         <>
-          Touchlab Engineering Blog
+          Start Here
         </>
     ),
   },

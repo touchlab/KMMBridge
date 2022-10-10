@@ -31,6 +31,12 @@ Then, to initialize CocoaPods, run:
 pod install
 ```
 
+As you publish new versions of the library, you will need to update the local podspec repo copy:
+
+```shell
+pod install/update --repo-update
+```
+
 Assuming that all worked, you should be able to open the project and build it.
 
 ***VERY IMPORTANT!!!***

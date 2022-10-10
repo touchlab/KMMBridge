@@ -23,6 +23,13 @@ If you are using GitHub for source control, and are OK with using GitHub Actions
 
 See [DEFAULT_GITHUB_FLOW](DEFAULT_GITHUB_FLOW.md) for setup instructions.
 
+## Sample Projects
+
+* [KMMBridgeSampleKotlin](https://github.com/touchlab/KMMBridgeSampleKotlin) - Shared Kotlin code
+* [KMMBridgeSampleSpm](https://github.com/touchlab/KMMBridgeSampleSpm) - Xcode example with SPM
+* [KMMBridgeSampleCocoaPods](https://github.com/touchlab/KMMBridgeSampleCocoaPods) - Xcode example with CocoaPods
+* [PublicPodspecs](https://github.com/touchlab/PublicPodspecs) - Public CocoaPods podspec repo
+
 ## Basic Flow
 
 The basic concept is that after making some changes to Kotlin code, you'll want to publish an updated iOS Framework that Xcode can grab and use. Most native mobile projects exist as 2 separate repos: one for Android and one for iOS. To add some shared Kotlin code, you can either add a KMM module to the Android project, or create a separte repo just for the shared Kotlin code. In either configuration, you publish the iOS Framework and integrate it into the Xcode project.

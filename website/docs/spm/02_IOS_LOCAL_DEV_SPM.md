@@ -19,13 +19,13 @@ This should:
 
 Next, you need to manually copy the whole Kotlin project into Xcode. That means, quite literally, drag the Kotlin project's folder into Xcode.
 
-<video src="dragspm.mp4"></video>
+<video src="https://tl-navigator-images.s3.amazonaws.com/docimages/dragspm.mp4"></video>
 
 In the sample above, the pacakge `allshared` is inside `KevsKmmTest`. When you drag it in, if Xcode properly recognizes it, you'll see `allshared` disappear, but when you build, things should work as expected.
 
 When you are done build, select the folder you dragged in, and remove it by right-clicking it and selecting "Delete". Make sure to select "Remove References" on the popup. Xcode should then reload the version you had previously.
 
-<video src="removelocal.mp4"></video>
+<video src="https://tl-navigator-images.s3.amazonaws.com/docimages/removelocal.mp4"></video>
 
 When you run `spmDevBuild`, it will build all architectures, which you probably don't need for testing on a simulator. To restrict architectures when building, you can pass in a Gradle param.
 

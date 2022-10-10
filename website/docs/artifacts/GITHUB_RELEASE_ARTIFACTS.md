@@ -1,3 +1,7 @@
+---
+sidebar_position: 1
+---
+
 # GitHub Release Artifacts
 
 Publishing binary Xcode Frameworks requires a place to publish and host your artifacts. This really just needs to be a file bucket that you can read/write to. GitHub doesn't provide raw file hosting like AWS S3, but does provide various methods to host files. One simple method is to upload files to a GitHub release. The benefits are:

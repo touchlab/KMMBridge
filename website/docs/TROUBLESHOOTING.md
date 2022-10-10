@@ -1,3 +1,7 @@
+---
+sidebar_position: 8
+---
+
 # Troubleshooting
 
 ### Error: "This fat framework already has a binary for architecture `x64` (common for target `ios_x64`)” (or similar for arm)
