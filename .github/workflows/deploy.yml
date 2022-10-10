@@ -35,7 +35,7 @@ jobs:
           property: 'VERSION_NAME'
 
       - name: Create Release
-        if: !contains(steps.read_version.outputs.value, 'SNAPSHOT')
+        if: contains(steps.read_version.outputs.value, 'SNAPSHOT')
         uses: touchlab/release-action@v1.10.0
         with:
           tag: ${{ steps.read_version.outputs.value }}
