@@ -2,9 +2,13 @@
 
 You'll need an Xcode project with CocoaPods set up. That means you'll have a `Podfile` that you can edit with the necessary code to integrate your Kotlin module.
 
-You'll need to add the podspec repo to CocoaPods and to your `Podfile`. First, tell CocoaPods about it. In our case, we're using `https://github.com/touchlab/PublicPodspecs.git`
+## Artifact Authentication
 
-> Note: You can use either ssh or https, depending on how your Git/GitHub access is configured.
+For artifacts that are kept in private storage, you may need to add authentication information so your `~/.netrc` file or your Mac's Keychain Access. See [GITHUB_RELEASE_ARTIFACTS#private-repos](../artifacts/GITHUB_RELEASE_ARTIFACTS#private-repos) for a description of how to set up private file access.
+
+## Add Podspec Repo
+
+You'll need to add the podspec repo to CocoaPods and to your `Podfile`. First, tell CocoaPods about it. In our case, we're using `https://github.com/touchlab/PublicPodspecs.git`
 
 ```shell
 pod repo add touchlabpublic https://github.com/touchlab/PublicPodspecs.git
@@ -31,13 +35,23 @@ Then, to initialize CocoaPods, run:
 pod install
 ```
 
-As you publish new versions of the library, you will need to update the local podspec repo copy:
+As you publish new versions of the library, you will need to update the local podspec repo copy. Either run:
 
 ```shell
-pod install/update --repo-update
+pod repo update
+```
+
+Or update the podspec when you're updating your CocoaPods project:
+
+```shell
+pod install --repo-update
+# Or...
+pod update --repo-update
 ```
 
 Assuming that all worked, you should be able to open the project and build it.
+
+If you are using a private podspec repo, your setup should work if you've added the authentication above. If the files can't be synced, make sure to double-check the auth setup.
 
 ***VERY IMPORTANT!!!***
 

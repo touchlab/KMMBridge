@@ -21,11 +21,11 @@ kmmbridge {
 }
 ```
 
-In the example above, the Kotlin module is one folder down, so we add the parent path string `..`
+In the example above, the Kotlin module is one folder down. The `spm()` setup detects that with git automatically.
 
 ![spmfolder](https://tl-navigator-images.s3.us-east-1.amazonaws.com/docimages/2022-10-06_06-43-spmfolder.png)
 
-SPM uses Git for versioning, so you'll want to use either Git tag or GitHub release version managers, and likely want to use GitHub artifacts.
+SPM uses Git for versioning, so you'll probably want to use either Git tag or GitHub release version managers, and at least at launch, likely want to use GitHub artifacts.
 
 Here is the suggested config for SPM:
 
@@ -39,6 +39,16 @@ kmmbridge {
 ```
 
 Once this is all set up, run a build so you have at least one version available.
+
+## Artifact Authentication
+
+For artifacts that are kept in private storage, you may need to add authentication information so your `~/.netrc` file or your Mac's Keychain Access. See [GITHUB_RELEASE_ARTIFACTS#private-repos](../artifacts/GITHUB_RELEASE_ARTIFACTS#private-repos) for a description of how to set up private file access.
+
+:::caution
+
+When you acces repos in GitHub with Xcode, you need to authenticate to GitHub. That isn't enough to access private GitHub release artifacts. You *also* need to add `~/.netrc` or Mac Keychain Access authentication info.
+
+:::
 
 ## Xcode Configuration
 
