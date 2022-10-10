@@ -1,6 +1,6 @@
-# Cocoapods Local Dev Flow
+# CocoaPods Local Dev Flow
 
-After you have [integrated Cocoapods into Xcode](01_IOS_COCOAPODS.md), you can run local dev builds by adding the Kotlin code as a local dev Cocoapod.
+After you have [integrated CocoaPods into Xcode](01_IOS_COCOAPODS.md), you can run local dev builds by adding the Kotlin code as a local dev Cocoapod.
 
 > For this example, we will assume you have cloned both the Xcode repo and the Kotln repo to the same directory, although you can clone them anywhere on your local drive. Just replace the path accordingly.
 
@@ -29,8 +29,8 @@ pod install
 
 In our example, the Kotlin project is called `KMMBridgeSampleKotlin` and the Kotlin code is in a module called `shared`. Replace with your project and module names.
 
-After running `pod install`, close and reopen the `xcworkspace` file. You should now be in the standard Kotlin local Cocoapods build flow.
+After running `pod install`, close and reopen the `xcworkspace` file. You should now be in the standard Kotlin local CocoaPods build flow.
 
-> Note: It is *highly* recommended that you run `linkPodDebugFrameworkIosX64` or `linkPodDebugFrameworkIosSimulatorArm64`, depending on your Mac architecture, before you run `pod install`, due to a minor issue with the Kotlin Cocoapods integration.
+> Note: It is *highly* recommended that you run `linkPodDebugFrameworkIosX64` or `linkPodDebugFrameworkIosSimulatorArm64`, depending on your Mac architecture, before you run `pod install`, due to a minor issue with the Kotlin CocoaPods integration.
 
 Once your changes are complete, push them to your repo and run the KMMBridge build process again. When complete, you should be able to remove the local dev flow by removing the environment variable and running `pod install` again.

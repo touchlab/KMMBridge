@@ -7,7 +7,7 @@ title: KMMBridge Intro
 
 KMMBridge is a set of Gradle tooling that facilitates publishing and consuming pre-built KMM (Kotlin Multiplatform Mobile) Xcode Framework binaries.
 
-The modules can be published to various back ends, public or private, and (currently) consumed by either Cocoapods or Swift Package Manager.
+The modules can be published to various back ends, public or private, and (currently) consumed by either CocoaPods or Swift Package Manager.
 
 ## Who is this for?
 
@@ -19,7 +19,7 @@ For more context, see Nate Ebel’s talk from Droidcon NYC 2022: [Adopting Kotli
 
 ## Simple Getting Started Setup
 
-If you are using Github for source control, and are OK with using Github Actions to build and Github releases for published artifacts, we have a simple setup flow you can use. It is the easiest default to start from.
+If you are using GitHub for source control, and are OK with using GitHub Actions to build and GitHub releases for published artifacts, we have a simple setup flow you can use. It is the easiest default to start from.
 
 See [DEFAULT_GITHUB_FLOW](DEFAULT_GITHUB_FLOW.md) for setup instructions.
 
@@ -31,9 +31,9 @@ Changes are made and tested to the shared Kotlin, then pushed to source control.
 
 * Create a new version number
 * Publish the Xcode Framework zip
-* Generate `Package.swift` file and/or a Cocoapods podspec file
+* Generate `Package.swift` file and/or a CocoaPods podspec file
 
-The iOS app can then include these frameworks through SPM or Cocoapods.
+The iOS app can then include these frameworks through SPM or CocoaPods.
 
 ![kmmbridge_diagram2](https://tl-navigator-images.s3.us-east-1.amazonaws.com/docimages/2022-10-07_09-13-kmmbridge_diagram2.png)
 
@@ -86,11 +86,11 @@ kmmbridge {
 
 ## Detailed Configuration Documentation
 
-For non-Github installations, other artifact locations, etc, see [CONFIGURATION_OVERVIEW](general/CONFIGURATION_OVERVIEW.md).
+For non-GitHub installations, other artifact locations, etc, see [CONFIGURATION_OVERVIEW](general/CONFIGURATION_OVERVIEW.md).
 
 ## Local Kotlin Testing
 
-KMMBridge also provides some support for locally building and testing Kotlin-generated Frameworks directly in your Xcode project. You can "flip a switch" to run your Xcode project against Kotlin locally, to test your changes. This process differs depending on if you're using [Cocoapods](cocoapods/02_IOS_LOCAL_DEV_COCOAPODS.md) and [SPM](spm/02_IOS_LOCAL_DEV_SPM.md).
+KMMBridge also provides some support for locally building and testing Kotlin-generated Frameworks directly in your Xcode project. You can "flip a switch" to run your Xcode project against Kotlin locally, to test your changes. This process differs depending on if you're using [CocoaPods](cocoapods/02_IOS_LOCAL_DEV_COCOAPODS.md) and [SPM](spm/02_IOS_LOCAL_DEV_SPM.md).
 
 ## Project Status
 
@@ -100,7 +100,7 @@ and code written for specific use cases. Please let us know if you run into issu
 ### Some notes
 
 * Groovy was not a focus during dev. All testing effort has been with Kotlin Gradle scripts. See [GROOVY_BUILD_SCRIPTS](general/GROOVY_BUILD_SCRIPTS.md) for suggestions and samples if needed.
-* We are working on a more standard Gradle/Maven back end that should let you use things like Github packages and Artifactory. If you have alternate implementation ideas, we'd love to hear from you.
+* We are working on a more standard Gradle/Maven back end that should let you use things like GitHub packages and Artifactory. If you have alternate implementation ideas, we'd love to hear from you.
 
 ## See Also
 

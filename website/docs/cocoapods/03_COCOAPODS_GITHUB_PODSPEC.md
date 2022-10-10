@@ -1,9 +1,9 @@
 # Publishing Podspecs to GitHub
 
-Cocoapods supports hosting private podspec repos. These are git repos that only host release publishing info for
-Cocoapods podspecs, not their actual code. If you are planning to publish KMM Xcode Frameworks with Cocoapods, that
-means you'll need a separate git repo dedicated to publishing podspec versoins. See the
-[Cocoapods Documentation](https://guides.cocoapods.org/making/private-cocoapods.html) for more context.
+CocoaPods supports hosting private podspec repos. These are Git repos that only host release publishing info for
+CocoaPods podspecs, not their actual code. If you are planning to publish KMM Xcode Frameworks with CocoaPods, that
+means you'll need a separate Git repo dedicated to publishing podspec versoins. See the
+[CocoaPods Documentation](https://guides.cocoapods.org/making/private-cocoapods.html) for more context.
 
 ## Note
 
@@ -12,7 +12,7 @@ can do either. Our documentation generally assumes a CI configuration.
 
 ## Overview
 
-When using the KMMBridge Cocoapods configuration to publish to a private podspec repo,
+When using the KMMBridge CocoaPods configuration to publish to a private podspec repo,
 you'll need to do some extra setup in your CI action to give the runner access to the podspec repo. This doc will
 give examples for GitHub actions but the same general steps should apply to other CI setups.
 

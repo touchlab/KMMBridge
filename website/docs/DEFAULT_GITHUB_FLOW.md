@@ -1,19 +1,19 @@
 ---
 sidebar_position: 3
-title: Default Github Workflow
+title: Default GitHub Workflow
 ---
 
-# Default Github Flow
+# Default GitHub Flow
 
-If you are hosting your repos in Github and can use Github Actions for CI, the Default Github Flow is the simplest way to start publishing Kotlin builds for iOS.
+If you are hosting your repos in GitHub and can use GitHub Actions for CI, the Default GitHub Flow is the simplest way to start publishing Kotlin builds for iOS.
 
 ## Overview
 
 This flow allows you to do the following:
 
 * Publish to public or private repos
-* Upload Xcode Framework artifacts to Github releases. No external storage or auth configuration is required.
-* Can use either Cocoapods, SPM, or both
+* Upload Xcode Framework artifacts to GitHub releases. No external storage or auth configuration is required.
+* Can use either CocoaPods, SPM, or both
 
 ## Kotlin Repo
 
@@ -21,7 +21,7 @@ You'll need find or add the Kotlin Multiplatform module to publish. This module 
 
 ## Spec Repo
 
-If you are going to publish for Cocoapods, you'll also need a Cocoapods spec repo. This is a separate repo that Cocoapods uses to store published version information. This config is somewhat more complex, but still reasonably straightforward to configure.
+If you are going to publish for CocoaPods, you'll also need a CocoaPods spec repo. This is a separate repo that CocoaPods uses to store published version information. This config is somewhat more complex, but still reasonably straightforward to configure.
 
 ## Configure The Kotlin Repo
 
@@ -75,17 +75,17 @@ kmmbridge {
 
 `githubReleaseArtifacts()` is mandatory for this flow. Without that, files will not be published anywhere (there are other publishing options available).
 
-`githubReleaseVersions()` is highly recommended. This will use Github releases for release tracking and incrementing. You can use a different version manager, but you need to configure one. See: [Version Managers](general/CONFIGURATION_OVERVIEW.md#version-managers) for more detail.
+`githubReleaseVersions()` is highly recommended. This will use GitHub releases for release tracking and incrementing. You can use a different version manager, but you need to configure one. See: [Version Managers](general/CONFIGURATION_OVERVIEW.md#version-managers) for more detail.
 
 `spm()` only needs to be added if you want to support SPM. The parameter points at the root directory of your repo. In this case, we have the KMP module in a folder under the repo, so the repo root is one level up. This is where your `Package.swift` file should be stored.
 
 Note: this config is only for SPM publishing. To understand how to integrate an SPM build into Xcode, and how to locally build and test Kotlin changes, see [IOS_SPM](spm/01_IOS_SPM.md).
 
-`cocoapods("[some git repo].git")` is only needed if you plan to publish for Cocoapods. You will need the spec repo mentioned above, properly configured for deployment. See  [COCOAPODS_GITHUB_PODSPEC](cocoapods/03_COCOAPODS_GITHUB_PODSPEC.md) for details on getting the podspec repo configured.
+`cocoapods("[some git repo].git")` is only needed if you plan to publish for CocoaPods. You will need the spec repo mentioned above, properly configured for deployment. See  [COCOAPODS_GITHUB_PODSPEC](cocoapods/03_COCOAPODS_GITHUB_PODSPEC.md) for details on getting the podspec repo configured.
 
 `versionPrefix` is not technically necessary but highly encouraged. As you publish builds, the semantic version number will be incremented and appended onto the prefix. So, in the example above, the first version would be `0.3.0`, next `0.3.1`, and so on.
 
-### 3 Add the Github Actions workflow call
+### 3 Add the GitHub Actions workflow call
 
 At the top of your project, if it does not already exist, add the folders `.github/workflows`. Add a file called `kmmbridgepnblish.yml` there, and copy the following into it.
 
@@ -98,7 +98,7 @@ jobs:
     uses: touchlab/KMMBridgeGithubWorkflow/.github/workflows/faktorybuild.yml@main
 ```
 
-Note: if you are using Cocoapods and a podspec repo, your file should look like the following:
+Note: if you are using CocoaPods and a podspec repo, your file should look like the following:
 
 ```yaml
 name: KMMBridge Publish Release
@@ -128,11 +128,11 @@ That script will publish builds to a new branch (named with a random UUID), whic
 
 ### 4 Add and push your code
 
-Push your changes to Github, and make sure they're in the default branch.
+Push your changes to GitHub, and make sure they're in the default branch.
 
 ## Publish a Build!
 
-Assuming your configuration is set up correctly, you should be able to publish your first build. In the Kotlin repo's Github home page, go to "Actions", select "KMMBridge Publish Release", and manually run it.
+Assuming your configuration is set up correctly, you should be able to publish your first build. In the Kotlin repo's GitHub home page, go to "Actions", select "KMMBridge Publish Release", and manually run it.
 
 ![runbuild](https://tl-navigator-images.s3.us-east-1.amazonaws.com/docimages/2022-10-04_21-14-runbuild.png)
 

@@ -12,7 +12,7 @@ pluginManagement {
 }
 ```
 
-Add the Faktory plugin to your project, in the same module where the Kotlin cocoapods plugin is configured.
+Add the Faktory plugin to your project, in the same module where the Kotlin CocoaPods plugin is configured.
 
 ```kotlin
 // build.gradle.kts
@@ -32,7 +32,7 @@ kmmbridge {
 ```
 
 You'll need to provide a url to your own spec repo to host the podspec. For more on spec repos, see
-the [cocoapods documentation](https://guides.cocoapods.org/making/private-cocoapods.html).
+the [CocoaPods documentation](https://guides.cocoapods.org/making/private-cocoapods.html).
 
 ## Publishing a new version
 
@@ -66,14 +66,14 @@ should set the base version using only a major and minor version (1.2, rather th
 becomes the patch version.
 
 To consume this from your iOS project without needing to manually update versions, you can use
-cocoapods [optimistic version operator](https://guides.cocoapods.org/using/the-podfile.html#specifying-pod-versions) as
+CocoaPods [optimistic version operator](https://guides.cocoapods.org/using/the-podfile.html#specifying-pod-versions) as
 follows:
 
 ```ruby
 pod 'MyShared', '~> 1.2'
 ```
 
-When you first run a `pod install` with this line in your `Podfile`, Cocoapods will use the most recent version
+When you first run a `pod install` with this line in your `Podfile`, CocoaPods will use the most recent version
 matching `1.2.x` and generate a `Podfile.lock` file. The next time you run `pod install` it will read the version from
 that lock file until the version in the `Podfile` changes. When you publish a new `1.2.x` version, you can update the
 lock file by running `pod update`.
