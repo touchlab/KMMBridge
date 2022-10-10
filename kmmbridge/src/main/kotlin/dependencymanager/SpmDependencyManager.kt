@@ -27,11 +27,11 @@ class SpmDependencyManager(
     /**
      * Folder where the Package.swift file lives
      */
-    private val swiftPackageFolder: String,
+    private val _swiftPackageFolder: String?,
     private val packageName: String
 ) : DependencyManager {
-    private val swiftPackageFilePath: String
-        get() = "${stripEndSlash(swiftPackageFolder)}/Package.swift"
+    private fun Project.swiftPackageFolder(): String = _swiftPackageFolder ?: this.findRepoRoot()
+    private fun Project.swiftPackageFilePath(): String = "${stripEndSlash(swiftPackageFolder())}/Package.swift"
 
     override fun configure(project: Project, uploadTask: Task, publishRemoteTask: Task) {
         val updatePackageSwiftTask = project.task("updatePackageSwift") {
@@ -66,14 +66,14 @@ class SpmDependencyManager(
             @Suppress("ObjectLiteralToLambda")
             doLast(object : Action<Task> {
                 override fun execute(t: Task) {
-                    project.writePackageFile(makeLocalDevPackageFileText(swiftPackageFolder, packageName, project))
+                    project.writePackageFile(makeLocalDevPackageFileText(project.swiftPackageFolder(), packageName, project))
                 }
             })
         }
     }
 
     private fun Project.writePackageFile(packageName: String, url: String, checksum: String){
-        val swiftPackageFile = file(swiftPackageFilePath)
+        val swiftPackageFile = file(swiftPackageFilePath())
         val packageText = makePackageFileText(packageName, url, checksum)
         swiftPackageFile.parentFile.mkdirs()
         swiftPackageFile.writeText(packageText)
@@ -108,7 +108,7 @@ class SpmDependencyManager(
     }
 
     private fun Project.writePackageFile(data:String){
-        file(swiftPackageFilePath).writeText(data)
+        file(swiftPackageFilePath()).writeText(data)
     }
 
     override val needsGitTags: Boolean = true
@@ -185,3 +185,8 @@ let package = Package(
     ]
 )
 """.trimIndent()
+
+private fun Project.findRepoRoot(): String {
+    val repoFile = File(procRunFailLog("git", "rev-parse", "--show-toplevel").first())
+    return projectDir.toPath().relativize(repoFile.toPath()).toString()
+}
