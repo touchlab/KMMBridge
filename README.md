@@ -4,7 +4,7 @@ KMMBridge is a set of Gradle tooling that facilitates publishing and consuming p
 
 ## Documentation Website
 
-See [https://touchlab.github.io/KMMBridge/docs/intro/](https://touchlab.github.io/KMMBridge/docs/intro/) for setup and detailed documentation.
+See [https://touchlab.github.io/KMMBridge/docs/intro/](https://touchlab.github.io/KMMBridge/intro/) for setup and detailed documentation.
 
 > ## Subscribe!
 >
