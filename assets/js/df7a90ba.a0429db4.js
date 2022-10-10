@@ -1,1 +1,0 @@
-"use strict";(self.webpackChunkmy_website_ts=self.webpackChunkmy_website_ts||[]).push([[740],{550:function(e){e.exports=JSON.parse('{"permalink":"/KMMBridge/blog","page":1,"postsPerPage":10,"totalPages":1,"totalCount":1,"blogDescription":"Blog","blogTitle":"Blog"}')}}]);
