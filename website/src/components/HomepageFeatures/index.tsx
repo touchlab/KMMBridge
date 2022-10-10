@@ -14,7 +14,7 @@ const FeatureList: FeatureItem[] = [
   {
     title: 'KMMBridge Documentation',
     Svg: require('@site/static/img/books.svg').default,
-    url: '/docs/intro',
+    url: '/intro',
     description: (
         <>
           Start Here
