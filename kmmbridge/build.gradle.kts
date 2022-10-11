@@ -72,6 +72,8 @@ version = VERSION_NAME
 
 mavenPublishing {
     publishToMavenCentral()
-    signAllPublications()
+    val releaseSigningEnabled =
+        project.properties["RELEASE_SIGNING_ENABLED"]?.toString()?.equals("false", ignoreCase = true) != true
+    if (releaseSigningEnabled) signAllPublications()
     pomFromGradleProperties()
 }
