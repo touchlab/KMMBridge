@@ -46,13 +46,23 @@ jobs:
           replace: ${{ steps.read_version.outputs.value }}
           regex: false
 
-      - name: Publish website
-        run: |
-          git config --global user.email "kgalligan@gmail.com"
-          git config --global user.name "Kevin Galligan"
-          cd website
-          npm install
-          GIT_USER=ciuser GIT_PASS=${{ secrets.GITHUB_TOKEN }} yarn deploy
+      - name: Find Last Release
+        id: last_release
+        uses: InsonusK/get-latest-release@v1.0.1
+        with:
+          myToken: ${{ github.token }}
+          view_top: 1
+
+      - name: Echo Last Release
+        run: echo ${{ steps.last_release.outputs.tag_name }}
+
+#      - name: Publish website
+#        run: |
+#          git config --global user.email "kgalligan@gmail.com"
+#          git config --global user.name "Kevin Galligan"
+#          cd website
+#          npm install
+#          GIT_USER=ciuser GIT_PASS=${{ secrets.GITHUB_TOKEN }} yarn deploy
 
 env:
   GRADLE_OPTS: -Dkotlin.incremental=false -Dorg.gradle.jvmargs="-Xmx3g -XX:MaxPermSize=2048m -XX:+HeapDumpOnOutOfMemoryError -Dfile.encoding=UTF-8 -XX:MaxMetaspaceSize=512m"
