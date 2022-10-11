@@ -18,7 +18,7 @@ class GradlePublishArtifactManager(
 
     private val group: String = project.group.toString().replace(".", "/")
     private val name: String = project.name
-    private val artifactBasePath: String = "{{url}}$group/$name/{{version}}/$name-{{version}}.zip"
+    private val artifactBasePath: String = "{{url}}/$group/$name/{{version}}/$name-{{version}}.zip"
 
     /**
      * The GradlePublishArtifactManager relies on the gradle publishing plugin to manage uploading
