@@ -13,11 +13,15 @@
 
 package co.touchlab.faktory
 
-import org.gradle.api.Action
-import org.gradle.api.GradleException
-import org.gradle.api.Plugin
-import org.gradle.api.Project
-import org.gradle.api.Task
+import co.touchlab.faktory.artifactmanager.GradlePublishArtifactManager
+import org.gradle.api.*
+import org.gradle.api.artifacts.Configuration
+import org.gradle.api.attributes.Bundling
+import org.gradle.api.attributes.Category
+import org.gradle.api.attributes.LibraryElements
+import org.gradle.api.attributes.Usage
+import org.gradle.api.attributes.java.TargetJvmVersion
+import org.gradle.api.component.SoftwareComponentFactory
 import org.gradle.api.tasks.bundling.Zip
 import org.gradle.kotlin.dsl.*
 import org.jetbrains.kotlin.gradle.plugin.mpp.Framework
@@ -27,14 +31,27 @@ import org.jetbrains.kotlin.gradle.plugin.mpp.apple.XCFramework
 import org.jetbrains.kotlin.gradle.plugin.mpp.apple.XCFrameworkConfig
 import java.io.*
 import java.util.*
+import javax.inject.Inject
 
 @Suppress("unused")
-class KMMBridgePlugin : Plugin<Project> {
+class KMMBridgePlugin @Inject constructor(
+    private val softwareComponentFactory: SoftwareComponentFactory
+) : Plugin<Project> {
+
+    private lateinit var zipTask: Zip
+    private lateinit var zipFile: File
 
     override fun apply(project: Project): Unit = with(project) {
         val extension = extensions.create<KmmBridgeExtension>(EXTENSION_NAME)
+
+        with(softwareComponentFactory.adhoc("kmmbridge")) {
+            components.add(this)
+            addVariantsFromConfiguration(createOutgoingConfiguration()) { mapToMavenScope("runtime") }
+        }
+
         extension.dependencyManagers.convention(emptyList())
         extension.buildType.convention(NativeBuildType.RELEASE)
+        configureZipTask(extension)
 
         // Don't call `kotlin` directly as that'd create an order dependency on the Kotlin Multiplatform plugin
         val fallbackVersion = project.provider {
@@ -49,6 +66,18 @@ class KMMBridgePlugin : Plugin<Project> {
 
             configureXcFramework()
             configureDeploy()
+
+            zipTask.dependsOn(findXCFrameworkAssembleTask())
+        }
+    }
+
+    private fun Project.configureZipTask(extension: KmmBridgeExtension) {
+        zipFile = zipFilePath()
+        zipTask = task<Zip>("zipXCFramework") {
+            group = TASK_GROUP_NAME
+            from("$buildDir/XCFrameworks/${extension.buildType.get().getName()}")
+            destinationDirectory.set(zipFile.parentFile)
+            archiveFileName.set(zipFile.name)
         }
     }
 
@@ -85,21 +114,9 @@ class KMMBridgePlugin : Plugin<Project> {
 
     private fun Project.configureDeploy() {
         val extension = extensions.getByType<KmmBridgeExtension>()
-
-        val xcFrameworkPath = "$buildDir/XCFrameworks/${extension.buildType.get().getName()}"
         val artifactManager = extension.artifactManager.get()
-        val zipFile = zipFilePath()
-
-        val zipTask = task<Zip>("zipXCFramework") {
-            group = TASK_GROUP_NAME
-            dependsOn(findXCFrameworkAssembleTask())
-
-            from(xcFrameworkPath)
-            destinationDirectory.set(zipFile.parentFile)
-            archiveFileName.set(zipFile.name)
-        }
-
         val dependencyManagers = extension.dependencyManagers.get()
+
         val uploadTask = task("uploadXCFramework") {
             group = TASK_GROUP_NAME
 
@@ -133,8 +150,28 @@ class KMMBridgePlugin : Plugin<Project> {
             })
         }
 
+        if (artifactManager is GradlePublishArtifactManager) {
+            uploadTask.dependsOn(artifactManager.gradlePublishingTask)
+        }
+
         for (dependencyManager in dependencyManagers) {
             dependencyManager.configure(this, uploadTask, publishRemoteTask)
         }
+    }
+
+    private fun Project.createOutgoingConfiguration(): Configuration {
+        val configuration by configurations.creating {
+            isCanBeConsumed = true
+            isCanBeResolved = false
+            attributes {
+                attribute(Category.CATEGORY_ATTRIBUTE, objects.named(Category.LIBRARY))
+                attribute(Usage.USAGE_ATTRIBUTE, objects.named(Usage.JAVA_RUNTIME))
+                attribute(Bundling.BUNDLING_ATTRIBUTE, objects.named(Bundling.EXTERNAL))
+                attribute(TargetJvmVersion.TARGET_JVM_VERSION_ATTRIBUTE, JavaVersion.current().majorVersion.toInt())
+                attribute(LibraryElements.LIBRARY_ELEMENTS_ATTRIBUTE, objects.named("shared-xcframework"))
+            }
+        }
+
+        return configuration
     }
 }
