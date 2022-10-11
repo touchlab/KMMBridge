@@ -15,6 +15,8 @@ plugins {
     `kotlin-dsl`
     kotlin("jvm")
     id("java-gradle-plugin")
+    id("com.vanniktech.maven.publish.base")
+    id("com.gradle.plugin-publish") version "1.0.0"
 }
 
 repositories {
@@ -27,8 +29,18 @@ gradlePlugin {
         register("faktory-kmmbridge-plugin") {
             id = "co.touchlab.faktory.kmmbridge"
             implementationClass = "co.touchlab.faktory.KMMBridgePlugin"
+            displayName = "KMMBridge for Teams"
         }
     }
+}
+
+pluginBundle {
+    website = "https://github.com/touchlab/KMMBridge"
+    vcsUrl = "https://github.com/touchlab/KMMBridge.git"
+
+    description = "KMMBridge is a set of Gradle tooling that facilitates publishing and consuming pre-built KMM (Kotlin Multiplatform Mobile) Xcode Framework binaries."
+
+    tags = listOf("kmm", "kotlin", "multiplatform", "mobile", "ios", "xcode", "framework", "binary", "publish", "consume")
 }
 
 dependencies {
@@ -58,4 +70,8 @@ val VERSION_NAME: String by project
 group = GROUP
 version = VERSION_NAME
 
-apply(plugin = "com.vanniktech.maven.publish")
+mavenPublishing {
+    publishToMavenCentral()
+    signAllPublications()
+    pomFromGradleProperties()
+}

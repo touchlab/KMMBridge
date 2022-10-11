@@ -38,7 +38,7 @@ kmmbridge {
 }
 ```
 
-You should also usually add a version manager, and if you're using GitHub artifacts, versioning with Girhub releases also makes sense, so you should add `githubReleaseVersions()`, unless you have a specific reason not to. See:  [CONFIGURATION_OVERVIEW](../general/CONFIGURATION_OVERVIEW.md) for more detail on version managers.
+You should also usually add a version manager, and if you're using GitHub artifacts, versioning with Github releases also makes sense, so you should add `githubReleaseVersions()`, unless you have a specific reason not to. See:  [CONFIGURATION_OVERVIEW](../general/CONFIGURATION_OVERVIEW.md) for more detail on version managers.
 
 The CI script passes some arguments to Gradle directly that allow KMMBridge to publish zip files to releases.  If you aren't using our CI script, you'll need to add those parameters on your own. [Here is the relevant code from our CI script](https://github.com/touchlab/KMMBridgeGithubWorkflow/blob/f6075b60151caf15b8759c811b0d2458fbdd08a7/.github/workflows/faktorybuild.yml#L49):
 
