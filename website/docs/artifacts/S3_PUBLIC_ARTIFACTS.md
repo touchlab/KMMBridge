@@ -4,7 +4,7 @@ sidebar_position: 3
 
 # S3 Public Artifacts
 
-You can publish artifacts to AWS S3. However, there is no easy way to make them private using auth options available out of the box for S3. Therefore, artifacts in S3 will have publicly readable URL's. Those URL's are generated with a random UUID, so they're essentially unguessable, but that's and important restriction.
+You can publish artifacts to AWS S3. However, there is no easy way to make them private using auth options available out of the box for S3. Therefore, artifacts in S3 will have publicly readable URL's. Those URL's are generated with a random UUID, so they're essentially unguessable, but that's an important restriction.
 
 Some environments have S3 access automatically secured thorugh VPN's, etc. If you have thoughts on how to implement the S3 Artifact Manager in private environments, please reach out.
 
