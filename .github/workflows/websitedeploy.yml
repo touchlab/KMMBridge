@@ -20,31 +20,12 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-gradle-
 
-#      - name: Publish
-#        run: ./gradlew publish --no-daemon --stacktrace --no-build-cache
-#        env:
-#          ORG_GRADLE_PROJECT_mavenCentralUsername: ${{ secrets.SONATYPE_NEXUS_USERNAME }}
-#          ORG_GRADLE_PROJECT_mavenCentralPassword: ${{ secrets.SONATYPE_NEXUS_PASSWORD }}
-#          ORG_GRADLE_PROJECT_signingInMemoryKey: ${{ secrets.SIGNING_KEY }}
-
-      - name: Read version from gradle.properties
-        id: read_version
-        uses: christian-draeger/read-properties@1.0.1
-        with:
-          path: './gradle.properties'
-          property: 'VERSION_NAME'
-
-#      - name: Create Release
-#        uses: touchlab/release-action@v1.10.0
+#      - name: Read version from gradle.properties
+#        id: read_version
+#        uses: christian-draeger/read-properties@1.0.1
 #        with:
-#          tag: ${{ steps.read_version.outputs.value }}
-
-      - name: Find and Replace Version
-        uses: jacobtomlinson/gha-find-replace@v2
-        with:
-          find: "{{VERSION_NAME}}"
-          replace: ${{ steps.read_version.outputs.value }}
-          regex: false
+#          path: './gradle.properties'
+#          property: 'VERSION_NAME'
 
       - name: Find Last Release
         id: last_release
@@ -56,13 +37,20 @@ jobs:
       - name: Echo Last Release
         run: echo ${{ steps.last_release.outputs.tag_name }}
 
-#      - name: Publish website
-#        run: |
-#          git config --global user.email "kgalligan@gmail.com"
-#          git config --global user.name "Kevin Galligan"
-#          cd website
-#          npm install
-#          GIT_USER=ciuser GIT_PASS=${{ secrets.GITHUB_TOKEN }} yarn deploy
+      - name: Find and Replace Version
+        uses: jacobtomlinson/gha-find-replace@v2
+        with:
+          find: "{{VERSION_NAME}}"
+          replace: ${{ steps.last_release.outputs.tag_name }}
+          regex: false
+
+      - name: Publish website
+        run: |
+          git config --global user.email "kgalligan@gmail.com"
+          git config --global user.name "Kevin Galligan"
+          cd website
+          npm install
+          GIT_USER=ciuser GIT_PASS=${{ secrets.GITHUB_TOKEN }} yarn deploy
 
 env:
   GRADLE_OPTS: -Dkotlin.incremental=false -Dorg.gradle.jvmargs="-Xmx3g -XX:MaxPermSize=2048m -XX:+HeapDumpOnOutOfMemoryError -Dfile.encoding=UTF-8 -XX:MaxMetaspaceSize=512m"
