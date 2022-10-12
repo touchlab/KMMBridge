@@ -8,15 +8,7 @@ For artifacts that are kept in private storage, you may need to add authenticati
 
 ## Add Podspec Repo
 
-You'll need to add the podspec repo to CocoaPods and to your `Podfile`. First, tell CocoaPods about it. In our case, we're using `https://github.com/touchlab/PublicPodspecs.git`
-
-```shell
-pod repo add touchlabpublic https://github.com/touchlab/PublicPodspecs.git
-```
-
-Replace "touchlabpublic" with whatever you want to call your repo.
-
-Then, in your `Podfile`, add the module and the source. An example `Podfile` might look like this:
+In your `Podfile`, add the module and the source. An example `Podfile` might look like this:
 
 ```ruby
 platform :ios, '13'

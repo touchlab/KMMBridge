@@ -84,7 +84,9 @@ At the top level in the same file, put the `kmmbridge` configuration:
 kmmbridge {
     githubReleaseArtifacts()
     githubReleaseVersions()
+    // If you want to publish as a Swift Package Manager package
     spm()
+    // If you want to publish as a Cocoapod to the repo PublicPodspecs (replace this with yours) 
     cocoapods("git@github.com:touchlab/PublicPodSpecs.git")
     versionPrefix.set("0.3")
     //etc
