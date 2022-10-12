@@ -1,9 +1,12 @@
 package co.touchlab.faktory.artifactmanager
 
+import co.touchlab.faktory.publishingExtension
 import org.gradle.api.Project
 import org.gradle.api.Task
 import org.gradle.api.artifacts.repositories.MavenArtifactRepository
+import org.gradle.api.component.SoftwareComponentFactory
 import org.gradle.api.publish.PublishingExtension
+import org.gradle.api.publish.maven.MavenPublication
 import org.gradle.kotlin.dsl.getByType
 import java.io.File
 
@@ -13,12 +16,26 @@ class GradlePublishArtifactManager(
     private val repository: String?
 ) : ArtifactManager {
 
-    val gradlePublishingTask: Task?
-        get() = project.tasks.findByName(publishingTaskName())
-
     private val group: String = project.group.toString().replace(".", "/")
     private val name: String = project.name
-    private val artifactBasePath: String = "{{url}}$group/$name/{{version}}/$name-{{version}}.zip"
+    private val artifactBasePath: String = "{{url}}/$group/$name/{{version}}/$name-{{version}}-kmmbridge.zip"
+
+    override fun configure(
+        project: Project,
+        version: String,
+        uploadTask: Task,
+        softwareComponentFactory: SoftwareComponentFactory
+    ) {
+        project.publishingExtension.publications.create("SharedFramework", MavenPublication::class.java) {
+            from(project.components.getByName("kmmbridge"))
+            this.version = version
+            artifact(project.tasks.getByName("zipXCFramework")) {
+                classifier = "kmmbridge"
+                extension = "zip"
+            }
+        }
+        uploadTask.dependsOn(project.tasks.findByName(publishingTaskName()))
+    }
 
     /**
      * The GradlePublishArtifactManager relies on the gradle publishing plugin to manage uploading
@@ -34,10 +51,9 @@ class GradlePublishArtifactManager(
             publishing.repositories.findByName(it)
         } ?: publishing.repositories.first()) as MavenArtifactRepository
 
-        // TODO Look at the gradle publishing side of things - does it need to be told the dynamic version rather than pulling the project.version?
         return artifactBasePath
             .replace("{{url}}", mavenArtifactRepository.url.toString())
-            .replace("{{version}}", project.version.toString())
+            .replace("{{version}}", version)
     }
 
     private fun publishingTaskName(): String {

@@ -23,6 +23,9 @@ Next, you need to manually copy the whole Kotlin project into Xcode. That means,
 
 In the sample above, the pacakge `allshared` is inside `KevsKmmTest`. When you drag it in, if Xcode properly recognizes it, you'll see `allshared` disappear, but when you build, things should work as expected.
 
+When you are done build, select the folder you dragged in, and remove it by right-clicking it and selecting "Delete". Make sure to select "Remove References" on the popup. Xcode should then reload the version you had previously.
+
+<video src="https://tl-navigator-images.s3.amazonaws.com/docimages/removelocal.mp4"></video>
 
 When you run `spmDevBuild`, it will build all architectures, which you probably don't need for testing on a simulator. To restrict architectures when building, you can pass in a Gradle param.
 
@@ -31,8 +34,3 @@ When you run `spmDevBuild`, it will build all architectures, which you probably 
 ```
 
 For Intel Macs, use `ios_x64`. For arm Macs, use `ios_simulator_arm64`. You can pass in multiple architectures by separating them with commas.
-
-
-When you are done making and testing local changes, select the folder you dragged in, and remove it by right-clicking it and selecting "Delete". Make sure to select "Remove References" on the popup. Xcode should then reload the remote version you had previously.
-
-<video src="https://tl-navigator-images.s3.amazonaws.com/docimages/removelocal.mp4"></video>
