@@ -1,9 +1,11 @@
 package co.touchlab.faktory.artifactmanager
 
+import co.touchlab.faktory.publishingExtension
 import org.gradle.api.Project
 import org.gradle.api.Task
 import org.gradle.api.artifacts.repositories.MavenArtifactRepository
 import org.gradle.api.publish.PublishingExtension
+import org.gradle.api.publish.maven.MavenPublication
 import org.gradle.kotlin.dsl.getByType
 import java.io.File
 
@@ -18,7 +20,18 @@ class GradlePublishArtifactManager(
 
     private val group: String = project.group.toString().replace(".", "/")
     private val name: String = project.name
-    private val artifactBasePath: String = "{{url}}/$group/$name/{{version}}/$name-{{version}}.zip"
+    private val artifactBasePath: String = "{{url}}/$group/$name/{{version}}/$name-{{version}}-kmmbridge.zip"
+
+    override fun configure(project: Project, version: String) {
+        project.publishingExtension.publications.create("SharedFramework", MavenPublication::class.java) {
+            from(project.components.getByName("kmmbridge"))
+            this.version = version
+            artifact(project.tasks.getByName("zipXCFramework")) {
+                classifier = "kmmbridge"
+                extension = "zip"
+            }
+        }
+    }
 
     /**
      * The GradlePublishArtifactManager relies on the gradle publishing plugin to manage uploading

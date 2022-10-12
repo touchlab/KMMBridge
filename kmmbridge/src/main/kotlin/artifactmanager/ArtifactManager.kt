@@ -18,6 +18,11 @@ import java.io.File
 
 interface ArtifactManager {
     /**
+     * Do configuration specific to this `ArtifactManager`.
+     */
+    fun configure(project: Project, version: String) {}
+
+    /**
      * Send the thing, and return a link to the thing...
      */
     fun deployArtifact(project: Project, zipFilePath: File, version: String): String

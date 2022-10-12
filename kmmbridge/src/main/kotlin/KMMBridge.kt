@@ -22,6 +22,7 @@ import org.gradle.api.attributes.LibraryElements
 import org.gradle.api.attributes.Usage
 import org.gradle.api.attributes.java.TargetJvmVersion
 import org.gradle.api.component.SoftwareComponentFactory
+import org.gradle.api.publish.PublishingExtension
 import org.gradle.api.tasks.bundling.Zip
 import org.gradle.kotlin.dsl.*
 import org.jetbrains.kotlin.gradle.plugin.mpp.Framework
@@ -30,6 +31,7 @@ import org.jetbrains.kotlin.gradle.plugin.mpp.NativeBuildType
 import org.jetbrains.kotlin.gradle.plugin.mpp.apple.XCFramework
 import org.jetbrains.kotlin.gradle.plugin.mpp.apple.XCFrameworkConfig
 import java.io.*
+import java.net.URI
 import java.util.*
 import javax.inject.Inject
 
@@ -65,7 +67,7 @@ class KMMBridgePlugin @Inject constructor(
             }
 
             configureXcFramework()
-            configureDeploy()
+            configureArtifactManagerAndDeploy()
 
             zipTask.dependsOn(findXCFrameworkAssembleTask())
         }
@@ -112,10 +114,14 @@ class KMMBridgePlugin @Inject constructor(
             }
     }
 
-    private fun Project.configureDeploy() {
+    private fun Project.configureArtifactManagerAndDeploy() {
         val extension = extensions.getByType<KmmBridgeExtension>()
         val artifactManager = extension.artifactManager.get()
         val dependencyManagers = extension.dependencyManagers.get()
+        val versionManager = extension.versionManager.orNull ?: throw GradleException("versionManager must be specified")
+        val version = versionManager.getVersion(project, extension.versionPrefix.get())
+
+        artifactManager.configure(this, version)
 
         val uploadTask = task("uploadXCFramework") {
             group = TASK_GROUP_NAME
@@ -128,8 +134,6 @@ class KMMBridgePlugin @Inject constructor(
             @Suppress("ObjectLiteralToLambda")
             doLast(object : Action<Task> {
                 override fun execute(t: Task) {
-                    val versionManager = extension.versionManager.orNull ?: throw GradleException("versionManager must be specified")
-                    val version = versionManager.getVersion(project, extension.versionPrefix.get())
                     versionFile.writeText(version)
                     logger.info("Uploading XCFramework version $version")
                     val deployUrl = artifactManager.deployArtifact(project, zipFile, version)
@@ -165,13 +169,30 @@ class KMMBridgePlugin @Inject constructor(
             isCanBeResolved = false
             attributes {
                 attribute(Category.CATEGORY_ATTRIBUTE, objects.named(Category.LIBRARY))
-                attribute(Usage.USAGE_ATTRIBUTE, objects.named(Usage.JAVA_RUNTIME))
-                attribute(Bundling.BUNDLING_ATTRIBUTE, objects.named(Bundling.EXTERNAL))
+                attribute(Usage.USAGE_ATTRIBUTE, objects.named(Usage.NATIVE_LINK))
+                attribute(Bundling.BUNDLING_ATTRIBUTE, objects.named(Bundling.EMBEDDED))
                 attribute(TargetJvmVersion.TARGET_JVM_VERSION_ATTRIBUTE, JavaVersion.current().majorVersion.toInt())
                 attribute(LibraryElements.LIBRARY_ELEMENTS_ATTRIBUTE, objects.named("shared-xcframework"))
             }
         }
 
         return configuration
+    }
+}
+
+fun PublishingExtension.addGithubPackagesRepository(project: Project){
+    try {
+        val githubPublishToken = project.githubPublishToken
+        val githubRepo = project.githubRepo
+        repositories.maven {
+            name = "GitHubPackages"
+            url = URI.create("https://maven.pkg.github.com/$githubRepo")
+            credentials {
+                username = "cirunner"//project.findProperty("gpr.user") as String? ?: System.getenv("USERNAME")
+                password = githubPublishToken//project.findProperty("gpr.key") as String? ?: System.getenv("TOKEN")
+            }
+        }
+    } catch (e: Exception) {
+        // Ignore if not in CI
     }
 }
