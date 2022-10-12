@@ -13,7 +13,6 @@
 
 package co.touchlab.faktory
 
-import co.touchlab.faktory.artifactmanager.GradlePublishArtifactManager
 import org.gradle.api.*
 import org.gradle.api.artifacts.Configuration
 import org.gradle.api.attributes.Bundling
@@ -40,9 +39,6 @@ class KMMBridgePlugin @Inject constructor(
     private val softwareComponentFactory: SoftwareComponentFactory
 ) : Plugin<Project> {
 
-    private lateinit var zipTask: Zip
-    private lateinit var zipFile: File
-
     override fun apply(project: Project): Unit = with(project) {
         val extension = extensions.create<KmmBridgeExtension>(EXTENSION_NAME)
 
@@ -68,19 +64,19 @@ class KMMBridgePlugin @Inject constructor(
 
             configureXcFramework()
             configureArtifactManagerAndDeploy()
-
-            zipTask.dependsOn(findXCFrameworkAssembleTask())
         }
     }
 
-    private fun Project.configureZipTask(extension: KmmBridgeExtension) {
-        zipFile = zipFilePath()
-        zipTask = task<Zip>("zipXCFramework") {
+    private fun Project.configureZipTask(extension: KmmBridgeExtension): Pair<Task, File> {
+        val zipFile = zipFilePath()
+        val zipTask = task<Zip>("zipXCFramework") {
             group = TASK_GROUP_NAME
             from("$buildDir/XCFrameworks/${extension.buildType.get().getName()}")
             destinationDirectory.set(zipFile.parentFile)
             archiveFileName.set(zipFile.name)
         }
+
+        return Pair(zipTask, zipFile)
     }
 
     // Collect all declared frameworks in project and combine into xcframework
@@ -116,6 +112,7 @@ class KMMBridgePlugin @Inject constructor(
 
     private fun Project.configureArtifactManagerAndDeploy() {
         val extension = extensions.getByType<KmmBridgeExtension>()
+        val (zipTask, zipFile)= configureZipTask(extension)
         val artifactManager = extension.artifactManager.get()
         val dependencyManagers = extension.dependencyManagers.get()
         val versionManager = extension.versionManager.orNull ?: throw GradleException("versionManager must be specified")
@@ -157,6 +154,8 @@ class KMMBridgePlugin @Inject constructor(
         for (dependencyManager in dependencyManagers) {
             dependencyManager.configure(this, uploadTask, publishRemoteTask)
         }
+
+        zipTask.dependsOn(findXCFrameworkAssembleTask())
     }
 
     private fun Project.createOutgoingConfiguration(): Configuration {
@@ -178,13 +177,14 @@ class KMMBridgePlugin @Inject constructor(
 
 fun PublishingExtension.addGithubPackagesRepository(project: Project){
     try {
+        val githubPublishUser = project.githubPublishUser ?: "cirunner"
         val githubPublishToken = project.githubPublishToken
         val githubRepo = project.githubRepo
         repositories.maven {
             name = "GitHubPackages"
             url = URI.create("https://maven.pkg.github.com/$githubRepo")
             credentials {
-                username = "cirunner"//project.findProperty("gpr.user") as String? ?: System.getenv("USERNAME")
+                username = githubPublishUser//project.findProperty("gpr.user") as String? ?: System.getenv("USERNAME")
                 password = githubPublishToken//project.findProperty("gpr.key") as String? ?: System.getenv("TOKEN")
             }
         }

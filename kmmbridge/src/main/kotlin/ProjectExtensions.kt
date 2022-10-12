@@ -43,6 +43,9 @@ internal val Project.githubPublishToken
     get() = (project.property("GITHUB_PUBLISH_TOKEN")
         ?: throw IllegalArgumentException("KMMBridge Github operations need property GITHUB_PUBLISH_TOKEN")) as String
 
+internal val Project.githubPublishUser: String?
+    get() = project.property("GITHUB_PUBLISH_USER") as String?
+
 internal val Project.githubRepo
     get() = (project.findStringProperty("GITHUB_REPO")
         ?: throw IllegalArgumentException("KMMBridge Github operations need a repo param or property GITHUB_REPO"))
