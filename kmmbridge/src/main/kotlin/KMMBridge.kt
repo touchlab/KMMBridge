@@ -14,12 +14,6 @@
 package co.touchlab.faktory
 
 import org.gradle.api.*
-import org.gradle.api.artifacts.Configuration
-import org.gradle.api.attributes.Bundling
-import org.gradle.api.attributes.Category
-import org.gradle.api.attributes.LibraryElements
-import org.gradle.api.attributes.Usage
-import org.gradle.api.attributes.java.TargetJvmVersion
 import org.gradle.api.component.SoftwareComponentFactory
 import org.gradle.api.publish.PublishingExtension
 import org.gradle.api.tasks.bundling.Zip
@@ -41,11 +35,6 @@ class KMMBridgePlugin @Inject constructor(
 
     override fun apply(project: Project): Unit = with(project) {
         val extension = extensions.create<KmmBridgeExtension>(EXTENSION_NAME)
-
-//        with(softwareComponentFactory.adhoc("kmmbridge")) {
-//            components.add(this)
-//            addVariantsFromConfiguration(createOutgoingConfiguration()) { mapToMavenScope("runtime") }
-//        }
 
         extension.dependencyManagers.convention(emptyList())
         extension.buildType.convention(NativeBuildType.RELEASE)
@@ -158,6 +147,12 @@ class KMMBridgePlugin @Inject constructor(
     }
 }
 
+/**
+ * Helper function to use Github Packages as your file host for Xcode Framework binaries.
+ *
+ * Best if used with https://github.com/touchlab/KMMBridgeGithubWorkflow
+ */
+@Suppress("unused")
 fun PublishingExtension.addGithubPackagesRepository(project: Project){
     try {
         val githubPublishUser = project.githubPublishUser ?: "cirunner"
@@ -167,8 +162,8 @@ fun PublishingExtension.addGithubPackagesRepository(project: Project){
             name = "GitHubPackages"
             url = URI.create("https://maven.pkg.github.com/$githubRepo")
             credentials {
-                username = githubPublishUser//project.findProperty("gpr.user") as String? ?: System.getenv("USERNAME")
-                password = githubPublishToken//project.findProperty("gpr.key") as String? ?: System.getenv("TOKEN")
+                username = githubPublishUser
+                password = githubPublishToken
             }
         }
     } catch (e: Exception) {
