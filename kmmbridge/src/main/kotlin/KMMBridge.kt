@@ -15,13 +15,6 @@ package co.touchlab.faktory
 
 import co.touchlab.faktory.artifactmanager.GradlePublishArtifactManager
 import org.gradle.api.*
-import org.gradle.api.artifacts.Configuration
-import org.gradle.api.attributes.Bundling
-import org.gradle.api.attributes.Category
-import org.gradle.api.attributes.LibraryElements
-import org.gradle.api.attributes.Usage
-import org.gradle.api.attributes.java.TargetJvmVersion
-import org.gradle.api.component.SoftwareComponentFactory
 import org.gradle.api.tasks.bundling.Zip
 import org.gradle.kotlin.dsl.*
 import org.jetbrains.kotlin.gradle.plugin.mpp.Framework
@@ -31,24 +24,15 @@ import org.jetbrains.kotlin.gradle.plugin.mpp.apple.XCFramework
 import org.jetbrains.kotlin.gradle.plugin.mpp.apple.XCFrameworkConfig
 import java.io.*
 import java.util.*
-import javax.inject.Inject
 
 @Suppress("unused")
-class KMMBridgePlugin @Inject constructor(
-    private val softwareComponentFactory: SoftwareComponentFactory
-) : Plugin<Project> {
+class KMMBridgePlugin : Plugin<Project> {
 
     private lateinit var zipTask: Zip
     private lateinit var zipFile: File
 
     override fun apply(project: Project): Unit = with(project) {
         val extension = extensions.create<KmmBridgeExtension>(EXTENSION_NAME)
-
-        with(softwareComponentFactory.adhoc("kmmbridge")) {
-            components.add(this)
-            addVariantsFromConfiguration(createOutgoingConfiguration()) { mapToMavenScope("runtime") }
-        }
-
         extension.dependencyManagers.convention(emptyList())
         extension.buildType.convention(NativeBuildType.RELEASE)
         configureZipTask(extension)
@@ -157,21 +141,5 @@ class KMMBridgePlugin @Inject constructor(
         for (dependencyManager in dependencyManagers) {
             dependencyManager.configure(this, uploadTask, publishRemoteTask)
         }
-    }
-
-    private fun Project.createOutgoingConfiguration(): Configuration {
-        val configuration by configurations.creating {
-            isCanBeConsumed = true
-            isCanBeResolved = false
-            attributes {
-                attribute(Category.CATEGORY_ATTRIBUTE, objects.named(Category.LIBRARY))
-                attribute(Usage.USAGE_ATTRIBUTE, objects.named(Usage.JAVA_RUNTIME))
-                attribute(Bundling.BUNDLING_ATTRIBUTE, objects.named(Bundling.EXTERNAL))
-                attribute(TargetJvmVersion.TARGET_JVM_VERSION_ATTRIBUTE, JavaVersion.current().majorVersion.toInt())
-                attribute(LibraryElements.LIBRARY_ELEMENTS_ATTRIBUTE, objects.named("shared-xcframework"))
-            }
-        }
-
-        return configuration
     }
 }
