@@ -22,7 +22,7 @@ class GradlePublishArtifactManager(
     private val name: String = project.name
     private val artifactBasePath: String = "{{url}}/$group/$name/{{version}}/$name-{{version}}-kmmbridge.zip"
 
-    override fun configure(project: Project, version: String) {
+    override fun configure(project: Project, version: String, uploadTask: Task) {
         project.publishingExtension.publications.create("SharedFramework", MavenPublication::class.java) {
             from(project.components.getByName("kmmbridge"))
             this.version = version
@@ -31,6 +31,7 @@ class GradlePublishArtifactManager(
                 extension = "zip"
             }
         }
+        uploadTask.dependsOn(gradlePublishingTask)
     }
 
     /**

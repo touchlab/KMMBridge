@@ -121,8 +121,6 @@ class KMMBridgePlugin @Inject constructor(
         val versionManager = extension.versionManager.orNull ?: throw GradleException("versionManager must be specified")
         val version = versionManager.getVersion(project, extension.versionPrefix.get())
 
-        artifactManager.configure(this, version)
-
         val uploadTask = task("uploadXCFramework") {
             group = TASK_GROUP_NAME
 
@@ -154,9 +152,7 @@ class KMMBridgePlugin @Inject constructor(
             })
         }
 
-        if (artifactManager is GradlePublishArtifactManager) {
-            uploadTask.dependsOn(artifactManager.gradlePublishingTask)
-        }
+        artifactManager.configure(this, version, uploadTask)
 
         for (dependencyManager in dependencyManagers) {
             dependencyManager.configure(this, uploadTask, publishRemoteTask)
