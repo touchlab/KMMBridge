@@ -42,14 +42,13 @@ class KMMBridgePlugin @Inject constructor(
     override fun apply(project: Project): Unit = with(project) {
         val extension = extensions.create<KmmBridgeExtension>(EXTENSION_NAME)
 
-        with(softwareComponentFactory.adhoc("kmmbridge")) {
-            components.add(this)
-            addVariantsFromConfiguration(createOutgoingConfiguration()) { mapToMavenScope("runtime") }
-        }
+//        with(softwareComponentFactory.adhoc("kmmbridge")) {
+//            components.add(this)
+//            addVariantsFromConfiguration(createOutgoingConfiguration()) { mapToMavenScope("runtime") }
+//        }
 
         extension.dependencyManagers.convention(emptyList())
         extension.buildType.convention(NativeBuildType.RELEASE)
-        configureZipTask(extension)
 
         // Don't call `kotlin` directly as that'd create an order dependency on the Kotlin Multiplatform plugin
         val fallbackVersion = project.provider {
@@ -63,7 +62,7 @@ class KMMBridgePlugin @Inject constructor(
             }
 
             configureXcFramework()
-            configureArtifactManagerAndDeploy()
+            configureArtifactManagerAndDeploy(softwareComponentFactory)
         }
     }
 
@@ -110,7 +109,7 @@ class KMMBridgePlugin @Inject constructor(
             }
     }
 
-    private fun Project.configureArtifactManagerAndDeploy() {
+    private fun Project.configureArtifactManagerAndDeploy(softwareComponentFactory: SoftwareComponentFactory) {
         val extension = extensions.getByType<KmmBridgeExtension>()
         val (zipTask, zipFile)= configureZipTask(extension)
         val artifactManager = extension.artifactManager.get()
@@ -149,29 +148,13 @@ class KMMBridgePlugin @Inject constructor(
             })
         }
 
-        artifactManager.configure(this, version, uploadTask)
+        artifactManager.configure(this, version, uploadTask, softwareComponentFactory)
 
         for (dependencyManager in dependencyManagers) {
             dependencyManager.configure(this, uploadTask, publishRemoteTask)
         }
 
         zipTask.dependsOn(findXCFrameworkAssembleTask())
-    }
-
-    private fun Project.createOutgoingConfiguration(): Configuration {
-        val configuration by configurations.creating {
-            isCanBeConsumed = true
-            isCanBeResolved = false
-            attributes {
-                attribute(Category.CATEGORY_ATTRIBUTE, objects.named(Category.LIBRARY))
-                attribute(Usage.USAGE_ATTRIBUTE, objects.named(Usage.NATIVE_LINK))
-                attribute(Bundling.BUNDLING_ATTRIBUTE, objects.named(Bundling.EMBEDDED))
-                attribute(TargetJvmVersion.TARGET_JVM_VERSION_ATTRIBUTE, JavaVersion.current().majorVersion.toInt())
-                attribute(LibraryElements.LIBRARY_ELEMENTS_ATTRIBUTE, objects.named("shared-xcframework"))
-            }
-        }
-
-        return configuration
     }
 }
 
