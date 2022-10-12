@@ -50,7 +50,7 @@ class GradlePublishArtifactManager(
         // TODO Look at the gradle publishing side of things - does it need to be told the dynamic version rather than pulling the project.version?
         return artifactBasePath
             .replace("{{url}}", mavenArtifactRepository.url.toString())
-            .replace("{{version}}", project.version.toString())
+            .replace("{{version}}", version)
     }
 
     private fun publishingTaskName(): String {
