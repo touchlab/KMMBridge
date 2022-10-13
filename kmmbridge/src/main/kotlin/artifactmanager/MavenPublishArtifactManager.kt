@@ -10,7 +10,7 @@ import org.gradle.api.publish.maven.MavenPublication
 import org.gradle.kotlin.dsl.getByType
 import java.io.File
 
-class GradlePublishArtifactManager(
+class MavenPublishArtifactManager(
     val project: Project,
     private val publication: String?,
     private val repository: String?
@@ -26,7 +26,6 @@ class GradlePublishArtifactManager(
         softwareComponentFactory: SoftwareComponentFactory
     ) {
         project.publishingExtension.publications.create("SharedFramework", MavenPublication::class.java) {
-            from(project.components.getByName("kmmbridge"))
             this.version = version
             artifact(project.tasks.getByName("zipXCFramework")) {
                 classifier = "kmmbridge"
