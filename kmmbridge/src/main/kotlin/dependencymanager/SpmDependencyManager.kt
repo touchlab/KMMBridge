@@ -34,7 +34,7 @@ class SpmDependencyManager(
     private fun Project.swiftPackageFilePath(): String = "${stripEndSlash(swiftPackageFolder())}/Package.swift"
 
     override fun configure(project: Project, uploadTask: Task, publishRemoteTask: Task) {
-        val extension = project.extensions.getByType<KmmBridgeExtension>()
+        val extension = project.kmmBridgeExtension
         val updatePackageSwiftTask = project.task("updatePackageSwift") {
             group = TASK_GROUP_NAME
             val zipFile = project.zipFilePath()
