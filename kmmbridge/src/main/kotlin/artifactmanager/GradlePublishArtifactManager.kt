@@ -18,7 +18,6 @@ class GradlePublishArtifactManager(
 
     private val group: String = project.group.toString().replace(".", "/")
     private val name: String = project.name
-    private val artifactBasePath: String = "{{url}}/$group/$name/{{version}}/$name-{{version}}-kmmbridge.zip"
 
     override fun configure(
         project: Project,
@@ -51,9 +50,7 @@ class GradlePublishArtifactManager(
             publishing.repositories.findByName(it)
         } ?: publishing.repositories.first()) as MavenArtifactRepository
 
-        return artifactBasePath
-            .replace("{{url}}", mavenArtifactRepository.url.toString())
-            .replace("{{version}}", version)
+        return artifactPath(mavenArtifactRepository.url.toString(), version)
     }
 
     private fun publishingTaskName(): String {
@@ -71,4 +68,7 @@ class GradlePublishArtifactManager(
 
         return "publish${publicationName}PublicationTo${repositoryName}Repository"
     }
+
+    private fun artifactPath(url: String, version: String) =
+        "$url/$group/$name/$version/$name-$version-kmmbridge.zip"
 }
