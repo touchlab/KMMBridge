@@ -100,24 +100,38 @@ class KMMBridgePlugin @Inject constructor(
 
     private fun Project.configureArtifactManagerAndDeploy(softwareComponentFactory: SoftwareComponentFactory) {
         val extension = extensions.getByType<KmmBridgeExtension>()
-        val (zipTask, zipFile)= configureZipTask(extension)
+        val (zipTask, zipFile) = configureZipTask(extension)
         val artifactManager = extension.artifactManager.get()
         val dependencyManagers = extension.dependencyManagers.get()
-        val versionManager = extension.versionManager.orNull ?: throw GradleException("versionManager must be specified")
-        val version = versionManager.getVersion(project, extension.versionPrefix.get())
+        val versionManager =
+            extension.versionManager.orNull ?: throw GradleException("versionManager must be specified")
+
+        val resolveVersionTask = task("resolveVersion") {
+            group = TASK_GROUP_NAME
+            dependsOn(zipTask)
+            inputs.file(zipFile)
+            outputs.files(versionFile)
+
+            @Suppress("ObjectLiteralToLambda") doLast(object : Action<Task> {
+                override fun execute(t: Task) {
+                    val version = versionManager.getVersion(project, extension.versionPrefix.get())
+                    versionFile.writeText(version)
+                }
+            })
+        }
 
         val uploadTask = task("uploadXCFramework") {
             group = TASK_GROUP_NAME
 
-            dependsOn(zipTask)
-            inputs.file(zipFile)
-            outputs.files(urlFile, versionFile)
+            dependsOn(resolveVersionTask)
+            inputs.files(zipFile, versionFile)
+            outputs.files(urlFile)
             outputs.upToDateWhen { false } // We want to always upload when this task is called
 
             @Suppress("ObjectLiteralToLambda")
             doLast(object : Action<Task> {
                 override fun execute(t: Task) {
-                    versionFile.writeText(version)
+                    val version = versionFile.readText()
                     logger.info("Uploading XCFramework version $version")
                     val deployUrl = artifactManager.deployArtifact(project, zipFile, version)
                     urlFile.writeText(deployUrl)
@@ -137,7 +151,7 @@ class KMMBridgePlugin @Inject constructor(
             })
         }
 
-        artifactManager.configure(this, version, uploadTask, softwareComponentFactory)
+        artifactManager.configure(this, resolveVersionTask, uploadTask, softwareComponentFactory)
 
         for (dependencyManager in dependencyManagers) {
             dependencyManager.configure(this, uploadTask, publishRemoteTask)

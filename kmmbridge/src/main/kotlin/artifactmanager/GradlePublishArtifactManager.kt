@@ -1,6 +1,8 @@
 package co.touchlab.faktory.artifactmanager
 
 import co.touchlab.faktory.publishingExtension
+import co.touchlab.faktory.versionFile
+import org.gradle.api.Action
 import org.gradle.api.JavaVersion
 import org.gradle.api.Project
 import org.gradle.api.Task
@@ -27,7 +29,7 @@ class GradlePublishArtifactManager(
 ) : ArtifactManager {
 
     val gradlePublishingTask: Task?
-        get() = project.tasks.findByName(publishingTaskName())
+        get() = publishingTaskName()?.let { project.tasks.findByName(it) }
 
     private val group: String = project.group.toString().replace(".", "/")
     private val name: String = project.name
@@ -35,23 +37,35 @@ class GradlePublishArtifactManager(
 
     override fun configure(
         project: Project,
-        version: String,
+        resolveVersionTask: Task,
         uploadTask: Task,
         softwareComponentFactory: SoftwareComponentFactory
     ) {
-        with(softwareComponentFactory.adhoc("kmmbridge")) {
-            project.components.add(this)
-            addVariantsFromConfiguration(project.createOutgoingConfiguration()) { mapToMavenScope("runtime") }
-        }
-        project.publishingExtension.publications.create("SharedFramework", MavenPublication::class.java) {
-            from(project.components.getByName("kmmbridge"))
-            this.version = version
-            artifact(project.tasks.getByName("zipXCFramework")) {
-                classifier = "kmmbridge"
-                extension = "zip"
+        val dependsTask = gradlePublishingTask
+        if(dependsTask != null) {
+            with(softwareComponentFactory.adhoc("kmmbridge")) {
+                project.components.add(this)
+                addVariantsFromConfiguration(project.createOutgoingConfiguration()) { mapToMavenScope("runtime") }
             }
+            val publication = project.publishingExtension.publications.create("SharedFramework", MavenPublication::class.java) {
+                from(project.components.getByName("kmmbridge"))
+                artifact(project.tasks.getByName("zipXCFramework")) {
+                    classifier = "kmmbridge"
+                    extension = "zip"
+                }
+            }
+            val lateApplyVersionToPublicationTask = project.tasks.create("lateApplyVersionToPublication"){
+                dependsOn(resolveVersionTask)
+                @Suppress("ObjectLiteralToLambda")
+                doLast(object : Action<Task> {
+                    override fun execute(t: Task) {
+                        publication.version = project.versionFile.readText()
+                    }
+                })
+            }
+            gradlePublishingTask?.dependsOn(lateApplyVersionToPublicationTask)
+            uploadTask.dependsOn(gradlePublishingTask)
         }
-        uploadTask.dependsOn(gradlePublishingTask)
     }
 
     /**
@@ -74,20 +88,24 @@ class GradlePublishArtifactManager(
             .replace("{{version}}", version)
     }
 
-    private fun publishingTaskName(): String {
+    private fun publishingTaskName(): String? {
         val publishing = project.extensions.getByType<PublishingExtension>()
 
         val publication = publication?.let {
             publishing.publications.findByName(it)
-        } ?: publishing.publications.first()
-        val publicationName = publication.name.capitalize()
+        } ?: publishing.publications.firstOrNull()
+        val publicationName = publication?.name?.capitalize()
 
         val mavenArtifactRepository = (repository?.let {
             publishing.repositories.findByName(it)
-        } ?: publishing.repositories.first()) as MavenArtifactRepository
-        val repositoryName = mavenArtifactRepository.name.capitalize()
+        } ?: publishing.repositories.firstOrNull()) as MavenArtifactRepository?
+        val repositoryName = mavenArtifactRepository?.name?.capitalize()
 
-        return "publish${publicationName}PublicationTo${repositoryName}Repository"
+        return if (publicationName == null || repositoryName == null) {
+            null
+        } else {
+            "publish${publicationName}PublicationTo${repositoryName}Repository"
+        }
     }
 
     private fun Project.createOutgoingConfiguration(): Configuration {

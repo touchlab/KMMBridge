@@ -22,7 +22,7 @@ interface ArtifactManager {
     /**
      * Do configuration specific to this `ArtifactManager`.
      */
-    fun configure(project: Project, version: String, uploadTask: Task, softwareComponentFactory: SoftwareComponentFactory) {}
+    fun configure(project: Project, resolveVersionTask: Task, uploadTask: Task, softwareComponentFactory: SoftwareComponentFactory) {}
 
     /**
      * Send the thing, and return a link to the thing...
