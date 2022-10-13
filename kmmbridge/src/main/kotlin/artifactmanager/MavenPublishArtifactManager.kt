@@ -16,6 +16,9 @@ class MavenPublishArtifactManager(
     private val repository: String?
 ) : ArtifactManager {
 
+    val gradlePublishingTask: Task?
+        get() = publishingTaskName()?.let { project.tasks.findByName(it) }
+
     private val group: String = project.group.toString().replace(".", "/")
     private val name: String = project.name
 
@@ -25,14 +28,18 @@ class MavenPublishArtifactManager(
         uploadTask: Task,
         softwareComponentFactory: SoftwareComponentFactory
     ) {
-        project.publishingExtension.publications.create("SharedFramework", MavenPublication::class.java) {
-            this.version = version
-            artifact(project.tasks.getByName("zipXCFramework")) {
-                classifier = "kmmbridge"
-                extension = "zip"
+        val dependsTask = gradlePublishingTask
+        // If we're not in CI, this can be null
+        if(dependsTask != null) {
+            project.publishingExtension.publications.create("SharedFramework", MavenPublication::class.java) {
+                this.version = version
+                artifact(project.tasks.getByName("zipXCFramework")) {
+                    classifier = "kmmbridge"
+                    extension = "zip"
+                }
             }
+            uploadTask.dependsOn(dependsTask)
         }
-        uploadTask.dependsOn(project.tasks.findByName(publishingTaskName()))
     }
 
     /**
@@ -52,20 +59,24 @@ class MavenPublishArtifactManager(
         return artifactPath(mavenArtifactRepository.url.toString(), version)
     }
 
-    private fun publishingTaskName(): String {
+    private fun publishingTaskName(): String? {
         val publishing = project.extensions.getByType<PublishingExtension>()
 
         val publication = publication?.let {
             publishing.publications.findByName(it)
-        } ?: publishing.publications.first()
-        val publicationName = publication.name.capitalize()
+        } ?: publishing.publications.firstOrNull()
+        val publicationName = publication?.name?.capitalize()
 
         val mavenArtifactRepository = (repository?.let {
             publishing.repositories.findByName(it)
-        } ?: publishing.repositories.first()) as MavenArtifactRepository
-        val repositoryName = mavenArtifactRepository.name.capitalize()
+        } ?: publishing.repositories.firstOrNull()) as MavenArtifactRepository?
+        val repositoryName = mavenArtifactRepository?.name?.capitalize()
 
-        return "publish${publicationName}PublicationTo${repositoryName}Repository"
+        return if (publicationName == null || repositoryName == null) {
+            null
+        } else {
+            "publish${publicationName}PublicationTo${repositoryName}Repository"
+        }
     }
 
     private fun artifactPath(url: String, version: String) =
