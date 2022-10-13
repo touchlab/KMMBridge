@@ -16,12 +16,14 @@ package co.touchlab.faktory
 import co.touchlab.faktory.artifactmanager.ArtifactManager
 import co.touchlab.faktory.artifactmanager.AwsS3PublicArtifactManager
 import co.touchlab.faktory.artifactmanager.FaktoryServerArtifactManager
+import co.touchlab.faktory.artifactmanager.GithubEnterpriseReleaseArtifactManager
 import co.touchlab.faktory.artifactmanager.GithubReleaseArtifactManager
 import co.touchlab.faktory.dependencymanager.CocoapodsDependencyManager
 import co.touchlab.faktory.dependencymanager.DependencyManager
 import co.touchlab.faktory.dependencymanager.SpecRepo
 import co.touchlab.faktory.dependencymanager.SpmDependencyManager
 import co.touchlab.faktory.versionmanager.GitTagVersionManager
+import co.touchlab.faktory.versionmanager.GithubEnterpriseReleaseVersionManager
 import co.touchlab.faktory.versionmanager.GithubReleaseVersionManager
 import co.touchlab.faktory.versionmanager.ManualVersionManager
 import co.touchlab.faktory.versionmanager.TimestampVersionManager
@@ -74,6 +76,12 @@ interface KmmBridgeExtension {
         artifactManager.set(GithubReleaseArtifactManager(artifactRelease))
     }
 
+    fun githubEnterpriseReleaseArtifacts(
+        artifactRelease: String? = null
+    ) {
+        artifactManager.set(GithubEnterpriseReleaseArtifactManager(artifactRelease))
+    }
+
     fun Project.faktoryServerArtifacts(faktoryReadKey: String? = null) {
         artifactManager.set(FaktoryServerArtifactManager(faktoryReadKey, this))
     }
@@ -88,6 +96,10 @@ interface KmmBridgeExtension {
 
     fun githubReleaseVersions() {
         versionManager.set(GithubReleaseVersionManager)
+    }
+
+    fun githubEnterpriseReleaseVersions() {
+        versionManager.set(GithubEnterpriseReleaseVersionManager)
     }
 
     fun manualVersions() {
