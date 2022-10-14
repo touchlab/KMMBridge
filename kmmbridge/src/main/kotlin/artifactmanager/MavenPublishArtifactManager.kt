@@ -24,7 +24,8 @@ class MavenPublishArtifactManager(
     override fun configure(
         project: Project,
         version: String,
-        uploadTask: Task
+        uploadTask: Task,
+        kmmPublishTask: Task
     ) {
         project.publishingExtension.publications.create(FRAMEWORK_PUBLICATION_NAME, MavenPublication::class.java) {
             this.version = version
@@ -35,6 +36,8 @@ class MavenPublishArtifactManager(
         }
 
         publishingTasks().forEach { uploadTask.dependsOn(it) }
+        project.tasks.findByName("publish")?.also { task -> task.dependsOn(kmmPublishTask) }
+            ?: project.logger.warn("Gradle publish task not found")
     }
 
     /**
@@ -47,9 +50,12 @@ class MavenPublishArtifactManager(
     override fun deployArtifact(project: Project, zipFilePath: File, version: String): String {
         val publishingExtension = project.extensions.getByType<PublishingExtension>()
 
-        val mavenArtifactRepository = findArtifactRepository(publishingExtension)!! // Previous code assumed not-null, so just hard not-nulling here, unless we want to deal with nulls
+        // There may be more than one repo, but it's also possible we get none. This will allow us to continue and trying
+        // to use the dependency should fail.
+        // If there are multiple repos, the repo name needs to be specified.
+        val mavenArtifactRepositoryUrl = findArtifactRepository(publishingExtension)?.url?.toString() ?: "noop://no-repo-found"
 
-        return artifactPath(mavenArtifactRepository.url.toString(), version)
+        return artifactPath(mavenArtifactRepositoryUrl, version)
     }
 
     private fun publishingTasks(): List<Task> {

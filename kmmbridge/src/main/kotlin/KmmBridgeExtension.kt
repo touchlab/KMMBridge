@@ -79,7 +79,11 @@ interface KmmBridgeExtension {
         artifactManager.set(FaktoryServerArtifactManager(faktoryReadKey, this))
     }
 
-    fun Project.mavenPublishArtifacts(publication: String? = null, repository: String? = null) {
+    /**
+     * If using multiple repos, you can specify which one the `Package.swift` and/or podspec point to by
+     * passing the name in here.
+     */
+    fun Project.mavenPublishArtifacts(repository: String? = null, publication: String? = null) {
         artifactManager.set(MavenPublishArtifactManager(this, publication, repository))
     }
 

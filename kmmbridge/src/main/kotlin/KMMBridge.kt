@@ -14,7 +14,6 @@
 package co.touchlab.faktory
 
 import org.gradle.api.*
-import org.gradle.api.component.SoftwareComponentFactory
 import org.gradle.api.publish.PublishingExtension
 import org.gradle.api.tasks.bundling.Zip
 import org.gradle.kotlin.dsl.*
@@ -135,7 +134,7 @@ class KMMBridgePlugin : Plugin<Project> {
             })
         }
 
-        artifactManager.configure(this, version, uploadTask)
+        artifactManager.configure(this, version, uploadTask, publishRemoteTask)
 
         for (dependencyManager in dependencyManagers) {
             dependencyManager.configure(this, uploadTask, publishRemoteTask)

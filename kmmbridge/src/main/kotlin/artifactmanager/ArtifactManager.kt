@@ -21,7 +21,7 @@ interface ArtifactManager {
     /**
      * Do configuration specific to this `ArtifactManager`.
      */
-    fun configure(project: Project, version: String, uploadTask: Task) {}
+    fun configure(project: Project, version: String, uploadTask: Task, kmmPublishTask: Task) {}
 
     /**
      * Send the thing, and return a link to the thing...
