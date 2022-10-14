@@ -10,6 +10,7 @@ import org.gradle.kotlin.dsl.getByType
 import java.io.File
 
 private const val FRAMEWORK_PUBLICATION_NAME = "KMMBridgeFramework"
+private const val KMMBRIDGE_ARTIFACT_SUFFIX = "kmmbridge"
 
 class MavenPublishArtifactManager(
     val project: Project,
@@ -21,7 +22,7 @@ class MavenPublishArtifactManager(
         get() = publishingTaskName()?.let { project.tasks.findByName(it) }
 
     private val group: String = project.group.toString().replace(".", "/")
-    private val name: String = project.name
+    private val kmmbridgeArtifactId = "${project.name}-$KMMBRIDGE_ARTIFACT_SUFFIX"
 
     override fun configure(
         project: Project,
@@ -31,9 +32,9 @@ class MavenPublishArtifactManager(
         project.publishingExtension.publications.create(FRAMEWORK_PUBLICATION_NAME, MavenPublication::class.java) {
             this.version = version
             artifact(project.tasks.getByName("zipXCFramework")) {
-                classifier = "kmmbridge"
                 extension = "zip"
             }
+            artifactId = kmmbridgeArtifactId
         }
 
         val dependsTask = gradlePublishingTask
@@ -83,5 +84,5 @@ class MavenPublishArtifactManager(
     }
 
     private fun artifactPath(url: String, version: String) =
-        "$url/$group/$name/$version/$name-$version-kmmbridge.zip"
+        "$url/$group/$kmmbridgeArtifactId/$version/$kmmbridgeArtifactId-$version.zip"
 }
