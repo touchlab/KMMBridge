@@ -1,6 +1,7 @@
 package co.touchlab.faktory.artifactmanager
 
 import co.touchlab.faktory.publishingExtension
+import org.gradle.api.GradleException
 import org.gradle.api.Project
 import org.gradle.api.Task
 import org.gradle.api.artifacts.repositories.MavenArtifactRepository
@@ -17,10 +18,6 @@ class MavenPublishArtifactManager(
     private val publicationName: String?,
     private val repositoryName: String?
 ) : ArtifactManager {
-
-    private val gradlePublishingTask: Task?
-        get() = publishingTaskName()?.let { project.tasks.findByName(it) }
-
     private val group: String = project.group.toString().replace(".", "/")
     private val kmmbridgeArtifactId = "${project.name}-$KMMBRIDGE_ARTIFACT_SUFFIX"
 
@@ -37,11 +34,7 @@ class MavenPublishArtifactManager(
             artifactId = kmmbridgeArtifactId
         }
 
-        val dependsTask = gradlePublishingTask
-        // If we're not in CI, this can be null
-        if(dependsTask != null) {
-            uploadTask.dependsOn(dependsTask)
-        }
+        publishingTasks().forEach { uploadTask.dependsOn(it) }
     }
 
     /**
@@ -59,20 +52,17 @@ class MavenPublishArtifactManager(
         return artifactPath(mavenArtifactRepository.url.toString(), version)
     }
 
-    private fun publishingTaskName(): String? {
+    private fun publishingTasks(): List<Task> {
         val publishingExtension = project.extensions.getByType<PublishingExtension>()
 
         // Either the user has supplied a correct name, or we use the default. If neither is found, fail.
         val publicationNameCap = publishingExtension.publications.getByName(publicationName ?: FRAMEWORK_PUBLICATION_NAME).name.capitalize()
 
-        val mavenArtifactRepository = findArtifactRepository(publishingExtension)
-
-        val repositoryName = mavenArtifactRepository?.name?.capitalize()
-
-        return if (repositoryName == null) {
-            null
-        } else {
-            "publish${publicationNameCap}PublicationTo${repositoryName}Repository"
+        return publishingExtension.repositories.filterIsInstance<MavenArtifactRepository>().map { repo ->
+            val repositoryName = repo.name.capitalize()
+            val publishTaskName = "publish${publicationNameCap}PublicationTo${repositoryName}Repository"
+            // Verify that the "publish" task exists before collecting
+            project.tasks.findByName(publishTaskName) ?: throw GradleException("Cannot find publish task $publishTaskName")
         }
     }
 
