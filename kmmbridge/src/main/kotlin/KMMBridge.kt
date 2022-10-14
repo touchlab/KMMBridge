@@ -29,9 +29,7 @@ import java.util.*
 import javax.inject.Inject
 
 @Suppress("unused")
-class KMMBridgePlugin @Inject constructor(
-    private val softwareComponentFactory: SoftwareComponentFactory
-) : Plugin<Project> {
+class KMMBridgePlugin : Plugin<Project> {
 
     override fun apply(project: Project): Unit = with(project) {
         val extension = extensions.create<KmmBridgeExtension>(EXTENSION_NAME)
@@ -51,7 +49,7 @@ class KMMBridgePlugin @Inject constructor(
             }
 
             configureXcFramework()
-            configureArtifactManagerAndDeploy(softwareComponentFactory)
+            configureArtifactManagerAndDeploy()
         }
     }
 
@@ -98,7 +96,7 @@ class KMMBridgePlugin @Inject constructor(
             }
     }
 
-    private fun Project.configureArtifactManagerAndDeploy(softwareComponentFactory: SoftwareComponentFactory) {
+    private fun Project.configureArtifactManagerAndDeploy() {
         val extension = extensions.getByType<KmmBridgeExtension>()
         val (zipTask, zipFile)= configureZipTask(extension)
         val artifactManager = extension.artifactManager.get()
@@ -137,7 +135,7 @@ class KMMBridgePlugin @Inject constructor(
             })
         }
 
-        artifactManager.configure(this, version, uploadTask, softwareComponentFactory)
+        artifactManager.configure(this, version, uploadTask)
 
         for (dependencyManager in dependencyManagers) {
             dependencyManager.configure(this, uploadTask, publishRemoteTask)
@@ -147,6 +145,7 @@ class KMMBridgePlugin @Inject constructor(
     }
 }
 
+@Suppress("unused")
 fun PublishingExtension.addGithubPackagesRepository(project: Project){
     try {
         val githubPublishUser = project.githubPublishUser ?: "cirunner"
