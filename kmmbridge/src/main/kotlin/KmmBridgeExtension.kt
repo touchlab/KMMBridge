@@ -17,6 +17,7 @@ import co.touchlab.faktory.artifactmanager.ArtifactManager
 import co.touchlab.faktory.artifactmanager.AwsS3PublicArtifactManager
 import co.touchlab.faktory.artifactmanager.FaktoryServerArtifactManager
 import co.touchlab.faktory.artifactmanager.GithubReleaseArtifactManager
+import co.touchlab.faktory.artifactmanager.MavenPublishArtifactManager
 import co.touchlab.faktory.dependencymanager.CocoapodsDependencyManager
 import co.touchlab.faktory.dependencymanager.DependencyManager
 import co.touchlab.faktory.dependencymanager.SpecRepo
@@ -76,6 +77,14 @@ interface KmmBridgeExtension {
 
     fun Project.faktoryServerArtifacts(faktoryReadKey: String? = null) {
         artifactManager.set(FaktoryServerArtifactManager(faktoryReadKey, this))
+    }
+
+    /**
+     * If using multiple repos, you can specify which one the `Package.swift` and/or podspec point to by
+     * passing the name in here.
+     */
+    fun Project.mavenPublishArtifacts(repository: String? = null, publication: String? = null) {
+        artifactManager.set(MavenPublishArtifactManager(this, publication, repository))
     }
 
     fun timestampVersions() {

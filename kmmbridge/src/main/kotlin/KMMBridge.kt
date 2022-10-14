@@ -13,11 +13,8 @@
 
 package co.touchlab.faktory
 
-import org.gradle.api.Action
-import org.gradle.api.GradleException
-import org.gradle.api.Plugin
-import org.gradle.api.Project
-import org.gradle.api.Task
+import org.gradle.api.*
+import org.gradle.api.publish.PublishingExtension
 import org.gradle.api.tasks.bundling.Zip
 import org.gradle.kotlin.dsl.*
 import org.jetbrains.kotlin.gradle.plugin.mpp.Framework
@@ -26,13 +23,16 @@ import org.jetbrains.kotlin.gradle.plugin.mpp.NativeBuildType
 import org.jetbrains.kotlin.gradle.plugin.mpp.apple.XCFramework
 import org.jetbrains.kotlin.gradle.plugin.mpp.apple.XCFrameworkConfig
 import java.io.*
+import java.net.URI
 import java.util.*
+import javax.inject.Inject
 
 @Suppress("unused")
 class KMMBridgePlugin : Plugin<Project> {
 
     override fun apply(project: Project): Unit = with(project) {
         val extension = extensions.create<KmmBridgeExtension>(EXTENSION_NAME)
+
         extension.dependencyManagers.convention(emptyList())
         extension.buildType.convention(NativeBuildType.RELEASE)
 
@@ -48,8 +48,20 @@ class KMMBridgePlugin : Plugin<Project> {
             }
 
             configureXcFramework()
-            configureDeploy()
+            configureArtifactManagerAndDeploy()
         }
+    }
+
+    private fun Project.configureZipTask(extension: KmmBridgeExtension): Pair<Task, File> {
+        val zipFile = zipFilePath()
+        val zipTask = task<Zip>("zipXCFramework") {
+            group = TASK_GROUP_NAME
+            from("$buildDir/XCFrameworks/${extension.buildType.get().getName()}")
+            destinationDirectory.set(zipFile.parentFile)
+            archiveFileName.set(zipFile.name)
+        }
+
+        return Pair(zipTask, zipFile)
     }
 
     // Collect all declared frameworks in project and combine into xcframework
@@ -83,23 +95,14 @@ class KMMBridgePlugin : Plugin<Project> {
             }
     }
 
-    private fun Project.configureDeploy() {
+    private fun Project.configureArtifactManagerAndDeploy() {
         val extension = extensions.getByType<KmmBridgeExtension>()
-
-        val xcFrameworkPath = "$buildDir/XCFrameworks/${extension.buildType.get().getName()}"
+        val (zipTask, zipFile)= configureZipTask(extension)
         val artifactManager = extension.artifactManager.get()
-        val zipFile = zipFilePath()
-
-        val zipTask = task<Zip>("zipXCFramework") {
-            group = TASK_GROUP_NAME
-            dependsOn(findXCFrameworkAssembleTask())
-
-            from(xcFrameworkPath)
-            destinationDirectory.set(zipFile.parentFile)
-            archiveFileName.set(zipFile.name)
-        }
-
         val dependencyManagers = extension.dependencyManagers.get()
+        val versionManager = extension.versionManager.orNull ?: throw GradleException("versionManager must be specified")
+        val version = versionManager.getVersion(project, extension.versionPrefix.get())
+
         val uploadTask = task("uploadXCFramework") {
             group = TASK_GROUP_NAME
 
@@ -111,8 +114,6 @@ class KMMBridgePlugin : Plugin<Project> {
             @Suppress("ObjectLiteralToLambda")
             doLast(object : Action<Task> {
                 override fun execute(t: Task) {
-                    val versionManager = extension.versionManager.orNull ?: throw GradleException("versionManager must be specified")
-                    val version = versionManager.getVersion(project, extension.versionPrefix.get())
                     versionFile.writeText(version)
                     logger.info("Uploading XCFramework version $version")
                     val deployUrl = artifactManager.deployArtifact(project, zipFile, version)
@@ -133,8 +134,31 @@ class KMMBridgePlugin : Plugin<Project> {
             })
         }
 
+        artifactManager.configure(this, version, uploadTask, publishRemoteTask)
+
         for (dependencyManager in dependencyManagers) {
             dependencyManager.configure(this, uploadTask, publishRemoteTask)
         }
+
+        zipTask.dependsOn(findXCFrameworkAssembleTask())
+    }
+}
+
+@Suppress("unused")
+fun PublishingExtension.addGithubPackagesRepository(project: Project){
+    try {
+        val githubPublishUser = project.githubPublishUser ?: "cirunner"
+        val githubPublishToken = project.githubPublishToken
+        val githubRepo = project.githubRepo
+        repositories.maven {
+            name = "GitHubPackages"
+            url = URI.create("https://maven.pkg.github.com/$githubRepo")
+            credentials {
+                username = githubPublishUser//project.findProperty("gpr.user") as String? ?: System.getenv("USERNAME")
+                password = githubPublishToken//project.findProperty("gpr.key") as String? ?: System.getenv("TOKEN")
+            }
+        }
+    } catch (e: Exception) {
+        // Ignore if not in CI
     }
 }
