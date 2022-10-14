@@ -31,8 +31,8 @@ jobs:
       - name: "Checkout sample"
         uses: actions/checkout@v3
         with:
-          repository: "touchlab/${{ matrix.target }}"
-          path: "build/${{ matrix.target }}"
+          repository: "touchlab/${{ matrix.sample }}"
+          path: "build/${{ matrix.sample }}"
 
       - name: Validate Gradle Wrapper
         uses: gradle/wrapper-validation-action@v1
@@ -64,21 +64,21 @@ jobs:
 
       - name: Publish shared
         run: |
-          cd build/${{ matrix.target }}
+          cd build/${{ matrix.sample }}
           ./gradlew kmmBridgePublish -PGITHUB_PUBLISH_TOKEN=${{ secrets.GITHUB_TOKEN }} -PGITHUB_REPO=${{ github.repository }} ${{ secrets.gradle_params }} --no-daemon --stacktrace
         env:
           GRADLE_OPTS: -Dkotlin.incremental=false -Dorg.gradle.jvmargs="-Xmx3g -XX:MaxPermSize=2048m -XX:+HeapDumpOnOutOfMemoryError -Dfile.encoding=UTF-8 -XX:MaxMetaspaceSize=512m"
 
       - name: Build SPM Sample
         run: |
-          cd build/${{ matrix.target }}/ios-spm
-          xcodebuild -configuration Debug -scheme ${{ matrix.target }}Spm -sdk iphonesimulator 
+          cd build/${{ matrix.sample }}/ios-spm
+          xcodebuild -configuration Debug -scheme ${{ matrix.sample }}Spm -sdk iphonesimulator 
 
       - name: Build Cocoapods Sample
         run: |
-          cd build/${{ matrix.target }}/ios-cocoapods
+          cd build/${{ matrix.sample }}/ios-cocoapods
           pod install
-          xcodebuild -workspace ${{ matrix.target }}Cocoapods.xcworkspace -configuration Debug -scheme ${{ matrix.target }}Cocoapods -sdk iphonesimulator 
+          xcodebuild -workspace ${{ matrix.sample }}Cocoapods.xcworkspace -configuration Debug -scheme ${{ matrix.sample }}Cocoapods -sdk iphonesimulator 
         
         
         
