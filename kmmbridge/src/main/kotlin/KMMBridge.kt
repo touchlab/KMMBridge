@@ -143,22 +143,3 @@ class KMMBridgePlugin : Plugin<Project> {
         zipTask.dependsOn(findXCFrameworkAssembleTask())
     }
 }
-
-@Suppress("unused")
-fun PublishingExtension.addGithubPackagesRepository(project: Project){
-    try {
-        val githubPublishUser = project.githubPublishUser ?: "cirunner"
-        val githubPublishToken = project.githubPublishToken
-        val githubRepo = project.githubRepo
-        repositories.maven {
-            name = "GitHubPackages"
-            url = URI.create("https://maven.pkg.github.com/$githubRepo")
-            credentials {
-                username = githubPublishUser//project.findProperty("gpr.user") as String? ?: System.getenv("USERNAME")
-                password = githubPublishToken//project.findProperty("gpr.key") as String? ?: System.getenv("TOKEN")
-            }
-        }
-    } catch (e: Exception) {
-        // Ignore if not in CI
-    }
-}
