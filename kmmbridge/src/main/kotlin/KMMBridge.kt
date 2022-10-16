@@ -169,7 +169,8 @@ fun Project.addGithubPackagesRepository() {
                 }
             }
         } catch (e: Exception) {
-            // Ignore if not in CI
+            e.printStackTrace()
+            throw e
         }
     }
 }
