@@ -143,34 +143,3 @@ class KMMBridgePlugin : Plugin<Project> {
         zipTask.dependsOn(findXCFrameworkAssembleTask())
     }
 }
-
-/**
- * Helper function to support GitHub Packages publishing. Use with https://github.com/touchlab/KMMBridgeGithubWorkflow
- * or pass in a valid GitHub token with GITHUB_PUBLISH_TOKEN. Defaults user to "cirunner", which can be overridden with
- * GITHUB_PUBLISH_USER.
- *
- * Generally, just add the following in the Gradle build file.
- *
- * addGithubPackagesRepository()
- */
-@Suppress("unused")
-fun Project.addGithubPackagesRepository() {
-    publishingExtension.apply {
-        try {
-            val githubPublishUser = project.githubPublishUser ?: "cirunner"
-            val githubPublishToken = project.githubPublishToken
-            val githubRepo = project.githubRepo
-            repositories.maven {
-                name = "GitHubPackages"
-                url = URI.create("https://maven.pkg.github.com/$githubRepo")
-                credentials {
-                    username = githubPublishUser//project.findProperty("gpr.user") as String? ?: System.getenv("USERNAME")
-                    password = githubPublishToken//project.findProperty("gpr.key") as String? ?: System.getenv("TOKEN")
-                }
-            }
-        } catch (e: Exception) {
-            e.printStackTrace()
-            throw e
-        }
-    }
-}
