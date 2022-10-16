@@ -155,7 +155,7 @@ class KMMBridgePlugin : Plugin<Project> {
  */
 @Suppress("unused")
 fun Project.addGithubPackagesRepository() {
-    publishingExtension.also {
+    publishingExtension.apply {
         try {
             val githubPublishUser = project.githubPublishUser ?: "cirunner"
             val githubPublishToken = project.githubPublishToken
