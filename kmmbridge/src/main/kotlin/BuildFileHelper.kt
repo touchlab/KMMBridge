@@ -11,6 +11,10 @@
  * the License.
  */
 
+import co.touchlab.faktory.githubPublishToken
+import co.touchlab.faktory.githubPublishUser
+import co.touchlab.faktory.githubRepo
+import co.touchlab.faktory.publishingExtension
 import org.gradle.api.Project
 import java.net.URI
 
