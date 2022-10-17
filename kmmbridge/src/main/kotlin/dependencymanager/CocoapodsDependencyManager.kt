@@ -53,15 +53,20 @@ class CocoapodsDependencyManager(
             inputs.files(podSpecFile)
             dependsOn(generatePodspecTask)
 
-            val extraArgs = if (allowWarnings) arrayOf("--allow-warnings") else emptyArray()
-            when (val specRepo = specRepoDeferred()) {
-                is SpecRepo.Trunk ->
-                    commandLine("pod", "trunk", "push", podSpecFile, *extraArgs)
-                is SpecRepo.Private ->
-                    commandLine("pod", "repo", "push", specRepo.url, podSpecFile, *extraArgs)
-            }
+            @Suppress("ObjectLiteralToLambda")
+            doLast(object : Action<Task>{
+                override fun execute(t: Task) {
+                    val extraArgs = if (allowWarnings) arrayOf("--allow-warnings") else emptyArray()
+                    when (val specRepo = specRepoDeferred()) {
+                        is SpecRepo.Trunk ->
+                            commandLine("pod", "trunk", "push", podSpecFile, *extraArgs)
+                        is SpecRepo.Private ->
+                            commandLine("pod", "repo", "push", specRepo.url, podSpecFile, *extraArgs)
+                    }
 
-            standardOutput = System.out
+                    standardOutput = System.out
+                }
+            })
         }
 
         publishRemoteTask.dependsOn(pushRemotePodspecTask)
