@@ -28,7 +28,7 @@ sealed class SpecRepo {
 }
 
 class CocoapodsDependencyManager(
-    private val specRepo: SpecRepo,
+    private val specRepoDeferred: () -> SpecRepo,
     private val allowWarnings: Boolean = true
 ) : DependencyManager {
     override fun configure(project: Project, uploadTask: Task, publishRemoteTask: Task) {
@@ -54,7 +54,7 @@ class CocoapodsDependencyManager(
             dependsOn(generatePodspecTask)
 
             val extraArgs = if (allowWarnings) arrayOf("--allow-warnings") else emptyArray()
-            when (specRepo) {
+            when (val specRepo = specRepoDeferred()) {
                 is SpecRepo.Trunk ->
                     commandLine("pod", "trunk", "push", podSpecFile, *extraArgs)
                 is SpecRepo.Private ->
