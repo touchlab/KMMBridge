@@ -18,23 +18,82 @@ If you are using other CI/CD tools and/or other artifact managers, please reach 
 
 We have a starter template project here: [touchlab/KMMSharedLibrary](https://github.com/touchlab/KMMSharedLibrary). Click "Use Template", give your repo a name, and create it. It can be public or private.
 
+### Edit GROUP
+
 **Very Important!!!** You'll need to add a group string to your repo before you can do anything with it. You can open `gradle.properties` and edit `GROUP`. The value for `GROUP` needs to be a valid maven coordinate string. Generally speaking, it should be reverse domain ("com.whatever") and a name for the project, all lower case.
 
-If you're using CocoaPods to publish, you'll have a couple extra steps today. A private podspec repo is used to publish CocoaPods metadata files. We are looking into alternatives, but for now, you'll need to do the following.
+### CocoaPods Considerations
 
-1. Create a new podspec repo
-2. Add a README, or anything, to get at least one commit in the history
-3. Create an ssh key pair 
-4. Add the public part of the key to your podspec repo
-5. Add the private part of the key to your Kotlin repo
+**Also Important!!!** By default, the repo will publish with CocoaPods and SPM. CocoaPods uses git repos to store metadata about it's packages. It is generally recommended that you use a separate repo for this, but to keep things simple, the template project is configured to publish to itself. This will work, but clutters the modules directory. If you plan on using CocoaPods, it is recommended that you use a separate repo as described in See [COCOAPODS_GITHUB_PODSPEC](cocoapods/COCOAPODS_GITHUB_PODSPEC.md). If you aren't using CocoaPods, you should probably remove the config from the [`kmmbridge` config block](https://github.com/touchlab/KMMSharedLibrary/blob/main/allshared/build.gradle.kts#L56).
 
-See [COCOAPODS_GITHUB_PODSPEC](cocoapods/COCOAPODS_GITHUB_PODSPEC.md) for more detail on configuring your podspec repo.
+```kotlin
+kmmbridge {
+    mavenPublishArtifacts()
+    githubReleaseVersions()
+    spm()
+    // cocoapods() <- remove this
+}
+```
 
-
+### Publish A Build
 
 After the repo has been created and `GROUP` has been specified, go to "Actions" and run `KMM Bridge Publish Release`. This should build and publish a version of your new library.
 
 <video src="usetemplate2.mp4"></video>
 
+When that build is complete, you'll have a published binary that you can use.
+
+## Configure Xcode Clients
+
+If your repo is public, you should be able to access the binary that you just published without any auth configuration. If it is private, and in most cases it will be, you'll need to let Xcode access the binary. There are 2 ways to do that: netrc and Keychain Access.
+
+**Note:** Every user accessing your builds with Xcode will need to do this configuration.
+
+You'll want to generate a Personal Access Token with `repo` access and `read:packages`:
+
+![pataccess](https://tl-navigator-images.s3.us-east-1.amazonaws.com/docimages/2022-10-17_16-33-pataccess.png)
+
+That will give you a PAT string. Create or open `~/.netrc`, and add the following:
+
+```shell
+machine maven.pkg.github.com
+  login [your username]
+  password [your PAT]
+```
+
+Put your username in the `login` field, and the PAT you just created in the `password` field.
+
+## Add the Framework to Xcode
+
+### Swift Package Manager (SPM)
+
+To add your Framework to Xcode with SPM, do the following:
+
+1. Get the GitHub URL from your new repo (ends in `.git`)
+2. In Xcode, go to `File > Add Packages` to open the SPM tool
+3. Paste your GitHub URL in the "Search or Enter Package URL"
+4. Select your repo and for "Dependency Rule", select "Up to Next Major Version". Xcode should auto-detect the version.
+
+That's it! You should be able to import your Kotlin code now.
+
+### CocoaPods
+
+You'll need to add the podsepc source repo, then include the project. Assuming your local GitHub access is configured, you should just need to edit your `Podfile`.
+
+See [this doc](https://touchlab.github.io/KMMBridge/cocoapods/IOS_COCOAPODS#add-podspec-repo) for more detail. 
+
+```ruby
+platform :ios, '13'
+
+source 'https://github.com/[your org]/[your repo].git'
+
+target '[Your iOS app target]' do
+  pod 'allshared', '~> 0.2'
+end
+```
+
+## Next Steps
+
+When you're editing Kotlin, you'll probably want to locally test your build. See [IOS_LOCAL_DEV_COCOAPODS](cocoapods/IOS_LOCAL_DEV_COCOAPODS.md) or [IOS_LOCAL_DEV_SPM](spm/IOS_LOCAL_DEV_SPM.md), depending on which dependency manager you use.
 
 ⏰ *It'll probably take longer than an hour, but not a lot. Good luck!*
