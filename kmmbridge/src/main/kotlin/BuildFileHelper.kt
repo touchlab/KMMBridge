@@ -38,12 +38,12 @@ fun Project.addGithubPackagesRepository() {
                 name = "GitHubPackages"
                 url = URI.create("https://maven.pkg.github.com/$githubRepo")
                 credentials {
-                    username = githubPublishUser//project.findProperty("gpr.user") as String? ?: System.getenv("USERNAME")
-                    password = githubPublishToken//project.findProperty("gpr.key") as String? ?: System.getenv("TOKEN")
+                    username = githubPublishUser
+                    password = githubPublishToken
                 }
             }
         } catch (e: Exception) {
-            e.printStackTrace() // Probably CI
+            // Ignore
         }
     }
 }
