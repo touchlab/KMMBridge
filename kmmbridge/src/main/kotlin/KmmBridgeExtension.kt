@@ -114,15 +114,9 @@ interface KmmBridgeExtension {
     fun Project.cocoapods(specRepoUrl: String? = null) {
         kotlin.cocoapods // This will throw error if we didn't apply cocoapods plugin
 
-        val generatedUrl = if (specRepoUrl == null) {
-            "https://api:${githubPublishToken}@github.com/${githubRepo}"
-        } else {
-            specRepoUrl
-        }
-
-        val specRepo = SpecRepo.Private(generatedUrl)
-
-        val dependencyManager = CocoapodsDependencyManager(specRepo)
+        val dependencyManager = CocoapodsDependencyManager({
+            SpecRepo.Private(specRepoUrl ?: "https://api:${githubPublishToken}@github.com/${githubRepo}")
+        })
         dependencyManagers.set(dependencyManagers.getOrElse(emptyList()) + dependencyManager)
     }
 }
