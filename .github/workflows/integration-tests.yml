@@ -18,7 +18,7 @@ jobs:
     runs-on: macos-12
     strategy:
       matrix:
-        sample: [touchlab/KmmBridgeIntegrationTest] # TODO add other samples here.
+        sample: [touchlab-lab/KmmBridgeIntegrationTest] # TODO add other samples here.
 
     steps:
       - uses: actions/checkout@v3
@@ -65,6 +65,9 @@ jobs:
           ./gradlew publishToMavenLocal -PRELEASE_SIGNING_ENABLED=false -PVERSION_NAME=999
           
       - name: Run sample tests
+        env: |
+          ORG_GRADLE_PROJECT_GITHUB_PUBLISH_TOKEN=${{ secrets.GITHUB_TOKEN }}
+          ORG_GRADLE_PROJECT_GITHUB_REPO=${{ matrix.sample }}
         run: |
           cd build/${{ matrix.sample }}
           ./run_tests.sh
