@@ -18,7 +18,7 @@ jobs:
     runs-on: macos-12
     strategy:
       matrix:
-        sample: [KmmBridgeIntegrationTest] # TODO add other samples here.
+        sample: [touchlab-lab/KmmBridgeIntegrationTest] # TODO add other samples here.
 
     steps:
       - uses: actions/checkout@v3
@@ -31,7 +31,7 @@ jobs:
       - name: "Checkout sample"
         uses: actions/checkout@v3
         with:
-          repository: "touchlab/${{ matrix.sample }}"
+          repository: "${{ matrix.sample }}"
           ref: main
           path: "build/${{ matrix.sample }}"
           token: ${{ github.token }}
@@ -63,26 +63,11 @@ jobs:
       - name: Local publish plugin
         run: |
           ./gradlew publishToMavenLocal -PRELEASE_SIGNING_ENABLED=false -PVERSION_NAME=999
-
-      - name: Publish shared
+          
+      - name: Run sample tests
         run: |
           cd build/${{ matrix.sample }}
-          ./gradlew kmmBridgePublish -PGITHUB_PUBLISH_TOKEN=${{ secrets.GITHUB_TOKEN }} -PGITHUB_REPO=${{ github.repository }} ${{ secrets.gradle_params }} --no-daemon --stacktrace
-        env:
-          GRADLE_OPTS: -Dkotlin.incremental=false -Dorg.gradle.jvmargs="-Xmx3g -XX:MaxPermSize=2048m -XX:+HeapDumpOnOutOfMemoryError -Dfile.encoding=UTF-8 -XX:MaxMetaspaceSize=512m"
-
-      - name: Build SPM Sample
-        run: |
-          cd build/${{ matrix.sample }}/ios-spm
-          xcodebuild -configuration Debug -scheme ${{ matrix.sample }}Spm -sdk iphonesimulator 
-
-      - name: Build Cocoapods Sample
-        run: |
-          cd build/${{ matrix.sample }}/ios-cocoapods
-          pod install
-          xcodebuild -workspace ${{ matrix.sample }}Cocoapods.xcworkspace -configuration Debug -scheme ${{ matrix.sample }}Cocoapods -sdk iphonesimulator 
-        
-        
+          ./run_tests.sh
         
         
         
