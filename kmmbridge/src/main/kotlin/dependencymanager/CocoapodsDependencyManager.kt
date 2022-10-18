@@ -14,6 +14,8 @@
 package co.touchlab.faktory.dependencymanager
 
 import co.touchlab.faktory.*
+import co.touchlab.faktory.internal.procRun
+import co.touchlab.faktory.internal.procRunFailLog
 import co.touchlab.faktory.kotlin
 import org.gradle.api.Action
 import org.gradle.api.Project
@@ -48,7 +50,7 @@ class CocoapodsDependencyManager(
             })
         }
 
-        val pushRemotePodspecTask = project.task<Exec>("pushRemotePodspec") {
+        val pushRemotePodspecTask = project.task("pushRemotePodspec") {
             group = TASK_GROUP_NAME
             inputs.files(podSpecFile)
             dependsOn(generatePodspecTask)
@@ -59,12 +61,12 @@ class CocoapodsDependencyManager(
                     val extraArgs = if (allowWarnings) arrayOf("--allow-warnings") else emptyArray()
                     when (val specRepo = specRepoDeferred()) {
                         is SpecRepo.Trunk ->
-                            commandLine("pod", "trunk", "push", podSpecFile, *extraArgs)
+                            project.procRunFailLog("pod", "trunk", "push", podSpecFile, *extraArgs)
                         is SpecRepo.Private ->
-                            commandLine("pod", "repo", "push", specRepo.url, podSpecFile, *extraArgs)
+                            project.procRunFailLog("pod", "repo", "push", specRepo.url, podSpecFile, *extraArgs)
                     }
 
-                    standardOutput = System.out
+//                    standardOutput = System.out
                 }
             })
         }

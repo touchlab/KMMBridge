@@ -44,6 +44,7 @@ internal fun procRun(vararg params: String, processLines: (String, Int) -> Unit)
 internal fun Project.procRunFailLog(vararg params: String):List<String>{
     val output = mutableListOf<String>()
     try {
+        println("Calling: ${params.joinToString(" ")}")
         procRun(*params){ line, _ -> output.add(line)}
     } catch (e: Exception) {
         output.forEach { logger.error("error: $it") }
