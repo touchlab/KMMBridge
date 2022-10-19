@@ -105,9 +105,8 @@ interface KmmBridgeExtension {
 
     fun Project.spm(
         spmDirectory: String? = null,
-        packageName: String = project.name,
     ) {
-        val dependencyManager = SpmDependencyManager(spmDirectory, packageName)
+        val dependencyManager = SpmDependencyManager(spmDirectory)
         dependencyManagers.set(dependencyManagers.getOrElse(emptyList()) + dependencyManager)
     }
 

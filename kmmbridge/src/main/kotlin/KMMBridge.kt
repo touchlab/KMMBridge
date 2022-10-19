@@ -66,7 +66,7 @@ class KMMBridgePlugin : Plugin<Project> {
 
     // Collect all declared frameworks in project and combine into xcframework
     private fun Project.configureXcFramework() {
-        val extension = extensions.getByType<KmmBridgeExtension>()
+        val extension = kmmBridgeExtension
         var xcFrameworkConfig: XCFrameworkConfig? = null
 
         val spmBuildTargets: Set<String> = project.spmBuildTargets?.split(",")?.map { it.trim() }?.filter { it.isNotEmpty() }?.toSet() ?: emptySet()
