@@ -34,7 +34,6 @@ jobs:
           repository: "${{ matrix.sample }}"
           ref: main
           path: "build/${{ matrix.sample }}"
-          token: ${{ github.token }}
 
       - name: Validate Gradle Wrapper
         uses: gradle/wrapper-validation-action@v1
@@ -63,14 +62,21 @@ jobs:
       - name: Local publish plugin
         run: |
           ./gradlew publishToMavenLocal -PRELEASE_SIGNING_ENABLED=false -PVERSION_NAME=999
-          
-      - name: Run sample tests
-        env:
-          ORG_GRADLE_PROJECT_GITHUB_PUBLISH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          ORG_GRADLE_PROJECT_GITHUB_REPO: ${{ matrix.sample }}
+
+      - name: Publish shared
         run: |
           cd build/${{ matrix.sample }}
-          ./run_tests.sh
-        
-        
-        
+          ./gradlew kmmBridgePublish -PGITHUB_PUBLISH_TOKEN=${{ secrets.GITHUB_TOKEN }} -PGITHUB_REPO=${{ github.repository }} ${{ secrets.gradle_params }} --no-daemon --stacktrace
+        env:
+          GRADLE_OPTS: -Dkotlin.incremental=false -Dorg.gradle.jvmargs="-Xmx3g -XX:MaxPermSize=2048m -XX:+HeapDumpOnOutOfMemoryError -Dfile.encoding=UTF-8 -XX:MaxMetaspaceSize=512m"
+
+      - name: Build SPM Sample
+        run: |
+          cd build/${{ matrix.sample }}/ios-spm
+          xcodebuild -configuration Debug -scheme ${{ matrix.sample }}Spm -sdk iphonesimulator 
+
+      - name: Build Cocoapods Sample
+        run: |
+          cd build/${{ matrix.sample }}/ios-cocoapods
+          pod install
+          xcodebuild -workspace ${{ matrix.sample }}Cocoapods.xcworkspace -configuration Debug -scheme ${{ matrix.sample }}Cocoapods -sdk iphonesimulator 
