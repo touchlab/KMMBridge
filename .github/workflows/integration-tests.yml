@@ -51,6 +51,12 @@ jobs:
           username: "cirunner"
           password: ${{ secrets.INTEGRATION_TEST_GITHUB_TOKEN }}
 
+      - uses: extractions/netrc@v1
+        with:
+          machine: maven.pkg.github.com
+          username: "cirunner"
+          password: ${{ secrets.GITHUB_TOKEN }}
+
       - name: Cache build tooling
         uses: actions/cache@v2
         with:
