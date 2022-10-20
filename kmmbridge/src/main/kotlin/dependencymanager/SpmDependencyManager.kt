@@ -130,9 +130,9 @@ internal fun stripEndSlash(path: String): String {
 
 private fun makeLocalDevPackageFileText(swiftPackageFolder: String, frameworkName: String, project: Project): String {
     val swiftFolderPath = project.file(swiftPackageFolder).toPath()
-    val projectFolderPath = project.projectDir.toPath()
+    val projectBuildFolderPath = project.buildDir.toPath()
     val xcFrameworkPath =
-        "${swiftFolderPath.relativize(projectFolderPath)}/build/XCFrameworks/${NativeBuildType.DEBUG.getName()}"
+        "${swiftFolderPath.relativize(projectBuildFolderPath)}/XCFrameworks/${NativeBuildType.DEBUG.getName()}"
     val packageFileString = """
 // swift-tools-version:5.3
 import PackageDescription
