@@ -31,7 +31,8 @@ sealed class SpecRepo {
 
 class CocoapodsDependencyManager(
     private val specRepoDeferred: () -> SpecRepo,
-    private val allowWarnings: Boolean = true
+    private val allowWarnings: Boolean,
+    private val verboseErrors: Boolean
 ) : DependencyManager {
     override fun configure(project: Project, uploadTask: Task, publishRemoteTask: Task) {
 
@@ -58,15 +59,22 @@ class CocoapodsDependencyManager(
             @Suppress("ObjectLiteralToLambda")
             doLast(object : Action<Task>{
                 override fun execute(t: Task) {
-                    val extraArgs = if (allowWarnings) arrayOf("--allow-warnings") else emptyArray()
-                    when (val specRepo = specRepoDeferred()) {
-                        is SpecRepo.Trunk ->
-                            project.procRunFailLog("pod", "trunk", "push", podSpecFile, *extraArgs)
-                        is SpecRepo.Private ->
-                            project.procRunFailLog("pod", "repo", "push", specRepo.url, podSpecFile, *extraArgs)
+                    val extras = mutableListOf<String>()
+
+                    if (allowWarnings) {
+                        extras.add("--allow-warnings")
                     }
 
-//                    standardOutput = System.out
+                    if (verboseErrors) {
+                        extras.add("--verbose")
+                    }
+
+                    when (val specRepo = specRepoDeferred()) {
+                        is SpecRepo.Trunk ->
+                            project.procRunFailLog("pod", "trunk", "push", podSpecFile, *extras.toTypedArray())
+                        is SpecRepo.Private ->
+                            project.procRunFailLog("pod", "repo", "push", specRepo.url, podSpecFile, *extras.toTypedArray())
+                    }
                 }
             })
         }
