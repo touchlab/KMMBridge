@@ -55,7 +55,7 @@ jobs:
         with:
           machine: maven.pkg.github.com
           username: "cirunner"
-          password: ${{ secrets.GITHUB_TOKEN }}
+          password: ${{ secrets.INTEGRATION_TEST_GITHUB_TOKEN }}
 
       - name: Cache build tooling
         uses: actions/cache@v2
