@@ -57,7 +57,7 @@ interface KmmBridgeExtension {
         makeArtifactsPublic: Boolean = true,
         altBaseUrl: String? = null,
     ) {
-        artifactManager.set(
+        artifactManager.setAndFinalize(
             AwsS3PublicArtifactManager(
                 region,
                 bucket,
@@ -72,11 +72,11 @@ interface KmmBridgeExtension {
     fun githubReleaseArtifacts(
         artifactRelease: String? = null
     ) {
-        artifactManager.set(GithubReleaseArtifactManager(artifactRelease))
+        artifactManager.setAndFinalize(GithubReleaseArtifactManager(artifactRelease))
     }
 
     fun Project.faktoryServerArtifacts(faktoryReadKey: String? = null) {
-        artifactManager.set(FaktoryServerArtifactManager(faktoryReadKey, this))
+        artifactManager.setAndFinalize(FaktoryServerArtifactManager(faktoryReadKey, this))
     }
 
     /**
@@ -84,23 +84,23 @@ interface KmmBridgeExtension {
      * passing the name in here.
      */
     fun Project.mavenPublishArtifacts(repository: String? = null, publication: String? = null) {
-        artifactManager.set(MavenPublishArtifactManager(this, publication, repository))
+        artifactManager.setAndFinalize(MavenPublishArtifactManager(this, publication, repository))
     }
 
     fun timestampVersions() {
-        versionManager.set(TimestampVersionManager)
+        versionManager.setAndFinalize(TimestampVersionManager)
     }
 
     fun gitTagVersions() {
-        versionManager.set(GitTagVersionManager)
+        versionManager.setAndFinalize(GitTagVersionManager)
     }
 
     fun githubReleaseVersions() {
-        versionManager.set(GithubReleaseVersionManager)
+        versionManager.setAndFinalize(GithubReleaseVersionManager)
     }
 
     fun manualVersions() {
-        versionManager.set(ManualVersionManager)
+        versionManager.setAndFinalize(ManualVersionManager)
     }
 
     fun Project.spm(
@@ -129,5 +129,10 @@ interface KmmBridgeExtension {
         }, allowWarnings, verboseErrors)
 
         dependencyManagers.set(dependencyManagers.getOrElse(emptyList()) + dependencyManager)
+    }
+
+    private fun <T> Property<T>.setAndFinalize(value: T) {
+        this.set(value)
+        this.finalizeValue()
     }
 }
