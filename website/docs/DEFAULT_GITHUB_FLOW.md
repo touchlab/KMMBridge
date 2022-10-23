@@ -11,9 +11,11 @@ If you are hosting your repos in GitHub and can use GitHub Actions for CI, the D
 
 This flow allows you to do the following:
 
-* Publish to public or private repos
-* Upload Xcode Framework artifacts to GitHub releases. No external storage or auth configuration is required.
-* Can use either CocoaPods, SPM, or both
+* Publish to public or private repos.
+* Uses Maven artifacts with GitHub Packages. Standard tools!
+* Upload Xcode Framework artifacts to GitHub Packages. No external storage or auth configuration is required. All auth is manages through GitHub.
+* Can use either CocoaPods, SPM, or both.
+* Publish iOS and (optionally) Android binaries.
 
 ## Kotlin Repo
 
@@ -65,7 +67,7 @@ Later in the same file, add the `kmmbridge` config block:
 
 ```kotlin
 kmmbridge {
-    githubReleaseArtifacts()
+    mavenPublishArtifacts()
     githubReleaseVersions()
     spm()
     cocoapods("git@github.com:touchlab/PodSpecs.git")
@@ -73,7 +75,13 @@ kmmbridge {
 }
 ```
 
-`githubReleaseArtifacts()` is mandatory for this flow. Without that, files will not be published anywhere (there are other publishing options available).
+Finally, you'll need to add a Maven repository you can publish to, along with the necessary config. However, in our flow, assuming you're using our GitHub Actions scripts, just add this:
+
+```kotlin
+addGithubPackagesRepository()
+```
+
+When running on CI, that will add the GitHub Packages Maven repo, for this project, using the auth provided by GitHub automatically. No extra auth config!
 
 `githubReleaseVersions()` is highly recommended. This will use GitHub releases for release tracking and incrementing. You can use a different version manager, but you need to configure one. See: [Version Managers](general/CONFIGURATION_OVERVIEW.md#version-managers) for more detail.
 
@@ -83,13 +91,7 @@ Note: this config is only for SPM publishing. To understand how to integrate an 
 
 `cocoapods("[some git repo].git")` is only needed if you plan to publish for CocoaPods. You will need the spec repo mentioned above, properly configured for deployment. See  [COCOAPODS_GITHUB_PODSPEC](cocoapods/03_COCOAPODS_GITHUB_PODSPEC.md) for details on getting the podspec repo configured.
 
-`versionPrefix` is not technically necessary but highly encouraged. As you publish builds, the semantic version number will be incremented and appended onto the prefix. So, in the example above, the first version would be `0.3.0`, next `0.3.1`, and so on.
-
-:::caution
-
-If you are using GitHub Release Artifacts and your repo is private, you *must* add auth to GitHub for those files. See [GITHUB_RELEASE_ARTIFACTS](artifacts/GITHUB_RELEASE_ARTIFACTS.md)
-
-:::
+`versionPrefix` is optional. By default, KMMBridge takes the version from Gradle and uses that as a prefix to generate the iOS published versions. Versioning strategy differs depending on how you intend to work and publish. See [Version Managers](general/CONFIGURATION_OVERVIEW#version-managers) for more detail.
 
 
 ### 3 Add the GitHub Actions workflow call
@@ -102,7 +104,7 @@ on: workflow_dispatch
 
 jobs:
   call-kmmbridge-publish:
-    uses: touchlab/KMMBridgeGithubWorkflow/.github/workflows/faktorybuild.yml@v0.3
+    uses: touchlab/KMMBridgeGithubWorkflow/.github/workflows/faktorybuildbranches.yml@v0.6
 ```
 
 Note: if you are using CocoaPods and a podspec repo, your file should look like the following:
@@ -113,25 +115,14 @@ on: workflow_dispatch
 
 jobs:
   call-kmmbridge-publish:
-    uses: touchlab/KMMBridgeGithubWorkflow/.github/workflows/faktorybuild.yml@v0.3
+    uses: touchlab/KMMBridgeGithubWorkflow/.github/workflows/faktorybuildbranches.yml@v0.6
     secrets:
       PODSPEC_SSH_KEY: ${{ secrets.PODSPEC_SSH_KEY }}
 ```
 
 You need to pass the ssh key configured earlier.
 
-There are actually 2 versions of the workflow script. When using SPM, the config file `Package.swift` gets updated to reflect the published url file. If pushed to the main branch, that will force you to pull the latest and mergh when trying to update the code later. It can also result in a conflict for that file. As an alternative, you can use `faktorybuildbranches.yml`:
-
-```yaml
-name: KMMBridge Publish Release
-on: workflow_dispatch
-
-jobs:
-  call-kmmbridge-publish:
-    uses: touchlab/KMMBridgeGithubWorkflow/.github/workflows/faktorybuildbranches.yml@v0.3
-```
-
-That script will publish builds to a new branch (named with a random UUID), which will allow publishing new versions without potential file conflicts.
+There are actually 2 versions of the workflow script. The other file, `faktorybuild.yml`, performs all operations in the same branch it's run on. `faktorybuildbranches.yml` creates a temporary branch to run builds. This is generally better, as the build process involves git operations which can overwrite files and possibly cause conflics.
 
 ### 4 Add and push your code
 
@@ -147,9 +138,33 @@ When that run is complete, you should see a green result. If not, please reach o
 
 ![image-20221004211903511](https://tl-navigator-images.s3.us-east-1.amazonaws.com/docimages/2022-10-04_21-19-image-20221004211903511.png)
 
+## iOS Dev Machine Config
+
+If you're publishing to a public repo, you won't need to configure auth for your machine. Private repos need to have authentication configured so the binaries can be accessed.
+
+#### Private Repos
+
+For private builds, you'll need to tell the local machine how to access the private file. You can do this either by editing the `~/.netrc` file, or by adding the info to your local keychain.
+
+First, get a personal access token from GitHub. Make sure it has at least `repo` permissions. You can add an expiration, but if you do, you'll need to remember to create a new one later...
+
+![Screen Shot 2022-09-29 at 8.16.31 AM](https://tl-navigator-images.s3.us-east-1.amazonaws.com/docimages/2022-09-29_08-17-Screen%20Shot%202022-09-29%20at%208.16.31%20AM.png)
+
+Add the following to your `~/.netrc` file (create the file if it doesn't exist):
+
+```
+machine maven.pkg.github.com
+  login [github username]
+  password [your new personal access token]
+```
+
+The `~/.netrc` file tells curl and other networking tools how to authenticate to servers matching each `machine` entry. If you use a different back end you'll need to have a different `~/.netrc` entry.
+
+Alternatively, you can use the Mac's keychain to manage access. See [this blog post for more detail](https://medium.com/geekculture/xcode-13-3-supports-spm-binary-dependency-in-private-github-release-8d60a47d5e45).
+
 ## Next Steps
 
-You'll want to pull this new build into Xcode. For more information on how to do that, see  [IOS_DEV_SETUP](IOS_DEV_SETUP.md).
+You'll want to pull this new build into Xcode. For more information on how to do that, see  [IOS_COCOAPODS](cocoapods/01_IOS_COCOAPODS.md) or [IOS_SPM](spm/01_IOS_SPM.md).
 
 ## See Also
 
