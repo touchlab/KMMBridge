@@ -10,6 +10,10 @@ See [https://touchlab.github.io/KMMBridge/intro/](https://touchlab.github.io/KMM
 
 To provide feedback about your experience with KMMBridge join the conversation in the Kotlinlang [#touchlab-tools](https://kotlinlang.slack.com/archives/CTJB58X7X) Slack channel.
 
+## Quick Start Post
+
+[https://touchlab.co/quick-start-with-kmmbridge-1-hour-tutorial/](https://touchlab.co/quick-start-with-kmmbridge-1-hour-tutorial/)
+
 ## Announcement Post
 
 [https://touchlab.co/introducing-kmmbridge-teams/](https://touchlab.co/introducing-kmmbridge-teams/)
