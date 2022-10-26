@@ -13,7 +13,8 @@
 
 package co.touchlab.faktory.internal
 
-import co.touchlab.faktory.artifactmanager.GithubReleaseException
+import artifactmanager.GithubApi
+import artifactmanager.GithubReleaseException
 import co.touchlab.faktory.githubPublishToken
 import com.google.gson.Gson
 import okhttp3.MediaType.Companion.toMediaTypeOrNull
@@ -27,12 +28,12 @@ import java.io.File
 import java.net.URLEncoder
 import java.time.Duration
 
-object GithubCalls {
+object GithubCalls : GithubApi {
     private val okHttpClient =
         OkHttpClient.Builder().callTimeout(Duration.ofMinutes(5)).connectTimeout(Duration.ofMinutes(2))
             .writeTimeout(Duration.ofMinutes(5)).readTimeout(Duration.ofMinutes(2)).build()
 
-    fun createRelease(project: Project, repo: String, tag: String, commitId: String?): Int {
+    override fun createRelease(project: Project, repo: String, tag: String, commitId: String?): Int {
         val gson = Gson()
         val token = project.githubPublishToken
         val createReleaseBody = if (commitId == null) {
@@ -47,7 +48,7 @@ object GithubCalls {
         return gson.fromJson(okHttpClient.newCall(createRequest).execute().body!!.string(), IdReply::class.java).id
     }
 
-    fun uploadZipFile(project: Project, zipFilePath: File, repo:String, releaseId: Int, fileName: String):String{
+    override fun uploadZipFile(project: Project, zipFilePath: File, repo: String, releaseId: Int, fileName: String): String {
         val gson = Gson()
         val token = project.githubPublishToken
         val body: RequestBody = zipFilePath.asRequestBody("application/zip".toMediaTypeOrNull())
@@ -69,9 +70,11 @@ object GithubCalls {
         return gson.fromJson(uploadResponseString, UploadReply::class.java).url
     }
 
-    fun findReleaseId(project: Project,
-                      repoName: String,
-                      artifactReleaseTag: String): Int?{
+    override fun findReleaseId(
+        project: Project,
+        repoName: String,
+        artifactReleaseTag: String
+    ): Int? {
         val token = project.githubPublishToken
         val request: Request =
             Request.Builder().url("https://api.github.com/repos/${repoName}/releases/tags/${artifactReleaseTag}").get()

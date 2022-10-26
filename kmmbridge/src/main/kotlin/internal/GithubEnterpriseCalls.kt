@@ -1,6 +1,7 @@
 package co.touchlab.faktory.internal
 
-import co.touchlab.faktory.artifactmanager.GithubReleaseException
+import artifactmanager.GithubApi
+import artifactmanager.GithubReleaseException
 import co.touchlab.faktory.githubEnterpriseHost
 import co.touchlab.faktory.githubEnterpriseRepoOwner
 import co.touchlab.faktory.githubPublishToken
@@ -15,7 +16,7 @@ import java.io.File
 import java.net.URLEncoder
 import java.time.Duration
 
-object GithubEnterpriseCalls {
+object GithubEnterpriseCalls : GithubApi {
 
     private val okHttpClient = OkHttpClient.Builder()
         .callTimeout(Duration.ofMinutes(5))
@@ -25,7 +26,7 @@ object GithubEnterpriseCalls {
         .build()
 
 
-    fun createRelease(project: Project, repo: String, tag: String, commitId: String?): Int {
+    override fun createRelease(project: Project, repo: String, tag: String, commitId: String?): Int {
         val gson = Gson()
         val token = project.githubPublishToken
         val host = project.githubEnterpriseHost
@@ -50,7 +51,7 @@ object GithubEnterpriseCalls {
         ).id
     }
 
-    fun uploadZipFile(
+    override fun uploadZipFile(
         project: Project,
         zipFilePath: File,
         repo: String,
@@ -83,7 +84,7 @@ object GithubEnterpriseCalls {
         return gson.fromJson(uploadResponseString, UploadReply::class.java).url
     }
 
-    fun findReleaseId(
+    override fun findReleaseId(
         project: Project,
         repoName: String,
         artifactReleaseTag: String

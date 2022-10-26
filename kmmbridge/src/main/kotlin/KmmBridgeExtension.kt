@@ -16,13 +16,14 @@ package co.touchlab.faktory
 import co.touchlab.faktory.artifactmanager.ArtifactManager
 import co.touchlab.faktory.artifactmanager.AwsS3PublicArtifactManager
 import co.touchlab.faktory.artifactmanager.FaktoryServerArtifactManager
-import co.touchlab.faktory.artifactmanager.GithubEnterpriseReleaseArtifactManager
 import co.touchlab.faktory.artifactmanager.GithubReleaseArtifactManager
 import co.touchlab.faktory.artifactmanager.MavenPublishArtifactManager
 import co.touchlab.faktory.dependencymanager.CocoapodsDependencyManager
 import co.touchlab.faktory.dependencymanager.DependencyManager
 import co.touchlab.faktory.dependencymanager.SpecRepo
 import co.touchlab.faktory.dependencymanager.SpmDependencyManager
+import co.touchlab.faktory.internal.GithubCalls
+import co.touchlab.faktory.internal.GithubEnterpriseCalls
 import co.touchlab.faktory.versionmanager.GitTagVersionManager
 import co.touchlab.faktory.versionmanager.GithubEnterpriseReleaseVersionManager
 import co.touchlab.faktory.versionmanager.GithubReleaseVersionManager
@@ -51,7 +52,7 @@ interface KmmBridgeExtension {
 
     val versionPrefix: Property<String>
 
-    fun s3PublicArtifacts(
+    fun Project.s3PublicArtifacts(
         region: String,
         bucket: String,
         accessKeyId: String,
@@ -71,16 +72,12 @@ interface KmmBridgeExtension {
         )
     }
 
-    fun githubReleaseArtifacts(
-        artifactRelease: String? = null
-    ) {
-        artifactManager.setAndFinalize(GithubReleaseArtifactManager(artifactRelease))
+    fun Project.githubReleaseArtifacts(artifactRelease: String? = null) {
+        artifactManager.setAndFinalize(GithubReleaseArtifactManager(artifactRelease, GithubCalls))
     }
 
-    fun githubEnterpriseReleaseArtifacts(
-        artifactRelease: String? = null
-    ) {
-        artifactManager.set(GithubEnterpriseReleaseArtifactManager(artifactRelease))
+    fun Project.githubEnterpriseReleaseArtifacts(artifactRelease: String? = null) {
+        artifactManager.setAndFinalize(GithubReleaseArtifactManager(artifactRelease, GithubEnterpriseCalls))
     }
 
     fun Project.faktoryServerArtifacts(faktoryReadKey: String? = null) {
@@ -115,9 +112,7 @@ interface KmmBridgeExtension {
         versionManager.setAndFinalize(ManualVersionManager)
     }
 
-    fun Project.spm(
-        spmDirectory: String? = null,
-    ) {
+    fun Project.spm(spmDirectory: String? = null) {
         val dependencyManager = SpmDependencyManager(spmDirectory)
         dependencyManagers.set(dependencyManagers.getOrElse(emptyList()) + dependencyManager)
     }
@@ -129,11 +124,7 @@ interface KmmBridgeExtension {
      * @param allowWarnings Allow publishing with warnings. Defaults to true.
      * @param verboseErrors Output extra error info. Generally used if publishing fails. Defaults to false.
      */
-    fun Project.cocoapods(
-        specRepoUrl: String? = null,
-        allowWarnings: Boolean = true,
-        verboseErrors: Boolean = false
-    ) {
+    fun Project.cocoapods(specRepoUrl: String? = null, allowWarnings: Boolean = true, verboseErrors: Boolean = false) {
         kotlin.cocoapods // This will throw error if we didn't apply cocoapods plugin
 
         val dependencyManager = CocoapodsDependencyManager({

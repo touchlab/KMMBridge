@@ -16,18 +16,20 @@ package co.touchlab.faktory.artifactmanager
 import co.touchlab.faktory.githubRepo
 import co.touchlab.faktory.internal.GithubCalls
 import co.touchlab.faktory.kmmBridgeExtension
+import artifactmanager.GithubApi
 import org.gradle.api.Project
 import java.io.File
 
 class GithubReleaseArtifactManager(
-    private val artifactReleaseArg: String?
+    private val artifactReleaseArg: String?,
+    private val githubApi: GithubApi = GithubCalls
 ) : ArtifactManager {
     override fun deployArtifact(project: Project, zipFilePath: File, version: String): String {
         val repoName: String = project.githubRepo
 
         val artifactReleaseTag = artifactReleaseArg ?: "kmm-artifacts-${project.kmmBridgeExtension.versionPrefix.get()}"
 
-        val idReply: Int = GithubCalls.findReleaseId(project, repoName, artifactReleaseTag) ?: GithubCalls.createRelease(
+        val idReply: Int = githubApi.findReleaseId(project, repoName, artifactReleaseTag) ?: githubApi.createRelease(
             project,
             repoName,
             artifactReleaseTag,
@@ -36,12 +38,10 @@ class GithubReleaseArtifactManager(
 
         val fileName = artifactName(project, version)
 
-        val uploadUrl = GithubCalls.uploadZipFile(project, zipFilePath, repoName, idReply, fileName)
+        val uploadUrl = githubApi.uploadZipFile(project, zipFilePath, repoName, idReply, fileName)
         return "${uploadUrl}.zip"
     }
 }
-
-class GithubReleaseException(message: String, cause: Throwable? = null) : Exception(message, cause)
 
 private fun artifactName(project: Project, versionString: String): String {
     val frameworkName = project.kmmBridgeExtension.frameworkName.get()
