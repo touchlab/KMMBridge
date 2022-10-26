@@ -48,13 +48,13 @@ jobs:
       - uses: extractions/netrc@v1
         with:
           machine: api.github.com
-          username: "cirunner"
+          username: "russhwolf"
           password: ${{ secrets.INTEGRATION_TEST_GITHUB_TOKEN }}
 
       - uses: extractions/netrc@v1
         with:
           machine: maven.pkg.github.com
-          username: "cirunner"
+          username: "russhwolf"
           password: ${{ secrets.INTEGRATION_TEST_GITHUB_TOKEN }}
 
       - name: Cache build tooling
