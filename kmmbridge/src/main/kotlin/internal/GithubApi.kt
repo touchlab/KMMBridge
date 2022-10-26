@@ -13,6 +13,8 @@
 
 package co.touchlab.faktory.internal
 
+import co.touchlab.faktory.findStringProperty
+import co.touchlab.faktory.kmmBridgeExtension
 import org.gradle.api.Project
 import java.io.File
 
@@ -23,3 +25,33 @@ interface GithubApi {
 
     fun uploadZipFile(project: Project, zipFilePath: File, repo: String, releaseId: Int, fileName: String): String
 }
+
+/**
+ * Write version to git tags
+ */
+internal fun writeGitTagVersion(project: Project, versionString: String) {
+    project.procRunFailLog("git", "tag", "-a", versionString, "-m", "KMM release version $versionString")
+    project.procRunFailLog("git", "push", "--follow-tags")
+}
+
+internal val Project.alwaysWriteGitTags: Boolean
+    get() = kmmBridgeExtension.dependencyManagers.get().any { it.needsGitTags }
+
+internal val Project.githubPublishToken
+    get() = (project.findStringProperty("GITHUB_PUBLISH_TOKEN")
+        ?: throw IllegalArgumentException("KMMBridge Github operations need property GITHUB_PUBLISH_TOKEN"))
+
+internal val Project.githubEnterpriseHost
+    get() = (project.findStringProperty("GITHUB_ENTERPRISE_HOST")
+        ?: throw IllegalArgumentException("KMMBridge Github operations need property GITHUB_ENTERPRISE_HOST"))
+
+internal val Project.githubEnterpriseRepoOwner
+    get() = (project.findStringProperty("GITHUB_REPO_OWNER")
+        ?: throw IllegalArgumentException("KMMBridge Github operations need property GITHUB_REPO_OWNER"))
+
+internal val Project.githubPublishUser: String?
+    get() = project.findStringProperty("GITHUB_PUBLISH_USER")
+
+internal val Project.githubRepo
+    get() = (project.findStringProperty("GITHUB_REPO")
+        ?: throw IllegalArgumentException("KMMBridge Github operations need a repo param or property GITHUB_REPO"))

@@ -13,8 +13,8 @@
 
 package co.touchlab.faktory.versionmanager
 
-import co.touchlab.faktory.githubRepo
 import co.touchlab.faktory.internal.GithubApi
+import co.touchlab.faktory.internal.githubRepo
 import co.touchlab.faktory.internal.procRunFailLog
 import org.gradle.api.Project
 

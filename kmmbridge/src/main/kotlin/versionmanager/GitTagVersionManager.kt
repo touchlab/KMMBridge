@@ -13,7 +13,7 @@
 
 package co.touchlab.faktory.versionmanager
 
-import co.touchlab.faktory.writeGitTagVersion
+import co.touchlab.faktory.internal.writeGitTagVersion
 import org.gradle.api.Project
 
 object GitTagVersionManager : GitTagBasedVersionManager() {

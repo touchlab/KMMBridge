@@ -13,9 +13,6 @@
 
 package co.touchlab.faktory.internal
 
-import co.touchlab.faktory.githubEnterpriseHost
-import co.touchlab.faktory.githubEnterpriseRepoOwner
-import co.touchlab.faktory.githubPublishToken
 import com.google.gson.Gson
 import okhttp3.MediaType.Companion.toMediaTypeOrNull
 import okhttp3.OkHttpClient
@@ -43,15 +40,11 @@ object GithubEnterpriseCalls : GithubApi {
         val host = project.githubEnterpriseHost
         val owner = project.githubEnterpriseRepoOwner
 
-        val createReleaseBody = commitId?.let {
-            CreateReleaseWithCommitBody(tag, it)
-        } ?: CreateReleaseBody(tag)
+        val createReleaseBody = createReleaseBody(commitId, tag)
 
         val createRequest = Request.Builder()
             .url("https://${host}/api/v3/repos/${owner}/${repo}/releases")
-            .post(
-                gson.toJson(createReleaseBody).toRequestBody("application/json".toMediaTypeOrNull())
-            )
+            .post(gson.toJson(createReleaseBody).toRequestBody("application/json".toMediaTypeOrNull()))
             .addHeader("Accept", "application/vnd.github+json")
             .addHeader("Authorization", "Bearer $token")
             .build()
@@ -61,6 +54,10 @@ object GithubEnterpriseCalls : GithubApi {
             IdReply::class.java
         ).id
     }
+
+    private fun createReleaseBody(commitId: String?, tag: String): Any = commitId?.let {
+        CreateReleaseWithCommitBody(tag, commitId)
+    } ?: CreateReleaseBody(tag)
 
     override fun uploadZipFile(
         project: Project,

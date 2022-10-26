@@ -20,6 +20,8 @@ import co.touchlab.faktory.dependencymanager.SpecRepo
 import co.touchlab.faktory.dependencymanager.SpmDependencyManager
 import co.touchlab.faktory.internal.GithubCalls
 import co.touchlab.faktory.internal.GithubEnterpriseCalls
+import co.touchlab.faktory.internal.githubPublishToken
+import co.touchlab.faktory.internal.githubRepo
 import co.touchlab.faktory.versionmanager.*
 import org.gradle.api.Project
 import org.gradle.api.provider.ListProperty
