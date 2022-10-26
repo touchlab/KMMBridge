@@ -49,13 +49,13 @@ jobs:
         with:
           machine: api.github.com
           username: "cirunner"
-          password: ${{ secrets.INTEGRATION_TEST_GITHUB_TOKEN }}
+          password: ${{ github.token }}
 
       - uses: extractions/netrc@v1
         with:
           machine: maven.pkg.github.com
           username: "cirunner"
-          password: ${{ secrets.INTEGRATION_TEST_GITHUB_TOKEN }}
+          password: ${{ github.token }}
 
       - name: Cache build tooling
         uses: actions/cache@v2
@@ -72,7 +72,7 @@ jobs:
       - name: Publish shared
         run: |
           cd build/${{ matrix.sample }}
-          ./gradlew kmmBridgePublish -PGITHUB_PUBLISH_TOKEN=${{ secrets.INTEGRATION_TEST_GITHUB_TOKEN }} -PGITHUB_REPO=${{ matrix.sample }} ${{ secrets.gradle_params }} --no-daemon --stacktrace
+          ./gradlew kmmBridgePublish -PGITHUB_PUBLISH_TOKEN=${{ github.token }} -PGITHUB_REPO=${{ matrix.sample }} ${{ secrets.gradle_params }} --no-daemon --stacktrace
         env:
           GRADLE_OPTS: -Dkotlin.incremental=false -Dorg.gradle.jvmargs="-Xmx3g -XX:MaxPermSize=2048m -XX:+HeapDumpOnOutOfMemoryError -Dfile.encoding=UTF-8 -XX:MaxMetaspaceSize=512m"
 
