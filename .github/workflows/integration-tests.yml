@@ -43,7 +43,9 @@ jobs:
       - name: Apply SSH Key
         uses: webfactory/ssh-agent@v0.5.4
         with:
-          ssh-private-key: ${{ secrets.PODSPEC_SSH_KEY }}
+          ssh-private-key: |
+            ${{ secrets.PODSPEC_SSH_KEY }}
+            ${{ secrets.REPO_SSH_KEY }}
 
       - uses: extractions/netrc@v1
         with:
