@@ -14,15 +14,14 @@
 package co.touchlab.faktory.artifactmanager
 
 import co.touchlab.faktory.githubRepo
-import co.touchlab.faktory.internal.GithubCalls
+import co.touchlab.faktory.internal.GithubApi
 import co.touchlab.faktory.kmmBridgeExtension
-import artifactmanager.GithubApi
 import org.gradle.api.Project
 import java.io.File
 
 class GithubReleaseArtifactManager(
     private val artifactReleaseArg: String?,
-    private val githubApi: GithubApi = GithubCalls
+    private val githubApi: GithubApi
 ) : ArtifactManager {
     override fun deployArtifact(project: Project, zipFilePath: File, version: String): String {
         val repoName: String = project.githubRepo

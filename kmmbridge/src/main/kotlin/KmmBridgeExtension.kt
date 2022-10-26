@@ -13,23 +13,14 @@
 
 package co.touchlab.faktory
 
-import co.touchlab.faktory.artifactmanager.ArtifactManager
-import co.touchlab.faktory.artifactmanager.AwsS3PublicArtifactManager
-import co.touchlab.faktory.artifactmanager.FaktoryServerArtifactManager
-import co.touchlab.faktory.artifactmanager.GithubReleaseArtifactManager
-import co.touchlab.faktory.artifactmanager.MavenPublishArtifactManager
+import co.touchlab.faktory.artifactmanager.*
 import co.touchlab.faktory.dependencymanager.CocoapodsDependencyManager
 import co.touchlab.faktory.dependencymanager.DependencyManager
 import co.touchlab.faktory.dependencymanager.SpecRepo
 import co.touchlab.faktory.dependencymanager.SpmDependencyManager
 import co.touchlab.faktory.internal.GithubCalls
 import co.touchlab.faktory.internal.GithubEnterpriseCalls
-import co.touchlab.faktory.versionmanager.GitTagVersionManager
-import co.touchlab.faktory.versionmanager.GithubEnterpriseReleaseVersionManager
-import co.touchlab.faktory.versionmanager.GithubReleaseVersionManager
-import co.touchlab.faktory.versionmanager.ManualVersionManager
-import co.touchlab.faktory.versionmanager.TimestampVersionManager
-import co.touchlab.faktory.versionmanager.VersionManager
+import co.touchlab.faktory.versionmanager.*
 import org.gradle.api.Project
 import org.gradle.api.provider.ListProperty
 import org.gradle.api.provider.Property
@@ -101,11 +92,11 @@ interface KmmBridgeExtension {
     }
 
     fun githubReleaseVersions() {
-        versionManager.setAndFinalize(GithubReleaseVersionManager)
+        versionManager.setAndFinalize(GithubReleaseVersionManager(GithubCalls))
     }
 
     fun githubEnterpriseReleaseVersions() {
-        versionManager.set(GithubEnterpriseReleaseVersionManager)
+        versionManager.setAndFinalize(GithubReleaseVersionManager(GithubEnterpriseCalls))
     }
 
     fun manualVersions() {

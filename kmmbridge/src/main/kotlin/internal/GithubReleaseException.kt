@@ -11,18 +11,6 @@
  * the License.
  */
 
-package co.touchlab.faktory.versionmanager
+package co.touchlab.faktory.internal
 
-import co.touchlab.faktory.githubRepo
-import co.touchlab.faktory.internal.GithubApi
-import co.touchlab.faktory.internal.procRunFailLog
-import org.gradle.api.Project
-
-class GithubReleaseVersionManager(
-    private val githubApi: GithubApi
-) : GitTagBasedVersionManager() {
-    override fun recordVersion(project: Project, versionString: String) {
-        val commitId = project.procRunFailLog("git", "rev-parse", "HEAD").first()
-        githubApi.createRelease(project, project.githubRepo, versionString, commitId)
-    }
-}
+class GithubReleaseException(message: String, cause: Throwable? = null) : Exception(message, cause)
