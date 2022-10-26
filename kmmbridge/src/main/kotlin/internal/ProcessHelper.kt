@@ -44,6 +44,7 @@ internal fun procRun(vararg params: String, processLines: (String, Int) -> Unit)
 internal fun Project.procRunFailLog(vararg params: String):List<String>{
     val output = mutableListOf<String>()
     try {
+        logger.info("Project.procRunFailLog: ${params.joinToString(" ")}")
         procRun(*params){ line, _ -> output.add(line)}
     } catch (e: Exception) {
         output.forEach { logger.error("error: $it") }
@@ -58,6 +59,7 @@ internal fun Project.procRunFailLog(vararg params: String):List<String>{
 internal fun Project.procRunWarnLog(vararg params: String):List<String>{
     val output = mutableListOf<String>()
     try {
+        logger.info("Project.procRunWarnLog: ${params.joinToString(" ")}")
         procRun(*params){ line, _ -> output.add(line)}
     } catch (e: Exception) {
         output.forEach { logger.warn("warn: $it") }

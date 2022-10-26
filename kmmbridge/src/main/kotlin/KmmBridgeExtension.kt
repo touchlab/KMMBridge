@@ -18,6 +18,7 @@ import co.touchlab.faktory.artifactmanager.AwsS3PublicArtifactManager
 import co.touchlab.faktory.artifactmanager.FaktoryServerArtifactManager
 import co.touchlab.faktory.artifactmanager.GithubEnterpriseReleaseArtifactManager
 import co.touchlab.faktory.artifactmanager.GithubReleaseArtifactManager
+import co.touchlab.faktory.artifactmanager.MavenPublishArtifactManager
 import co.touchlab.faktory.dependencymanager.CocoapodsDependencyManager
 import co.touchlab.faktory.dependencymanager.DependencyManager
 import co.touchlab.faktory.dependencymanager.SpecRepo
@@ -58,7 +59,7 @@ interface KmmBridgeExtension {
         makeArtifactsPublic: Boolean = true,
         altBaseUrl: String? = null,
     ) {
-        artifactManager.set(
+        artifactManager.setAndFinalize(
             AwsS3PublicArtifactManager(
                 region,
                 bucket,
@@ -73,7 +74,7 @@ interface KmmBridgeExtension {
     fun githubReleaseArtifacts(
         artifactRelease: String? = null
     ) {
-        artifactManager.set(GithubReleaseArtifactManager(artifactRelease))
+        artifactManager.setAndFinalize(GithubReleaseArtifactManager(artifactRelease))
     }
 
     fun githubEnterpriseReleaseArtifacts(
@@ -83,19 +84,27 @@ interface KmmBridgeExtension {
     }
 
     fun Project.faktoryServerArtifacts(faktoryReadKey: String? = null) {
-        artifactManager.set(FaktoryServerArtifactManager(faktoryReadKey, this))
+        artifactManager.setAndFinalize(FaktoryServerArtifactManager(faktoryReadKey, this))
+    }
+
+    /**
+     * If using multiple repos, you can specify which one the `Package.swift` and/or podspec point to by
+     * passing the name in here.
+     */
+    fun Project.mavenPublishArtifacts(repository: String? = null, publication: String? = null) {
+        artifactManager.setAndFinalize(MavenPublishArtifactManager(this, publication, repository))
     }
 
     fun timestampVersions() {
-        versionManager.set(TimestampVersionManager)
+        versionManager.setAndFinalize(TimestampVersionManager)
     }
 
     fun gitTagVersions() {
-        versionManager.set(GitTagVersionManager)
+        versionManager.setAndFinalize(GitTagVersionManager)
     }
 
     fun githubReleaseVersions() {
-        versionManager.set(GithubReleaseVersionManager)
+        versionManager.setAndFinalize(GithubReleaseVersionManager)
     }
 
     fun githubEnterpriseReleaseVersions() {
@@ -103,23 +112,39 @@ interface KmmBridgeExtension {
     }
 
     fun manualVersions() {
-        versionManager.set(ManualVersionManager)
+        versionManager.setAndFinalize(ManualVersionManager)
     }
 
     fun Project.spm(
         spmDirectory: String? = null,
-        packageName: String = project.name,
     ) {
-        val dependencyManager = SpmDependencyManager(spmDirectory, packageName)
+        val dependencyManager = SpmDependencyManager(spmDirectory)
         dependencyManagers.set(dependencyManagers.getOrElse(emptyList()) + dependencyManager)
     }
 
-    fun Project.cocoapods(specRepoUrl: String?) {
+    /**
+     * Enable CocoaPods publication
+     *
+     * @param specRepoUrl Url to repo that holds specs. If null, current repo.
+     * @param allowWarnings Allow publishing with warnings. Defaults to true.
+     * @param verboseErrors Output extra error info. Generally used if publishing fails. Defaults to false.
+     */
+    fun Project.cocoapods(
+        specRepoUrl: String? = null,
+        allowWarnings: Boolean = true,
+        verboseErrors: Boolean = false
+    ) {
         kotlin.cocoapods // This will throw error if we didn't apply cocoapods plugin
 
-        val specRepo = if (specRepoUrl == null) SpecRepo.Trunk else SpecRepo.Private(specRepoUrl)
+        val dependencyManager = CocoapodsDependencyManager({
+            SpecRepo.Private(specRepoUrl ?: "https://api:${githubPublishToken}@github.com/${githubRepo}")
+        }, allowWarnings, verboseErrors)
 
-        val dependencyManager = CocoapodsDependencyManager(specRepo)
         dependencyManagers.set(dependencyManagers.getOrElse(emptyList()) + dependencyManager)
+    }
+
+    private fun <T> Property<T>.setAndFinalize(value: T) {
+        this.set(value)
+        this.finalizeValue()
     }
 }

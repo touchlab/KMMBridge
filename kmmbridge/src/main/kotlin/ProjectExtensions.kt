@@ -19,6 +19,7 @@ import org.gradle.api.Task
 import org.gradle.api.UnknownTaskException
 import org.gradle.api.plugins.ExtensionAware
 import org.gradle.api.plugins.ExtraPropertiesExtension
+import org.gradle.api.publish.PublishingExtension
 import org.gradle.kotlin.dsl.findByType
 import org.gradle.kotlin.dsl.getByType
 import org.jetbrains.kotlin.gradle.dsl.KotlinMultiplatformExtension
@@ -28,6 +29,7 @@ import java.io.File
 
 internal val Project.kotlin: KotlinMultiplatformExtension get() = extensions.getByType()
 internal val Project.kmmBridgeExtension get() = extensions.getByType<KmmBridgeExtension>()
+internal val Project.publishingExtension get() = extensions.getByType<PublishingExtension>()
 
 internal val Project.urlFile get() = file("$buildDir/faktory/url")
 internal val Project.versionFile get() = file("$buildDir/faktory/version")
@@ -48,6 +50,9 @@ internal val Project.githubEnterpriseHost
 internal val Project.githubEnterpriseRepoOwner
     get() = (project.property("GITHUB_REPO_OWNER")
         ?: throw IllegalArgumentException("KMMBridge Github operations need property GITHUB_REPO_OWNER")) as String
+
+internal val Project.githubPublishUser: String?
+    get() = project.findStringProperty("GITHUB_PUBLISH_USER")
 
 internal val Project.githubRepo
     get() = (project.findStringProperty("GITHUB_REPO")

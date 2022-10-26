@@ -14,6 +14,8 @@
 package co.touchlab.faktory.dependencymanager
 
 import co.touchlab.faktory.*
+import co.touchlab.faktory.internal.procRun
+import co.touchlab.faktory.internal.procRunFailLog
 import co.touchlab.faktory.kotlin
 import org.gradle.api.Action
 import org.gradle.api.Project
@@ -28,8 +30,9 @@ sealed class SpecRepo {
 }
 
 class CocoapodsDependencyManager(
-    private val specRepo: SpecRepo,
-    private val allowWarnings: Boolean = true
+    private val specRepoDeferred: () -> SpecRepo,
+    private val allowWarnings: Boolean,
+    private val verboseErrors: Boolean
 ) : DependencyManager {
     override fun configure(project: Project, uploadTask: Task, publishRemoteTask: Task) {
 
@@ -48,20 +51,32 @@ class CocoapodsDependencyManager(
             })
         }
 
-        val pushRemotePodspecTask = project.task<Exec>("pushRemotePodspec") {
+        val pushRemotePodspecTask = project.task("pushRemotePodspec") {
             group = TASK_GROUP_NAME
             inputs.files(podSpecFile)
             dependsOn(generatePodspecTask)
 
-            val extraArgs = if (allowWarnings) arrayOf("--allow-warnings") else emptyArray()
-            when (specRepo) {
-                is SpecRepo.Trunk ->
-                    commandLine("pod", "trunk", "push", podSpecFile, *extraArgs)
-                is SpecRepo.Private ->
-                    commandLine("pod", "repo", "push", specRepo.url, podSpecFile, *extraArgs)
-            }
+            @Suppress("ObjectLiteralToLambda")
+            doLast(object : Action<Task>{
+                override fun execute(t: Task) {
+                    val extras = mutableListOf<String>()
 
-            standardOutput = System.out
+                    if (allowWarnings) {
+                        extras.add("--allow-warnings")
+                    }
+
+                    if (verboseErrors) {
+                        extras.add("--verbose")
+                    }
+
+                    when (val specRepo = specRepoDeferred()) {
+                        is SpecRepo.Trunk ->
+                            project.procRunFailLog("pod", "trunk", "push", podSpecFile, *extras.toTypedArray())
+                        is SpecRepo.Private ->
+                            project.procRunFailLog("pod", "repo", "push", specRepo.url, podSpecFile, *extras.toTypedArray())
+                    }
+                }
+            })
         }
 
         publishRemoteTask.dependsOn(pushRemotePodspecTask)
