@@ -18,7 +18,7 @@ jobs:
     runs-on: macos-12
     strategy:
       matrix:
-        sample: [touchlab/KmmBridgeIntegrationTest] # TODO add other samples here.
+        sample: [ KmmBridgeIntegrationTest ] # TODO add other samples here.
 
     steps:
       - uses: actions/checkout@v3
@@ -31,7 +31,7 @@ jobs:
       - name: "Checkout sample"
         uses: actions/checkout@v3
         with:
-          repository: "${{ matrix.sample }}"
+          repository: "touchlab/${{ matrix.sample }}"
           ref: main
           path: "build/${{ matrix.sample }}"
 
@@ -74,7 +74,7 @@ jobs:
       - name: Publish shared
         run: |
           cd build/${{ matrix.sample }}
-          ./gradlew kmmBridgePublish -PGITHUB_PUBLISH_TOKEN=${{ secrets.INTEGRATION_TEST_GITHUB_TOKEN }} -PGITHUB_REPO=${{ matrix.sample }} -PGITHUB_PUBLISH_USER=russhwolf ${{ secrets.gradle_params }} --no-daemon --stacktrace
+          ./gradlew kmmBridgePublish -PGITHUB_PUBLISH_TOKEN=${{ secrets.INTEGRATION_TEST_GITHUB_TOKEN }} -PGITHUB_REPO=touchlab/${{ matrix.sample }} -PGITHUB_PUBLISH_USER=russhwolf ${{ secrets.gradle_params }} --no-daemon --stacktrace
         env:
           GRADLE_OPTS: -Dkotlin.incremental=false -Dorg.gradle.jvmargs="-Xmx3g -XX:MaxPermSize=2048m -XX:+HeapDumpOnOutOfMemoryError -Dfile.encoding=UTF-8 -XX:MaxMetaspaceSize=512m"
 
