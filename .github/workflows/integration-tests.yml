@@ -47,8 +47,8 @@ jobs:
         with:
           ssh-private-key: |
             ${{ secrets.PODSPEC_SSH_KEY }}
-            ${{ secrets.INTEGRATION_TEST_MAVEN_PUBLISH_SSH_KEY" }}
-            ${{ secrets.INTEGRATION_TEST_GITHUB_RELEASES_SSH_KEY" }}
+            ${{ secrets.INTEGRATION_TEST_MAVEN_PUBLISH_SSH_KEY }}
+            ${{ secrets.INTEGRATION_TEST_GITHUB_RELEASES_SSH_KEY }}
 
       - uses: extractions/netrc@v1
         with:
