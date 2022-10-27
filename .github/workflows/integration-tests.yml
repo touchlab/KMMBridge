@@ -16,9 +16,11 @@ on:
 jobs:
   build:
     runs-on: macos-12
+    env:
+      GITHUB_PUBLISH_USER: "russhwolf" # TODO convert this to a CI user and generate a new PAT
     strategy:
       matrix:
-        sample: [ KmmBridgeIntegrationTest ] # TODO add other samples here.
+        sample: [ KmmBridgeIntegrationTest, KmmBridgeIntegrationTest-GithubReleases ]
 
     steps:
       - uses: actions/checkout@v3
@@ -45,18 +47,19 @@ jobs:
         with:
           ssh-private-key: |
             ${{ secrets.PODSPEC_SSH_KEY }}
-            ${{ secrets.REPO_SSH_KEY }}
+            ${{ secrets.INTEGRATION_TEST_MAVEN_PUBLISH_SSH_KEY" }}
+            ${{ secrets.INTEGRATION_TEST_GITHUB_RELEASES_SSH_KEY" }}
 
       - uses: extractions/netrc@v1
         with:
           machine: api.github.com
-          username: "russhwolf"
+          username: ${{ env.GITHUB_PUBLISH_USER }}
           password: ${{ secrets.INTEGRATION_TEST_GITHUB_TOKEN }}
 
       - uses: extractions/netrc@v1
         with:
           machine: maven.pkg.github.com
-          username: "russhwolf"
+          username: ${{ env.GITHUB_PUBLISH_USER }}
           password: ${{ secrets.INTEGRATION_TEST_GITHUB_TOKEN }}
 
       - name: Cache build tooling
@@ -67,6 +70,7 @@ jobs:
             ~/.konan
           key: ${{ runner.os }}-v4-${{ hashFiles('*.gradle.kts') }}
 
+      # TODO can we cache this so it only runs once instead of running for every test case?
       - name: Local publish plugin
         run: |
           ./gradlew publishToMavenLocal -PRELEASE_SIGNING_ENABLED=false -PVERSION_NAME=999
@@ -74,17 +78,17 @@ jobs:
       - name: Publish shared
         run: |
           cd build/${{ matrix.sample }}
-          ./gradlew kmmBridgePublish -PGITHUB_PUBLISH_TOKEN=${{ secrets.INTEGRATION_TEST_GITHUB_TOKEN }} -PGITHUB_REPO=touchlab/${{ matrix.sample }} -PGITHUB_PUBLISH_USER=russhwolf ${{ secrets.gradle_params }} --no-daemon --stacktrace
+          ./gradlew kmmBridgePublish -PGITHUB_PUBLISH_TOKEN=${{ secrets.INTEGRATION_TEST_GITHUB_TOKEN }} -PGITHUB_REPO=touchlab/${{ matrix.sample }} -PGITHUB_PUBLISH_USER=${{ env.GITHUB_PUBLISH_USER }} --no-daemon --stacktrace
         env:
           GRADLE_OPTS: -Dkotlin.incremental=false -Dorg.gradle.jvmargs="-Xmx3g -XX:MaxPermSize=2048m -XX:+HeapDumpOnOutOfMemoryError -Dfile.encoding=UTF-8 -XX:MaxMetaspaceSize=512m"
 
       - name: Build SPM Sample
         run: |
           cd build/${{ matrix.sample }}/ios-spm
-          xcodebuild -configuration Debug -scheme ${{ matrix.sample }}Spm -sdk iphonesimulator 
+          xcodebuild -configuration Debug -scheme KmmBridgeIntegrationTestSpm -sdk iphonesimulator 
 
       - name: Build Cocoapods Sample
         run: |
           cd build/${{ matrix.sample }}/ios-cocoapods
           pod install
-          xcodebuild -workspace ${{ matrix.sample }}Cocoapods.xcworkspace -configuration Debug -scheme ${{ matrix.sample }}Cocoapods -sdk iphonesimulator 
+          xcodebuild -workspace KmmBridgeIntegrationTestCocoapods.xcworkspace -configuration Debug -scheme KmmBridgeIntegrationTestCocoapods -sdk iphonesimulator 
