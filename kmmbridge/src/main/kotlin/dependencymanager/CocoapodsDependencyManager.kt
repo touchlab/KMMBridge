@@ -21,6 +21,7 @@ import org.gradle.api.Action
 import org.gradle.api.Project
 import org.gradle.api.Task
 import org.gradle.api.tasks.Exec
+import org.gradle.api.tasks.TaskProvider
 import org.gradle.kotlin.dsl.task
 import java.io.File
 
@@ -34,12 +35,12 @@ class CocoapodsDependencyManager(
     private val allowWarnings: Boolean,
     private val verboseErrors: Boolean
 ) : DependencyManager {
-    override fun configure(project: Project, uploadTask: Task, publishRemoteTask: Task) {
+    override fun configure(project: Project, uploadTask: TaskProvider<Task>, publishRemoteTask: TaskProvider<Task>) {
 
         val podSpecFile =
             "${project.buildDir}/faktory/podspec/${project.kmmBridgeExtension.buildType.get().name.toLowerCase()}/${project.kotlin.cocoapods.name}.podspec"
 
-        val generatePodspecTask = project.task("generateReleasePodspec") {
+        val generatePodspecTask = project.tasks.register("generateReleasePodspec") {
             inputs.files(project.urlFile, project.versionFile)
             outputs.file(podSpecFile)
             dependsOn(uploadTask)
@@ -51,7 +52,7 @@ class CocoapodsDependencyManager(
             })
         }
 
-        val pushRemotePodspecTask = project.task("pushRemotePodspec") {
+        val pushRemotePodspecTask = project.tasks.register("pushRemotePodspec") {
             group = TASK_GROUP_NAME
             inputs.files(podSpecFile)
             dependsOn(generatePodspecTask)
@@ -79,7 +80,9 @@ class CocoapodsDependencyManager(
             })
         }
 
-        publishRemoteTask.dependsOn(pushRemotePodspecTask)
+        publishRemoteTask.configure {
+            dependsOn(pushRemotePodspecTask)
+        }
     }
 
     override val needsGitTags: Boolean = false

@@ -4,9 +4,13 @@ import co.touchlab.faktory.publishingExtension
 import org.gradle.api.GradleException
 import org.gradle.api.Project
 import org.gradle.api.Task
+import org.gradle.api.UnknownTaskException
 import org.gradle.api.artifacts.repositories.MavenArtifactRepository
 import org.gradle.api.publish.PublishingExtension
 import org.gradle.api.publish.maven.MavenPublication
+import org.gradle.api.tasks.TaskProvider
+import org.gradle.api.tasks.bundling.AbstractArchiveTask
+import org.gradle.api.tasks.bundling.Zip
 import org.gradle.kotlin.dsl.getByType
 import java.io.File
 
@@ -24,20 +28,35 @@ class MavenPublishArtifactManager(
     override fun configure(
         project: Project,
         version: String,
-        uploadTask: Task,
-        kmmPublishTask: Task
+        uploadTask: TaskProvider<Task>,
+        kmmPublishTask: TaskProvider<Task>
     ) {
         project.publishingExtension.publications.create(FRAMEWORK_PUBLICATION_NAME, MavenPublication::class.java) {
             this.version = version
-            artifact(project.tasks.getByName("zipXCFramework")) {
+            val archiveProvider = project.tasks.named("zipXCFramework", Zip::class.java).flatMap {
+                it.archiveFile
+            }
+            artifact(archiveProvider) {
                 extension = "zip"
             }
             artifactId = kmmbridgeArtifactId
         }
 
-        publishingTasks().forEach { uploadTask.dependsOn(it) }
-        project.tasks.findByName("publish")?.also { task -> task.dependsOn(kmmPublishTask) }
-            ?: project.logger.warn("Gradle publish task not found")
+        publishingTasks().forEach {
+            uploadTask.configure {
+                dependsOn(it)
+            }
+        }
+        try {
+            project.tasks.named("publish").also { task ->
+                task.configure {
+                    dependsOn(kmmPublishTask)
+                }
+            }
+        }
+        catch(_: UnknownTaskException) {
+            project.logger.warn("Gradle publish task not found")
+        }
     }
 
     /**
@@ -59,7 +78,7 @@ class MavenPublishArtifactManager(
         return artifactPath(mavenArtifactRepositoryUrl, version)
     }
 
-    private fun publishingTasks(): List<Task> {
+    private fun publishingTasks(): List<TaskProvider<Task>> {
         val publishingExtension = project.extensions.getByType<PublishingExtension>()
 
         // Either the user has supplied a correct name, or we use the default. If neither is found, fail.
@@ -70,8 +89,7 @@ class MavenPublishArtifactManager(
             val repositoryName = repo.name.capitalize()
             val publishTaskName = "publish${publicationNameCap}PublicationTo${repositoryName}Repository"
             // Verify that the "publish" task exists before collecting
-            project.tasks.findByName(publishTaskName)
-                ?: throw GradleException("Cannot find publish task $publishTaskName")
+            project.tasks.named(publishTaskName)
         }
     }
 
