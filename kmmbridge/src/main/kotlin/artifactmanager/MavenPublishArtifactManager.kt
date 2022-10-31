@@ -78,7 +78,8 @@ class MavenPublishArtifactManager(
     private fun findArtifactRepository(publishingExtension: PublishingExtension): MavenArtifactRepository =
         repositoryName?.let {
             publishingExtension.repositories.findByName(it) as MavenArtifactRepository
-        } ?: publishingExtension.repositories.filterIsInstance<MavenArtifactRepository>().first()
+        } ?: publishingExtension.repositories.filterIsInstance<MavenArtifactRepository>().firstOrNull()
+        ?: throw GradleException("Artifact repository not found, please, specify maven repository")
 
     private fun artifactPath(url: String, version: String) =
         "$url/$group/$kmmbridgeArtifactId/$version/$kmmbridgeArtifactId-$version.zip"
