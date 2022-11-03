@@ -79,7 +79,18 @@ class MavenPublishArtifactManager(
         repositoryName?.let {
             publishingExtension.repositories.findByName(it) as MavenArtifactRepository
         } ?: publishingExtension.repositories.filterIsInstance<MavenArtifactRepository>().firstOrNull()
-        ?: throw GradleException("Artifact repository not found, please, specify maven repository")
+        ?: throw GradleException("Artifact repository not found, please, specify maven repository\n" +
+                "publishing {\n" +
+                "    repositories {\n" +
+                "        maven {\n" +
+                "            url = uri(\"https://someservice/path/to/repo\")\n" +
+                "            credentials {\n" +
+                "                username = publishUsername\n" +
+                "                password = publishPassword\n" +
+                "            }\n" +
+                "        }\n" +
+                "    }\n" +
+                "}")
 
     private fun artifactPath(url: String, version: String) =
         "$url/$group/$kmmbridgeArtifactId/$version/$kmmbridgeArtifactId-$version.zip"
