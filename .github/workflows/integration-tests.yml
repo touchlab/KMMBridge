@@ -17,7 +17,7 @@ jobs:
   build:
     runs-on: macos-12
     env:
-      GITHUB_PUBLISH_USER: "russhwolf" # TODO convert this to a CI user and generate a new PAT
+      GITHUB_PUBLISH_USER: "Touchlab-Bot"
     strategy:
       matrix:
         sample: [ KmmBridgeIntegrationTest, KmmBridgeIntegrationTest-GithubReleases ]
