@@ -11,7 +11,7 @@ The modules can be published to various back ends, public or private, and (curre
 
 ## Who is this for?
 
-Different types of teams and different types of projects use Kotlin Multiplatform in different ways. Native mobile dev teams often want to start by including a prebuilt Xcode Framework in the iOS build rather than having every member of the team building Kotlin locally. This is especially true when adding KMM to an existing app, and/or when the teams are larger than 2-3 developers.
+Different types of teams and different types of projects use Kotlin Multiplatform in different ways. Native mobile dev teams often want to start by including a prebuilt Xcode Framework in the iOS build rather than having every member of the team building Kotlin locally. This is especially true when adding KMM to an existing app, and/or when the teams are larger than a few developers.
 
 Building and publishing binary Xcode Frameworks from Kotlin is certainly possible, but not easily supported "out of the box". Where those binaries are published, and how they are included in the iOS build, also varies. Most teams we have talked to go through the same process getting started. They first need to build some kind of publishing architecture, which is non-trivial, and make a lot of the same mistakes along the way.
 
@@ -22,6 +22,10 @@ For more context, see Nate Ebel’s talk from Droidcon NYC 2022: [Adopting Kotli
 If you are using GitHub for source control, and are OK with using GitHub Actions to build and GitHub releases for published artifacts, we have a simple setup flow you can use. It is the easiest default to start from.
 
 See [DEFAULT_GITHUB_FLOW](DEFAULT_GITHUB_FLOW.md) for setup instructions.
+
+## KMMBridge Kick Start
+
+The quickest way to get up and running is to use our template "Kick Start" project. See [KMMBridgeKickStart](https://github.com/touchlab/KMMBridgeKickStart)
 
 ## Sample Projects
 
