@@ -33,10 +33,6 @@ abstract class GitTagBasedVersionManager : VersionManager {
             maxCount = maxVersion(versionPrefixTrimmed, sequence)
         }
 
-        val result = "${versionPrefixTrimmed}${maxCount + 1}"
-
-        println("maxCount $maxCount, result $result")
-
-        return result
+        return "${versionPrefixTrimmed}${maxCount + 1}"
     }
 }
