@@ -25,7 +25,7 @@ abstract class GitTagBasedVersionManager : VersionManager {
 
         // Need to make sure we have all the tags. This may need to be configurable in the future for
         // more complex git setups. If call fails, we'll get a warning but keep going.
-        project.procRunWarnLog("git", "pull", "--tags")
+        project.procRunFailLog("git", "pull", "--tags")
 
         var maxCount = 0
 
