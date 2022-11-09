@@ -34,7 +34,7 @@ internal fun maxVersion(versionPrefixTrimmed: String, versions: Sequence<String>
     return (versions
         .map { line ->
             val versionNumber = findVersionNumber(versionPrefixTrimmed, line)
-            println("Checking version $line, parsed $versionNumber")
+            println("Checking version $line, parsed $versionNumber, versionPrefixTrimmed $versionPrefixTrimmed")
             versionNumber
         }
         .filterNotNull()

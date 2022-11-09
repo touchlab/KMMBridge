@@ -25,6 +25,8 @@ class VersionNumberHelperTest {
         assertFails { prepVersionString(".") }
         assertFails { prepVersionString("\t") }
         assertFails { prepVersionString("\n") }
+        assertEquals(prepVersionString("1.0"), "1.0.")
+        assertEquals(prepVersionString("1.0."), "1.0.")
     }
 
     @Test
