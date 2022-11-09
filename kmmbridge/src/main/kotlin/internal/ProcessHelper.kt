@@ -38,6 +38,32 @@ internal fun procRun(vararg params: String, processLines: (String, Int) -> Unit)
         throw GradleException("Process failed: ${params.joinToString(" ")}")
 }
 
+internal fun procRunSequence(vararg params: String, block:(Sequence<String>)->Unit) {
+    val process = ProcessBuilder(*params)
+        .redirectErrorStream(true)
+        .start()
+
+    val streamReader = InputStreamReader(process.inputStream)
+    val bufferedReader = BufferedReader(streamReader)
+
+    var thrown:Throwable? = null
+
+    try {
+        block(bufferedReader.lineSequence())
+    } catch (e: Throwable) {
+        thrown = e
+    }
+
+    bufferedReader.close()
+    val returnValue = process.waitFor()
+    if(returnValue != 0)
+        throw GradleException("Process failed: ${params.joinToString(" ")}", thrown)
+
+    if(thrown != null){
+        throw thrown
+    }
+}
+
 /**
  * Run a process. If it fails, write output to gradle error log and throw exception.
  */
