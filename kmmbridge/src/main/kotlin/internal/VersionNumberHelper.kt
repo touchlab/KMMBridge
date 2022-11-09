@@ -33,8 +33,8 @@ internal fun prepVersionString(versionPrefix: String): String {
 internal fun maxVersion(versionPrefixTrimmed: String, versions: Sequence<String>): Int {
     return (versions
         .map { line ->
-            println("Checking version $line")
             val versionNumber = findVersionNumber(versionPrefixTrimmed, line)
+            println("Checking version $line, parsed $versionNumber")
             versionNumber
         }
         .filterNotNull()
