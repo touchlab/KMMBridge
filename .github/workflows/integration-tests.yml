@@ -49,6 +49,7 @@ jobs:
             ${{ secrets.PODSPEC_SSH_KEY }}
             ${{ secrets.INTEGRATION_TEST_MAVEN_PUBLISH_SSH_KEY }}
             ${{ secrets.INTEGRATION_TEST_GITHUB_RELEASES_SSH_KEY }}
+            ${{ secrets.INTEGRATION_TEST_MavenGHPackages_GHReleaseVersions }}
 
       - uses: extractions/netrc@938ddbfb73b4efee33e57db13aba434b35af2f93 # v1
         with:
