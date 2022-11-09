@@ -87,8 +87,8 @@ jobs:
           cd build/${{ matrix.sample }}/ios-spm
           xcodebuild -configuration Debug -scheme KmmBridgeIntegrationTestSpm -sdk iphonesimulator 
 
-      - name: Build Cocoapods Sample
-        run: |
-          cd build/${{ matrix.sample }}/ios-cocoapods
-          pod install
-          xcodebuild -workspace KmmBridgeIntegrationTestCocoapods.xcworkspace -configuration Debug -scheme KmmBridgeIntegrationTestCocoapods -sdk iphonesimulator 
+#      - name: Build Cocoapods Sample
+#        run: |
+#          cd build/${{ matrix.sample }}/ios-cocoapods
+#          pod install
+#          xcodebuild -workspace KmmBridgeIntegrationTestCocoapods.xcworkspace -configuration Debug -scheme KmmBridgeIntegrationTestCocoapods -sdk iphonesimulator
