@@ -20,7 +20,7 @@ jobs:
       GITHUB_PUBLISH_USER: "Touchlab-Bot"
     strategy:
       matrix:
-        sample: [ KmmBridgeIntegrationTest, KmmBridgeIntegrationTest-GithubReleases ]
+        sample: [ KmmBridgeIntegrationTest-MavenGHPackages-GHReleaseVersions ]
 
     steps:
       - uses: actions/checkout@v3
