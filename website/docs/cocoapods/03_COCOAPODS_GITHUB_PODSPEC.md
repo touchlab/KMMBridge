@@ -45,8 +45,16 @@ key pair on your local machine using the following command
 - `-f deploykey` gives a custom name `deploykey` to the generated keys and will put both keys in the current directory. If
   you run this command in your repo make sure you delete these files after finishing setup and do NOT commit them to your repo.
 
-- `-C "git@github.com:<ORG>/<PODSPEC REPO>"` adds the spec repo as a comment to the key that gives the ssh client a hint on when to
+- `-C "git@github.com:<ORG>/<PODSPEC REPO>"` adds the ***spec repo*** as a comment to the key that gives the ssh client a hint on when to
   use this key. This is optional but recommended.
+
+:::warn
+
+Generally the comment in the key is not important, but in this case, the workflow configures access to a specific repo based
+on the comment. If you have failures like `ERROR: Repository not found.` or `fatal: Could not read from remote repository.`, 
+make sure you used the spec repo and not the build repo in your comment.
+
+:::
 
 After running this command, your working directory will have two files: `deploykey`, the private key, and `deploykey.pub`, the public key.
 The public key, `deploykey.pub`, is what you will set up as a deploy key in your Podspec repo. The private key, `deploykey`, will need to be added in the

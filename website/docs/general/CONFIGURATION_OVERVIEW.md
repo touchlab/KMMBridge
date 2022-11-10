@@ -2,7 +2,7 @@
 
 ## Artifact Managers
 
-Artifact Manager handle uploading the binary and generate the url that will be used to access the binary. These implementations are very specific to the back end hosting being used. Current implementations:
+Artifact Managers handle uploading the binary and generate the url that will be used to access the binary. These implementations are very specific to the back end hosting being used. Current implementations:
 
 ### [Maven Repository Artifacts](../artifacts/MAVEN_REPO_ARTIFACTS)
 
