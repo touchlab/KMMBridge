@@ -13,22 +13,26 @@
 
 package co.touchlab.faktory.versionmanager
 
-import co.touchlab.faktory.internal.findNextVersion
-import co.touchlab.faktory.internal.procRun
+import co.touchlab.faktory.internal.*
+import co.touchlab.faktory.internal.prepVersionString
+import co.touchlab.faktory.internal.procRunSequence
 import co.touchlab.faktory.internal.procRunWarnLog
 import org.gradle.api.Project
 
-abstract class GitTagBasedVersionManager: VersionManager {
+abstract class GitTagBasedVersionManager : VersionManager {
     override fun getVersion(project: Project, versionPrefix: String): String {
-        val tagSet = mutableSetOf<String>()
+        val versionPrefixTrimmed = prepVersionString(versionPrefix)
+
         // Need to make sure we have all the tags. This may need to be configurable in the future for
         // more complex git setups. If call fails, we'll get a warning but keep going.
-        project.procRunWarnLog("git", "pull", "--tags")
-        procRun("git", "tag") { line, _ ->
-            tagSet.add(line)
+        project.procRunFailLog("git", "pull", "--tags")
+
+        var maxCount = 0
+
+        procRunSequence("git", "tag") { sequence ->
+            maxCount = maxVersion(versionPrefixTrimmed, sequence)
         }
-        return findNextVersion(versionPrefix) {
-            tagSet.contains(it)
-        }
+
+        return "${versionPrefixTrimmed}${maxCount + 1}"
     }
 }
