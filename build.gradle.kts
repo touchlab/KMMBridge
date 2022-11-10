@@ -24,3 +24,4 @@ buildscript {
         classpath("org.jetbrains.kotlin:kotlin-allopen:$KOTLIN_VERSION")
     }
 }
+
