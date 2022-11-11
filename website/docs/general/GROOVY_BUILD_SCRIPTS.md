@@ -20,7 +20,5 @@ kmmbridge {
             true,
             null
     )
-    // or
-    faktoryServerArtifacts(project, "0123456789ABCDEF")
 }
 ```

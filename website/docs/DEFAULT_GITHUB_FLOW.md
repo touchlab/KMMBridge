@@ -7,6 +7,12 @@ title: Default GitHub Workflow
 
 If you are hosting your repos in GitHub and can use GitHub Actions for CI, the Default GitHub Flow is the simplest way to start publishing Kotlin builds for iOS.
 
+:::note
+
+This flow depends on calling our GitHub Actions workflow. Many of the features of KMMBridge assume operations that the GitHub Actions workflow is performing. SPM in particular uses git repo structure and tags to manage versions, so however you run publishing, you'll need to expect that KMMBridge is performing git operaitons automatically. If you intend to implement your own workflow, please be aware of what the plugin is doing inside git.
+
+:::
+
 ## Overview
 
 This flow allows you to do the following:
