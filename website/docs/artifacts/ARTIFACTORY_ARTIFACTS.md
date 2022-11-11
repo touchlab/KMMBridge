@@ -1,6 +1,8 @@
 # Artifactory Artifacts
 If you're using an Artifactory to store artifacts, you just have to set up a repo on Artifactory and add your repo url and credentials in the
-`publishing` block [see this example](MAVEN_REPO_ARTIFACTS.md#1-configure-push-access). NOTE: If you add the Artifactory repo with the `artifactory` gradle plugin KMMBridge won't be able to find the
+`publishing` block [see this example](MAVEN_REPO_ARTIFACTS.md#1-configure-push-access), as well as [configure client read access](MAVEN_REPO_ARTIFACTS.md#2-configure-client-read-access)
+
+NOTE: If you add the Artifactory repo with the `artifactory` gradle plugin KMMBridge won't be able to find the
 repo. For now, you'll have to also add the repo in the maven `publishing` block.
 
 When publishing in a CI action, if you're using CocoaPods you need to add the credentials to `~/.netrc` before running publish
