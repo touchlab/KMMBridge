@@ -18,7 +18,6 @@ import co.touchlab.faktory.internal.procRunFailLog
 import org.gradle.api.Action
 import org.gradle.api.Project
 import org.gradle.api.Task
-import org.gradle.kotlin.dsl.getByType
 import org.jetbrains.kotlin.gradle.plugin.mpp.NativeBuildType
 import java.io.ByteArrayOutputStream
 import java.io.File
@@ -29,6 +28,7 @@ class SpmDependencyManager(
      * Folder where the Package.swift file lives
      */
     private val _swiftPackageFolder: String?,
+    private val commitManually: Boolean,
 ) : DependencyManager {
     private fun Project.swiftPackageFolder(): String = _swiftPackageFolder ?: this.findRepoRoot()
     private fun Project.swiftPackageFilePath(): String = "${stripEndSlash(swiftPackageFolder())}/Package.swift"
@@ -39,6 +39,7 @@ class SpmDependencyManager(
             group = TASK_GROUP_NAME
             val zipFile = project.zipFilePath()
             inputs.files(zipFile, project.urlFile, project.versionFile)
+            outputs.files(project.swiftPackageFilePath())
 
             @Suppress("ObjectLiteralToLambda")
             doLast(object : Action<Task> {
@@ -46,10 +47,21 @@ class SpmDependencyManager(
                     val checksum = project.findSpmChecksum(zipFile)
                     val url = project.urlFile.readText()
                     project.writePackageFile(extension.frameworkName.get(), url, checksum)
+                }
+            })
+        }
 
+        val commitAndPushPackageFileTask = project.task("commitAndPushPackageFile") {
+            group = TASK_GROUP_NAME
+            inputs.files(project.swiftPackageFilePath())
+
+            dependsOn(updatePackageSwiftTask)
+
+            @Suppress("ObjectLiteralToLambda")
+            doLast(object : Action<Task> {
+                override fun execute(t: Task) {
                     val version = project.versionFile.readText()
-
-                    project.procRunFailLog("git", "add", ".")
+                    project.procRunFailLog("git", "add", project.file(project.swiftPackageFilePath()).absolutePath)
                     project.procRunFailLog("git", "commit", "-m", "KMM SPM package release for $version")
                     project.procRunFailLog("git", "push")
                 }
@@ -57,7 +69,7 @@ class SpmDependencyManager(
         }
 
         updatePackageSwiftTask.dependsOn(uploadTask)
-        publishRemoteTask.dependsOn(updatePackageSwiftTask)
+        publishRemoteTask.dependsOn(if (commitManually) updatePackageSwiftTask else commitAndPushPackageFileTask)
 
         project.task("spmDevBuild") {
             group = TASK_GROUP_NAME
