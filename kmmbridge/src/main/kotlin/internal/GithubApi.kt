@@ -34,20 +34,9 @@ internal fun writeGitTagVersion(project: Project, versionString: String) {
     project.procRunFailLog("git", "push", "--follow-tags")
 }
 
-internal val Project.alwaysWriteGitTags: Boolean
-    get() = kmmBridgeExtension.dependencyManagers.get().any { it.needsGitTags }
-
 internal val Project.githubPublishToken
     get() = (project.findStringProperty("GITHUB_PUBLISH_TOKEN")
         ?: throw IllegalArgumentException("KMMBridge Github operations need property GITHUB_PUBLISH_TOKEN"))
-
-internal val Project.githubEnterpriseHost
-    get() = (project.findStringProperty("GITHUB_ENTERPRISE_HOST")
-        ?: throw IllegalArgumentException("KMMBridge Github operations need property GITHUB_ENTERPRISE_HOST"))
-
-internal val Project.githubEnterpriseRepoOwner
-    get() = (project.findStringProperty("GITHUB_REPO_OWNER")
-        ?: throw IllegalArgumentException("KMMBridge Github operations need property GITHUB_REPO_OWNER"))
 
 internal val Project.githubPublishUser: String?
     get() = project.findStringProperty("GITHUB_PUBLISH_USER")

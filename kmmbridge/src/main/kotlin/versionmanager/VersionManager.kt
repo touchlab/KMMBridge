@@ -13,6 +13,7 @@
 
 package co.touchlab.faktory.versionmanager
 
+import co.touchlab.faktory.kmmBridgeExtension
 import org.gradle.api.Project
 
 interface VersionManager {
@@ -26,4 +27,8 @@ interface VersionManager {
      * Called after dependency managers are done.
      */
     fun recordVersion(project: Project, versionString: String)
+
+    val Project.alwaysWriteGitTags: Boolean
+        get() = kmmBridgeExtension.dependencyManagers.get().any { it.needsGitTags }
+
 }
