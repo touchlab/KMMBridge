@@ -1,6 +1,6 @@
 name: "Integration Test"
 
-on: 
+on:
   push:
     branches:
       - main
@@ -15,6 +15,7 @@ on:
       
 jobs:
   build:
+    concurrency: "integration-tests"
     runs-on: macos-12
     env:
       GITHUB_PUBLISH_USER: "Touchlab-Bot"
