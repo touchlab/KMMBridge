@@ -14,7 +14,6 @@
 package co.touchlab.faktory
 
 import org.gradle.api.*
-import org.gradle.api.publish.PublishingExtension
 import org.gradle.api.tasks.bundling.Zip
 import org.gradle.kotlin.dsl.*
 import org.jetbrains.kotlin.gradle.plugin.mpp.Framework
@@ -23,9 +22,7 @@ import org.jetbrains.kotlin.gradle.plugin.mpp.NativeBuildType
 import org.jetbrains.kotlin.gradle.plugin.mpp.apple.XCFramework
 import org.jetbrains.kotlin.gradle.plugin.mpp.apple.XCFrameworkConfig
 import java.io.*
-import java.net.URI
 import java.util.*
-import javax.inject.Inject
 
 @Suppress("unused")
 class KMMBridgePlugin : Plugin<Project> {
@@ -43,10 +40,6 @@ class KMMBridgePlugin : Plugin<Project> {
         extension.versionPrefix.convention(fallbackVersion)
 
         afterEvaluate {
-            if (!extension.artifactManager.isPresent) {
-                error("You must apply an artifact manager! Call `artifactManager.set(...)` or a configuration function like `githubRelease()` in your `kmmbridge {}` block.")
-            }
-
             configureXcFramework()
             configureArtifactManagerAndDeploy()
         }
@@ -97,10 +90,19 @@ class KMMBridgePlugin : Plugin<Project> {
 
     private fun Project.configureArtifactManagerAndDeploy() {
         val extension = extensions.getByType<KmmBridgeExtension>()
-        val (zipTask, zipFile)= configureZipTask(extension)
-        val artifactManager = extension.artifactManager.get()
+
+        // Early-out with a warning if user hasn't added required config yet, to ensure project still syncs
+        val artifactManager = extension.artifactManager.orNull ?: run {
+            project.logger.warn("You must apply an artifact manager! Call `artifactManager.set(...)` or a configuration function like `mavenPublishArtifacts()` or `githubReleaseArtifacts()` in your `kmmbridge` block.")
+            return
+        }
+        val versionManager = extension.versionManager.orNull ?: run {
+            project.logger.warn("You must apply an version manager! Call `versionManager.set(...)` or a configuration function like `githubReleaseVersions()` in your `kmmbridge` block.")
+            return
+        }
+
+        val (zipTask, zipFile) = configureZipTask(extension)
         val dependencyManagers = extension.dependencyManagers.get()
-        val versionManager = extension.versionManager.orNull ?: throw GradleException("versionManager must be specified")
         val version = versionManager.getVersion(project, extension.versionPrefix.get())
 
         val uploadTask = task("uploadXCFramework") {
