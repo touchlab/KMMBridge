@@ -27,3 +27,5 @@ interface VersionManager {
      */
     fun recordVersion(project: Project, versionString: String)
 }
+
+class VersionException(val localDevOk:Boolean, message: String?): Exception(message)

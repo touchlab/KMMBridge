@@ -80,15 +80,17 @@ internal fun Project.procRunFailLog(vararg params: String):List<String>{
 }
 
 /**
- * Run a process. If it fails, write output to gradle warn log and keep going.
+ * Run a process. If it fails, write output to gradle error log and throw exception.
  */
-internal fun Project.procRunWarnLog(vararg params: String):List<String>{
+internal fun Project.procRunFailThrow(vararg params: String):List<String>{
     val output = mutableListOf<String>()
     try {
-        logger.info("Project.procRunWarnLog: ${params.joinToString(" ")}")
+        logger.info("Project.procRunFailLog: ${params.joinToString(" ")}")
         procRun(*params){ line, _ -> output.add(line)}
     } catch (e: Exception) {
-        output.forEach { logger.warn("warn: $it") }
+        throw ProcOutputException("Project.procRunFailLog [failed]: ${params.joinToString(" ")}", output)
     }
     return output
 }
+
+class ProcOutputException(message: String?, val output: List<String>) : Exception(message)

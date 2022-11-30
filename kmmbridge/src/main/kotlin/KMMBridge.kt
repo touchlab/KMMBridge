@@ -13,6 +13,8 @@
 
 package co.touchlab.faktory
 
+import co.touchlab.faktory.internal.ProcOutputException
+import co.touchlab.faktory.versionmanager.VersionException
 import org.gradle.api.*
 import org.gradle.api.tasks.bundling.Zip
 import org.gradle.kotlin.dsl.*
@@ -101,9 +103,19 @@ class KMMBridgePlugin : Plugin<Project> {
             return
         }
 
+        val version = try {
+            versionManager.getVersion(project, extension.versionPrefix.get())
+        } catch (e: VersionException) {
+            if (e.localDevOk) {
+                project.logger.info("(KMMBridge) ${e.message}")
+            } else {
+                project.logger.warn("(KMMBridge) ${e.message}")
+            }
+            return
+        }
+
         val (zipTask, zipFile) = configureZipTask(extension)
         val dependencyManagers = extension.dependencyManagers.get()
-        val version = versionManager.getVersion(project, extension.versionPrefix.get())
 
         val uploadTask = task("uploadXCFramework") {
             group = TASK_GROUP_NAME
