@@ -1,11 +1,11 @@
 name: Run Build/Test on Push
 on:
-#  pull_request:
-#    branches:
-#      - "**"
-#  push:
-#    branches:
-#      - "**"
+  pull_request:
+    branches:
+      - "**"
+  push:
+    branches:
+      - "**"
   workflow_dispatch:
 
 jobs:
