@@ -38,10 +38,6 @@ jobs:
           ref: main
           path: "build/${{ matrix.sample }}"
 
-      - name: Publish website
-        run: |
-          git checkout -b mylocalbranch
-
       - name: Validate Gradle Wrapper
         uses: gradle/wrapper-validation-action@v1
         with:
@@ -60,9 +56,10 @@ jobs:
         run: |
           ./gradlew publishToMavenLocal -PRELEASE_SIGNING_ENABLED=false -PVERSION_NAME=999
 
-      - name: Run something with Gradle
+      - name: Run something with Gradle on local branch
         run: |
           cd build/${{ matrix.sample }}
-          ./gradlew tasks --no-daemon --stacktrace
+          git checkout -b mylocalbranch
+          ./gradlew tasks --info --no-daemon --stacktrace
         env:
           GRADLE_OPTS: -Dkotlin.incremental=false -Dorg.gradle.jvmargs="-Xmx3g -XX:MaxPermSize=2048m -XX:+HeapDumpOnOutOfMemoryError -Dfile.encoding=UTF-8 -XX:MaxMetaspaceSize=512m"
