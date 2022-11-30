@@ -1,27 +1,27 @@
-name: "Integration Test B"
+name: "Integration Test A"
 
 on:
-#  push:
-#    branches:
-#      - main
-#    paths-ignore:
-#      - "**/*.md"
-#      - "website/**"
-#  pull_request:
-#    paths-ignore:
-#      - "**/*.md"
-#      - "website/**"
+  push:
+    branches:
+      - main
+    paths-ignore:
+      - "**/*.md"
+      - "website/**"
+  pull_request:
+    paths-ignore:
+      - "**/*.md"
+      - "website/**"
   workflow_dispatch:
       
 jobs:
   build:
-    concurrency: "integration-tests-b"
+    concurrency: "integration-tests-a"
     runs-on: macos-12
     env:
       GITHUB_PUBLISH_USER: "Touchlab-Bot"
     strategy:
       matrix:
-        sample: [ KmmBridgeIntegrationTest-MavenGHPackages-GHReleaseVersions, KMMBridgeGitHubReleaseVersionTest ]
+        sample: [ KmmBridgeIntegrationTest, KmmBridgeIntegrationTest-GithubReleases ]
 
     steps:
       - uses: actions/checkout@v3
