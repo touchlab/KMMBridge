@@ -1,4 +1,4 @@
-name: "Integration Test"
+name: "Integration Test B"
 
 on:
   push:
@@ -15,7 +15,7 @@ on:
       
 jobs:
   build:
-    concurrency: "integration-tests"
+    concurrency: "integration-tests-b"
     runs-on: macos-12
     env:
       GITHUB_PUBLISH_USER: "Touchlab-Bot"
