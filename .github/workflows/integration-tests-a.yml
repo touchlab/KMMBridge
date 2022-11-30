@@ -1,4 +1,4 @@
-name: "Integration Test"
+name: "Integration Test A"
 
 on:
   push:
@@ -15,13 +15,13 @@ on:
       
 jobs:
   build:
-    concurrency: "integration-tests"
+    concurrency: "integration-tests-a"
     runs-on: macos-12
     env:
       GITHUB_PUBLISH_USER: "Touchlab-Bot"
     strategy:
       matrix:
-        sample: [ KmmBridgeIntegrationTest, KmmBridgeIntegrationTest-GithubReleases, KmmBridgeIntegrationTest-MavenGHPackages-GHReleaseVersions, KMMBridgeGitHubReleaseVersionTest ]
+        sample: [ KmmBridgeIntegrationTest, KmmBridgeIntegrationTest-GithubReleases ]
 
     steps:
       - uses: actions/checkout@v3
@@ -50,7 +50,7 @@ jobs:
             ${{ secrets.PODSPEC_SSH_KEY }}
             ${{ secrets.INTEGRATION_TEST_MAVEN_PUBLISH_SSH_KEY }}
             ${{ secrets.INTEGRATION_TEST_GITHUB_RELEASES_SSH_KEY }}
-            ${{ secrets.INTEGRATION_TEST_MavenGHPackages_GHReleaseVersions }}
+            ${{ secrets.INTEGRATION_TEST_MAVENGHPACKAGES_GHRELEASEVERSIONS }}
             ${{ secrets.INTEGRATION_TEST_GITHUB_RELEASE_VERSION_SSH_KEY }}
 
       - uses: extractions/netrc@938ddbfb73b4efee33e57db13aba434b35af2f93 # v1
