@@ -31,6 +31,8 @@ KMMBridge is designed to allow you to publish updates to your iOS Kotlin code as
 
 There are two basic options: automatically incrementing version managers, and exact Gradle version. The automatically incrementing versions exist for teams that will publish more frequent iOS builds while dev is ongoing. Each publish will automatically increment a minor version. If you plan to directly manage versions for the whole project, you can just tell KMMBridge to use the Gradle version.
 
+>In the current version of KMMBridge the Android version is not automatically incremented while the iOS version is. If you need the versions to be aligned, you need to manage the versions manually (by using [ManualVersionManager](#ManualVersionManager)).
+
 ### Incrementing Version Managers
 
 All incrementing version managers need a base version, which should be the first two numbers of a three number semantic versioning scheme. CocoaPods, and especially SPM, do not work well with less structured version strings.
