@@ -66,7 +66,7 @@ object GithubEnterpriseCalls {
 
         val uploadRequest = Request.Builder()
             .url(
-                "https://${host}/api/v3/repos/${owner}/${repo}/releases/${releaseId}/assets?name=${
+                "https://${host}/api/uploads/repos/${owner}/${repo}/releases/${releaseId}/assets?name=${
                     URLEncoder.encode(
                         fileName, "UTF-8"
                     )
