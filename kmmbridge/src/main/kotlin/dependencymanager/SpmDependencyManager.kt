@@ -15,6 +15,7 @@ package co.touchlab.faktory.dependencymanager
 
 import co.touchlab.faktory.*
 import co.touchlab.faktory.internal.procRunFailLog
+import localdevmanager.LocalDevManager
 import org.gradle.api.Action
 import org.gradle.api.Project
 import org.gradle.api.Task
@@ -29,7 +30,7 @@ class SpmDependencyManager(
      */
     private val _swiftPackageFolder: String?,
     private val commitManually: Boolean,
-) : DependencyManager {
+) : DependencyManager, LocalDevManager {
     private fun Project.swiftPackageFolder(): String = _swiftPackageFolder ?: this.findRepoRoot()
     private fun Project.swiftPackageFilePath(): String = "${stripEndSlash(swiftPackageFolder())}/Package.swift"
 
@@ -70,24 +71,6 @@ class SpmDependencyManager(
 
         updatePackageSwiftTask.dependsOn(uploadTask)
         publishRemoteTask.dependsOn(if (commitManually) updatePackageSwiftTask else commitAndPushPackageFileTask)
-
-        project.task("spmDevBuild") {
-            group = TASK_GROUP_NAME
-            dependsOn(project.findXCFrameworkAssembleTask(NativeBuildType.DEBUG))
-
-            @Suppress("ObjectLiteralToLambda")
-            doLast(object : Action<Task> {
-                override fun execute(t: Task) {
-                    project.writePackageFile(
-                        makeLocalDevPackageFileText(
-                            project.swiftPackageFolder(),
-                            extension.frameworkName.get(),
-                            project
-                        )
-                    )
-                }
-            })
-        }
     }
 
     private fun Project.writePackageFile(packageName: String, url: String, checksum: String) {
@@ -130,6 +113,26 @@ class SpmDependencyManager(
     }
 
     override val needsGitTags: Boolean = true
+    override fun configureLocalDev(project: Project) {
+        val extension = project.kmmBridgeExtension
+        project.task("spmDevBuild") {
+            group = TASK_GROUP_NAME
+            dependsOn(project.findXCFrameworkAssembleTask(NativeBuildType.DEBUG))
+
+            @Suppress("ObjectLiteralToLambda")
+            doLast(object : Action<Task> {
+                override fun execute(t: Task) {
+                    project.writePackageFile(
+                        makeLocalDevPackageFileText(
+                            project.swiftPackageFolder(),
+                            extension.frameworkName.get(),
+                            project
+                        )
+                    )
+                }
+            })
+        }
+    }
 }
 
 internal fun stripEndSlash(path: String): String {

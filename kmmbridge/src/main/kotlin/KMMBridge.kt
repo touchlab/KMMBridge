@@ -43,6 +43,7 @@ class KMMBridgePlugin : Plugin<Project> {
 
         afterEvaluate {
             configureXcFramework()
+            configureLocalDev()
             configureArtifactManagerAndDeploy()
         }
     }
@@ -88,6 +89,11 @@ class KMMBridgePlugin : Plugin<Project> {
                     xcFrameworkConfig!!.add(framework)
                 }
             }
+    }
+
+    private fun Project.configureLocalDev() {
+        val extension = kmmBridgeExtension
+        extension.localDevManager.orNull?.configureLocalDev(this)
     }
 
     private fun Project.configureArtifactManagerAndDeploy() {

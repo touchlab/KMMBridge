@@ -29,6 +29,7 @@ import co.touchlab.faktory.versionmanager.GithubReleaseVersionManager
 import co.touchlab.faktory.versionmanager.ManualVersionManager
 import co.touchlab.faktory.versionmanager.TimestampVersionManager
 import co.touchlab.faktory.versionmanager.VersionManager
+import localdevmanager.LocalDevManager
 import org.gradle.api.Project
 import org.gradle.api.provider.ListProperty
 import org.gradle.api.provider.Property
@@ -44,6 +45,8 @@ interface KmmBridgeExtension {
     val dependencyManagers: ListProperty<DependencyManager>
 
     val artifactManager: Property<ArtifactManager>
+
+    val localDevManager: Property<LocalDevManager>
 
     val buildType: Property<NativeBuildType>
 
@@ -121,6 +124,7 @@ interface KmmBridgeExtension {
     ) {
         val dependencyManager = SpmDependencyManager(spmDirectory, commitManually)
         dependencyManagers.set(dependencyManagers.getOrElse(emptyList()) + dependencyManager)
+        localDevManager.setAndFinalize(dependencyManager)
     }
 
     /**
