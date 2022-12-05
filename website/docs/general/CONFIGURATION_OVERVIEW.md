@@ -131,3 +131,5 @@ The podspec is uploaded to a folder in the podspec repo based on the KMMBridge v
 ```
 <podspec-repo-url>/<podname>/<kmm-version>/<podname>.podspec
 ```
+
+There is a danger of having naming conflicts. If two projects haven't configured their cocoapods naming, and are running with the default where they are named after the gradle module (eg "shared") then there's a possibility that both will upload a podspec file to the repository with the same name.
