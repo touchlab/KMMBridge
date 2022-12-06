@@ -56,11 +56,10 @@ jobs:
         run: |
           ./gradlew publishToMavenLocal -PRELEASE_SIGNING_ENABLED=false -PVERSION_NAME=999
 
-      - name: Run something with Gradle on local branch
+      - name: Run local dev flow
         run: |
           cd build/${{ matrix.sample }}
           git checkout -b mylocalbranch
-          ./gradlew tasks --info --no-daemon --stacktrace
+          ./gradlew spmDevBuild -PspmBuildTargets=ios_x64 --info --no-daemon --stacktrace
         env:
           GRADLE_OPTS: -Dkotlin.incremental=false -Dorg.gradle.jvmargs="-Xmx3g -XX:MaxPermSize=2048m -XX:+HeapDumpOnOutOfMemoryError -Dfile.encoding=UTF-8 -XX:MaxMetaspaceSize=512m"
-
