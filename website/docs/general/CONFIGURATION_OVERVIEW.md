@@ -91,3 +91,45 @@ kmmbridge {
   manualVersions()
 }
 ```
+
+## Naming
+
+In Kotlin code you can set the name of your Framework as well as the name of your Podfile (when using cocoapods).
+
+**Framework base name** controls the name that will eventually be used in the Swift `import` statement.
+
+When using Cocoapods:
+
+```kotlin
+kotlin {
+    cocoapods {
+        framework {
+            baseName = "FRAMEWORKNAME"
+        }
+    }
+}
+```
+
+When using SPM:
+
+```kotlin
+// TODO: How to set framework name for spm?
+```
+
+Cocoapods only:
+**Podfile name** controls the name that will eventually be used in the iOS Podfile, and is the name of the podspec file. This is written to the podspec in the `spec.name` field.
+
+```kotlin
+kotlin {
+    cocoapods {
+        name = "PODNAME"
+    }
+}
+```
+
+The podspec is uploaded to a folder in the podspec repo based on the KMMBridge version and the Podfile name. Therefore, the path looks like this:
+```
+<podspec-repo-url>/<podname>/<kmm-version>/<podname>.podspec
+```
+
+There is a danger of having naming conflicts. If two projects haven't configured their cocoapods naming, and are running with the default where they are named after the gradle module (eg "shared") then there's a possibility that both will upload a podspec file to the repository with the same name.
