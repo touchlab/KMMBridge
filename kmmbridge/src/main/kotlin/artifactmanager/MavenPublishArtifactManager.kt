@@ -48,15 +48,16 @@ class MavenPublishArtifactManager(
      * maven's well known conventions.
      */
     override fun deployArtifact(project: Project, zipFilePath: File, version: String): String {
-        val publishingExtension = project.extensions.getByType<PublishingExtension>()
+        val deployUrl = deployUrl(project, version)
+        return artifactPath(deployUrl.url, version)
+    }
 
+    override fun deployUrl(project: Project, version: String): ArtifactManager.DeployUrl {
+        val publishingExtension = project.extensions.getByType<PublishingExtension>()
         // There may be more than one repo, but it's also possible we get none. This will allow us to continue and trying
         // to use the dependency should fail.
         // If there are multiple repos, the repo name needs to be specified.
-        val mavenArtifactRepositoryUrl =
-            findArtifactRepository(publishingExtension).url.toString()
-
-        return artifactPath(mavenArtifactRepositoryUrl, version)
+        return ArtifactManager.DeployUrl("", findArtifactRepository(publishingExtension).url.toString())
     }
 
     private fun publishingTasks(): List<Task> {

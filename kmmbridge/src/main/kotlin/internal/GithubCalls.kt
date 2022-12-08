@@ -47,18 +47,16 @@ object GithubCalls {
         return gson.fromJson(okHttpClient.newCall(createRequest).execute().body!!.string(), IdReply::class.java).id
     }
 
-    fun uploadZipFile(project: Project, zipFilePath: File, repo:String, releaseId: Int, fileName: String):String{
+    fun uploadZipFile(project: Project, zipFilePath: File, deployUrl: String):String {
         val gson = Gson()
         val token = project.githubPublishToken
         val body: RequestBody = zipFilePath.asRequestBody("application/zip".toMediaTypeOrNull())
 
-        val uploadRequest = Request.Builder().url(
-            "https://uploads.github.com/repos/${repo}/releases/${releaseId}/assets?name=${
-                URLEncoder.encode(
-                    fileName, "UTF-8"
-                )
-            }"
-        ).post(body).addHeader("Accept", "application/vnd.github+json").addHeader("Authorization", "Bearer $token")
+        val uploadRequest = Request.Builder()
+            .url(deployUrl)
+            .post(body)
+            .addHeader("Accept", "application/vnd.github+json")
+            .addHeader("Authorization", "Bearer $token")
             .addHeader("Content-Type", "application/zip").build()
 
         val response = okHttpClient.newCall(uploadRequest).execute()

@@ -53,25 +53,17 @@ object GithubEnterpriseCalls {
     fun uploadZipFile(
         project: Project,
         zipFilePath: File,
-        repo: String,
-        releaseId: Int,
-        fileName: String
+        deployUrl: String,
     ): String {
         val gson = Gson()
         val token = project.githubPublishToken
-        val host = project.githubEnterpriseHost
-        val owner = project.githubEnterpriseRepoOwner
 
         val body = zipFilePath.asRequestBody("application/zip".toMediaTypeOrNull())
 
         val uploadRequest = Request.Builder()
-            .url(
-                "https://${host}/api/v3/repos/${owner}/${repo}/releases/${releaseId}/assets?name=${
-                    URLEncoder.encode(
-                        fileName, "UTF-8"
-                    )
-                }"
-            ).post(body).addHeader("Accept", "application/vnd.github+json")
+            .url(deployUrl)
+            .post(body)
+            .addHeader("Accept", "application/vnd.github+json")
             .addHeader("Authorization", "Bearer $token")
             .addHeader("Content-Type", "application/zip").build()
 

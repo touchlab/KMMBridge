@@ -18,26 +18,37 @@ import co.touchlab.faktory.internal.GithubCalls
 import co.touchlab.faktory.kmmBridgeExtension
 import org.gradle.api.Project
 import java.io.File
+import java.net.URLEncoder
 
 class GithubReleaseArtifactManager(
     private val artifactReleaseArg: String?
 ) : ArtifactManager {
     override fun deployArtifact(project: Project, zipFilePath: File, version: String): String {
+        val deployUrl = deployUrl(project, version)
+        val uploadUrl = GithubCalls.uploadZipFile(project, zipFilePath, deployUrl.url)
+        return "${uploadUrl}.zip"
+    }
+
+    override fun deployUrl(project: Project, version: String): ArtifactManager.DeployUrl {
         val repoName: String = project.githubRepo
-
         val artifactReleaseTag = artifactReleaseArg ?: "kmm-artifacts-${project.kmmBridgeExtension.versionPrefix.get()}"
-
         val idReply: Int = GithubCalls.findReleaseId(project, repoName, artifactReleaseTag) ?: GithubCalls.createRelease(
             project,
             repoName,
             artifactReleaseTag,
             null
         )
-
         val fileName = artifactName(project, version)
 
-        val uploadUrl = GithubCalls.uploadZipFile(project, zipFilePath, repoName, idReply, fileName)
-        return "${uploadUrl}.zip"
+        return ArtifactManager.DeployUrl(fileName, createUrl(repoName, idReply, fileName))
+    }
+
+    private fun createUrl(repo: String, releaseId: Int, fileName: String): String {
+        return "https://uploads.github.com/repos/${repo}/releases/${releaseId}/assets?name=${
+            URLEncoder.encode(
+                fileName, "UTF-8"
+            )
+        }"
     }
 }
 

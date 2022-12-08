@@ -27,4 +27,8 @@ interface ArtifactManager {
      * Send the thing, and return a link to the thing...
      */
     fun deployArtifact(project: Project, zipFilePath: File, version: String): String
+
+    fun deployUrl(project: Project, version: String): DeployUrl
+
+    data class DeployUrl(val fileName: String, val url: String)
 }
