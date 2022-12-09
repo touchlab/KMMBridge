@@ -110,10 +110,16 @@ kotlin {
 }
 ```
 
-When using SPM:
+When using SPM you need to set the framework name in the cocoapods block in the same way:
 
 ```kotlin
-// TODO: How to set framework name for spm?
+kotlin {
+    cocoapods {
+        framework {
+            baseName = "FRAMEWORKNAME"
+        }
+    }
+}
 ```
 
 Cocoapods only:
