@@ -110,10 +110,12 @@ kotlin {
 }
 ```
 
-When using SPM:
+When using SPM you can set the framework name in the `kmmbridge` block:
 
 ```kotlin
-// TODO: How to set framework name for spm?
+kmmbridge {
+    frameworkName.set("FRAMEWORKNAME")
+}
 ```
 
 Cocoapods only:
