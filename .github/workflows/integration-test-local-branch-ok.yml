@@ -15,13 +15,11 @@ on:
       
 jobs:
   build:
-    concurrency: "integration-tests-local-branch-ok"
+    concurrency: "integration-test-local-branch-ok"
     runs-on: macos-12
     env:
       GITHUB_PUBLISH_USER: "Touchlab-Bot"
-    strategy:
-      matrix:
-        sample: [ KmmBridgeIntegrationTest ]
+      TEST_URL: "KmmBridgeIntegrationTest"
 
     steps:
       - uses: actions/checkout@v3
@@ -34,9 +32,9 @@ jobs:
       - name: "Checkout sample"
         uses: actions/checkout@v3
         with:
-          repository: "touchlab/${{ matrix.sample }}"
+          repository: "touchlab/${{ env.TEST_URL }}"
           ref: main
-          path: "build/${{ matrix.sample }}"
+          path: "build/${{ env.TEST_URL }}"
 
       - name: Validate Gradle Wrapper
         uses: gradle/wrapper-validation-action@v1
@@ -58,7 +56,7 @@ jobs:
 
       - name: Run local dev flow
         run: |
-          cd build/${{ matrix.sample }}
+          cd build/${{ env.TEST_URL }}
           git checkout -b mylocalbranch
           ./gradlew spmDevBuild -PspmBuildTargets=ios_x64 --info --no-daemon --stacktrace
         env:
