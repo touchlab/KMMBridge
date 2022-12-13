@@ -110,15 +110,11 @@ kotlin {
 }
 ```
 
-When using SPM you need to set the framework name in the cocoapods block in the same way:
+When using SPM you can set the framework name in the `kmmbridge` block:
 
 ```kotlin
-kotlin {
-    cocoapods {
-        framework {
-            baseName = "FRAMEWORKNAME"
-        }
-    }
+kmmbridge {
+    frameworkName.set("FRAMEWORKNAME")
 }
 ```
 
