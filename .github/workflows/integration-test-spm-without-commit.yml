@@ -80,13 +80,15 @@ jobs:
         env:
           GRADLE_OPTS: -Dkotlin.incremental=false -Dorg.gradle.jvmargs="-Xmx3g -XX:MaxPermSize=2048m -XX:+HeapDumpOnOutOfMemoryError -Dfile.encoding=UTF-8 -XX:MaxMetaspaceSize=512m"
 
-#     For now the ios target takes whatever is the newest published Package.swift and doesn't care about the version, that means we don't need to tag manually
       - name: Push commit
         run: |
           cd build/${{ env.TEST_URL }}
           git add -A Package.swift
-          git commit -m "KMM SPM package release Manual commit"
+          eval latestVersion=$(cat "shared/build/faktory/version")
+          git commit -m "KMM SPM package release for $latestVersion - Manual commit"
           git push
+          git tag latestVersion
+          git push --tags
 
       - name: Build SPM Sample
         run: |
