@@ -26,6 +26,11 @@ interface VersionManager {
      * Called after dependency managers are done.
      */
     fun recordVersion(project: Project, versionString: String)
+
+    /**
+     * Whether this version manager requires git tags to work. When true, kmmbridge will perform git operations internally.
+     */
+    val needsGitTags: Boolean
 }
 
 class VersionException(val localDevOk:Boolean, message: String?): Exception(message)

@@ -13,7 +13,6 @@
 
 package co.touchlab.faktory
 
-import co.touchlab.faktory.internal.ProcOutputException
 import co.touchlab.faktory.versionmanager.VersionException
 import org.gradle.api.*
 import org.gradle.api.tasks.bundling.Zip
@@ -138,6 +137,10 @@ class KMMBridgePlugin : Plugin<Project> {
                     logger.info("Uploading XCFramework version $version")
                     val deployUrl = artifactManager.deployArtifact(project, zipFile, version)
                     urlFile.writeText(deployUrl)
+
+                    if (project.alwaysWriteGitTags) {
+                        writePartialPublishGitTag(project, version)
+                    }
                 }
             })
         }
@@ -149,7 +152,13 @@ class KMMBridgePlugin : Plugin<Project> {
             @Suppress("ObjectLiteralToLambda")
             doLast(object : Action<Task> {
                 override fun execute(t: Task) {
-                    extension.versionManager.get().recordVersion(project, versionFile.readText())
+
+                    val publishedVersion = versionFile.readText()
+                    extension.versionManager.get().recordVersion(project, publishedVersion)
+                    if (project.alwaysWriteGitTags) {
+                        writeGitTagVersion(project, publishedVersion)
+                        cleanupTemporaryTags(project)
+                    }
                 }
             })
         }

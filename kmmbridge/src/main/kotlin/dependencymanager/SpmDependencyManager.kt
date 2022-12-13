@@ -65,6 +65,12 @@ class SpmDependencyManager(
                     project.procRunFailLog("git", "add", project.file(project.swiftPackageFilePath()).absolutePath)
                     project.procRunFailLog("git", "commit", "-m", "KMM SPM package release for $version")
                     project.procRunFailLog("git", "push")
+
+                    if (commitManually && !project.alwaysWriteGitTags) {
+                        // In manual commit mode, we won't have pushed a tag elsewhere, so make sure to do it here if
+                        // we called this task directly.
+                        writeGitTagVersion(project, version)
+                    }
                 }
             })
         }
@@ -112,7 +118,7 @@ class SpmDependencyManager(
         file(swiftPackageFilePath()).writeText(data)
     }
 
-    override val needsGitTags: Boolean = true
+    override val needsGitTags: Boolean = !commitManually
     override fun configureLocalDev(project: Project) {
         val extension = project.kmmBridgeExtension
         project.task("spmDevBuild") {
