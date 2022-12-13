@@ -32,7 +32,7 @@ object GithubCalls {
         OkHttpClient.Builder().callTimeout(Duration.ofMinutes(5)).connectTimeout(Duration.ofMinutes(2))
             .writeTimeout(Duration.ofMinutes(5)).readTimeout(Duration.ofMinutes(2)).build()
 
-    fun createRelease(project: Project, repo: String, tag: String, commitId: String?): Int {
+    fun createRelease(project: Project, repo: String, tag: String?, commitId: String?): Int {
         val gson = Gson()
         val token = project.githubPublishToken
         val createReleaseBody = if (commitId == null) {
@@ -86,8 +86,8 @@ object GithubCalls {
     }
 }
 
-data class CreateReleaseWithCommitBody(val tag_name: String, val target_commitish: String)
-data class CreateReleaseBody(val tag_name: String)
+data class CreateReleaseWithCommitBody(val tag_name: String?, val target_commitish: String)
+data class CreateReleaseBody(val tag_name: String?)
 
 data class IdReply(var id: Int)
 

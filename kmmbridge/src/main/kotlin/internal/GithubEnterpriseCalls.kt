@@ -25,7 +25,7 @@ object GithubEnterpriseCalls {
         .build()
 
 
-    fun createRelease(project: Project, repo: String, tag: String, commitId: String?): Int {
+    fun createRelease(project: Project, repo: String, tag: String?, commitId: String?): Int {
         val gson = Gson()
         val token = project.githubPublishToken
         val host = project.githubEnterpriseHost
