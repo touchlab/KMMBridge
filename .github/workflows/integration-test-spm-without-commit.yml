@@ -86,9 +86,8 @@ jobs:
           git add -A Package.swift
           eval latestVersion=$(cat "shared/build/faktory/version")
           git commit -m "KMM SPM package release for $latestVersion - Manual commit"
-          git push
-          git tag latestVersion
-          git push --tags
+          git tag -a $latestVersion -m "KMM SPM package release for $latestVersion - Manual commit"
+          git push --follow-tags
 
       - name: Build SPM Sample
         run: |
