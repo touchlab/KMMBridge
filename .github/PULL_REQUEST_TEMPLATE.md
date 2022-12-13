@@ -12,5 +12,5 @@ Issue: https://github.com/touchlab/KMMBridge/issues/[issue number]
 ## Testing
 <!-- Remove any lines that were not performed -->
 - `./gradlew test`
-- `./gradlew :kmmbridge:build`
+- `./gradlew build`
 - manual testing
