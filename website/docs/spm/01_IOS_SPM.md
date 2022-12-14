@@ -40,6 +40,39 @@ kmmbridge {
 
 Once this is all set up, run a build so you have at least one version available.
 
+### Setting up SPM without using the Cocoapods plugin
+
+You can use KMMBridge with only SPM, without Cocoapods plugin, but there are some differences in setting things up.
+
+If you want to set the framework to be static or dynamic, you will need to access binaries of each target.
+You can also set the framework name in the parameter of the `framework` function.
+
+```kotlin
+kotlin {
+    iosX64 { // can be set for any of your tagets
+        binaries {
+            framework("FRAMEWORK_NAME") {
+                isStatic = true // or false for dynamic framework
+            }
+        }
+    }
+}
+```
+
+Or you can set it for all the targets at once, just be careful not to have other kotlin native targets that you don't want to set this for (you can use filter if needed):
+
+```kotlin
+targets.withType<KotlinNativeTarget> {
+    binaries {
+        framework("FRAMEWORK_NAME") {
+            isStatic = true // or false for dynamic framework
+        }
+    }
+}
+```
+
+You can check out [build.gradle in this test](https://github.com/touchlab/KmmBridgeIntegrationTest-SPMWithoutCommit/blob/main/shared/build.gradle.kts) as an example.
+
 ## Artifact Authentication
 
 For artifacts that are kept in private storage, you may need to add authentication information so your `~/.netrc` file or your Mac's Keychain Access. See [GITHUB_RELEASE_ARTIFACTS#private-repos](../artifacts/GITHUB_RELEASE_ARTIFACTS#private-repos) for a description of how to set up private file access.
