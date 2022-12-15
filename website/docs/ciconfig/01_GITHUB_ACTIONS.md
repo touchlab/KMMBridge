@@ -45,7 +45,7 @@ Notice the "on" section. In our example, you can run the workflow manually with 
 
 Then call our workflow:
 
-```yam
+```yaml
 jobs:
   call-kmmbridge-publish:
     uses: touchlab/KMMBridgeGithubWorkflow/.github/workflows/faktorybuildbranches.yml@v0.3
@@ -61,3 +61,32 @@ There are 2 parameters, both are optional:
 
 * gradle_params - If your Gradle build needs custom params, like properties, pass them here.
 * PODSPEC_SSH_KEY - The SSH key for publishing.
+
+When publishing in a CI action you need to add the credentials to `~/.netrc` before running publish to validate the podspec. To do this simply pass the custom `netrc` params in our GitHub Workflow.
+
+You'll also need to add the username and password gradle params through the `gradle_params` secret in our workflow:
+
+```yaml
+jobs:
+  call-kmmbridge-publish:
+    uses: touchlab/KMMBridgeGithubWorkflow/.github/workflows/faktorybuildbranches.yml@v0.7
+    with: 
+      netrcMachine: touchlabartifactory.jfrog.io
+    secrets:
+      PODSPEC_SSH_KEY: ${{ secrets.PODSPEC_SSH_KEY }}
+      gradle_params: -PUSERNAME=${{ secrets.ARTIFACTORY_USERNAME}} -PPASSWORD=${{ secrets.ARTIFACTORY_PASSWORD }}
+```
+
+or set them separately like this:
+
+```yaml
+jobs:
+  call-kmmbridge-publish:
+    uses: touchlab/KMMBridgeGithubWorkflow/.github/workflows/faktorybuildbranches.yml@v0.7
+    with: 
+      netrcMachine: touchlabartifactory.jfrog.io
+    secrets:
+      PODSPEC_SSH_KEY: ${{ secrets.PODSPEC_SSH_KEY }}
+      netrcUsername: ${{ secrets.ARTIFACTORY_USERNAME }} 
+      netrcPassword: ${{ secrets.ARTIFACTORY_PASSWORD }} 
+```
