@@ -11,21 +11,10 @@
  * the License.
  */
 
-package co.touchlab.faktory.versionmanager
+package localdevmanager
 
 import org.gradle.api.Project
 
-interface VersionManager {
-    /**
-     * Compute a final version to use for publication, based on the plugin versionPrefix
-     */
-    fun getVersion(project: Project, versionPrefix: String): String
-
-    /**
-     * Versions that need to write somewhere need to do it after everything else is done.
-     * Called after dependency managers are done.
-     */
-    fun recordVersion(project: Project, versionString: String)
+interface LocalDevManager {
+    fun configureLocalDev(project: Project)
 }
-
-class VersionException(val localDevOk:Boolean, message: String?): Exception(message)

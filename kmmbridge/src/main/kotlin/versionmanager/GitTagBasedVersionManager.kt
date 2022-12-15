@@ -14,18 +14,26 @@
 package co.touchlab.faktory.versionmanager
 
 import co.touchlab.faktory.internal.*
-import co.touchlab.faktory.internal.prepVersionString
-import co.touchlab.faktory.internal.procRunSequence
-import co.touchlab.faktory.internal.procRunWarnLog
 import org.gradle.api.Project
 
 abstract class GitTagBasedVersionManager : VersionManager {
     override fun getVersion(project: Project, versionPrefix: String): String {
         val versionPrefixTrimmed = prepVersionString(versionPrefix)
 
-        // Need to make sure we have all the tags. This may need to be configurable in the future for
-        // more complex git setups. If call fails, we'll get a warning but keep going.
-        project.procRunFailLog("git", "pull", "--tags")
+        // Need to make sure we have all the tags. If no tags, we don't continue (but don't fail)
+        // This will usually happen when doing local dev.
+        try {
+            project.procRunFailThrow("git", "pull", "--tags")
+        } catch (e: ProcOutputException) {
+            val localOk = e.output.any { it.contains("There is no tracking information for the current branch") }
+            throw VersionException(
+                localOk, if (localOk) {
+                    "Version cannot be loaded. Publishing disabled (this is fine for local development)"
+                } else {
+                    "${e.message}\n${e.output.joinToString("\n")}"
+                }
+            )
+        }
 
         var maxCount = 0
 

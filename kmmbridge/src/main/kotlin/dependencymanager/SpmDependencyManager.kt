@@ -15,11 +15,11 @@ package co.touchlab.faktory.dependencymanager
 
 import co.touchlab.faktory.*
 import co.touchlab.faktory.internal.procRunFailLog
+import localdevmanager.LocalDevManager
 import org.gradle.api.Action
 import org.gradle.api.Project
 import org.gradle.api.Task
 import org.gradle.api.tasks.TaskProvider
-import org.gradle.kotlin.dsl.getByType
 import org.jetbrains.kotlin.gradle.plugin.mpp.NativeBuildType
 import java.io.ByteArrayOutputStream
 import java.io.File
@@ -30,7 +30,8 @@ class SpmDependencyManager(
      * Folder where the Package.swift file lives
      */
     private val _swiftPackageFolder: String?,
-) : DependencyManager {
+    private val commitManually: Boolean,
+) : DependencyManager, LocalDevManager {
     private fun Project.swiftPackageFolder(): String = _swiftPackageFolder ?: this.findRepoRoot()
     private fun Project.swiftPackageFilePath(): String = "${stripEndSlash(swiftPackageFolder())}/Package.swift"
 
@@ -40,6 +41,7 @@ class SpmDependencyManager(
             group = TASK_GROUP_NAME
             val zipFile = project.zipFilePath()
             inputs.files(zipFile, project.urlFile, project.versionFile)
+            outputs.files(project.swiftPackageFilePath())
 
             @Suppress("ObjectLiteralToLambda")
             doLast(object : Action<Task> {
@@ -47,40 +49,29 @@ class SpmDependencyManager(
                     val checksum = project.findSpmChecksum(zipFile)
                     val url = project.urlFile.readText()
                     project.writePackageFile(extension.frameworkName.get(), url, checksum)
+                }
+            })
+        }
 
+        val commitAndPushPackageFileTask = project.tasks.register("commitAndPushPackageFile") {
+            group = TASK_GROUP_NAME
+            inputs.files(project.swiftPackageFilePath())
+
+            dependsOn(updatePackageSwiftTask)
+
+            @Suppress("ObjectLiteralToLambda")
+            doLast(object : Action<Task> {
+                override fun execute(t: Task) {
                     val version = project.versionFile.readText()
-
-                    project.procRunFailLog("git", "add", ".")
+                    project.procRunFailLog("git", "add", project.file(project.swiftPackageFilePath()).absolutePath)
                     project.procRunFailLog("git", "commit", "-m", "KMM SPM package release for $version")
                     project.procRunFailLog("git", "push")
                 }
             })
         }
 
-        updatePackageSwiftTask.configure {
-            dependsOn(uploadTask)
-        }
-        publishRemoteTask.configure {
-            dependsOn(updatePackageSwiftTask)
-        }
-
-        project.tasks.register("spmDevBuild") {
-            group = TASK_GROUP_NAME
-            dependsOn(project.findXCFrameworkAssembleTask(NativeBuildType.DEBUG))
-
-            @Suppress("ObjectLiteralToLambda")
-            doLast(object : Action<Task> {
-                override fun execute(t: Task) {
-                    project.writePackageFile(
-                        makeLocalDevPackageFileText(
-                            project.swiftPackageFolder(),
-                            extension.frameworkName.get(),
-                            project
-                        )
-                    )
-                }
-            })
-        }
+        updatePackageSwiftTask.configure { dependsOn(uploadTask) }
+        publishRemoteTask.configure { dependsOn(if (commitManually) updatePackageSwiftTask else commitAndPushPackageFileTask) }
     }
 
     private fun Project.writePackageFile(packageName: String, url: String, checksum: String) {
@@ -123,6 +114,26 @@ class SpmDependencyManager(
     }
 
     override val needsGitTags: Boolean = true
+    override fun configureLocalDev(project: Project) {
+        val extension = project.kmmBridgeExtension
+        project.tasks.register("spmDevBuild") {
+            group = TASK_GROUP_NAME
+            dependsOn(project.findXCFrameworkAssembleTask(NativeBuildType.DEBUG))
+
+            @Suppress("ObjectLiteralToLambda")
+            doLast(object : Action<Task> {
+                override fun execute(t: Task) {
+                    project.writePackageFile(
+                        makeLocalDevPackageFileText(
+                            project.swiftPackageFolder(),
+                            extension.frameworkName.get(),
+                            project
+                        )
+                    )
+                }
+            })
+        }
+    }
 }
 
 internal fun stripEndSlash(path: String): String {

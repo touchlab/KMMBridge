@@ -31,6 +31,8 @@ KMMBridge is designed to allow you to publish updates to your iOS Kotlin code as
 
 There are two basic options: automatically incrementing version managers, and exact Gradle version. The automatically incrementing versions exist for teams that will publish more frequent iOS builds while dev is ongoing. Each publish will automatically increment a minor version. If you plan to directly manage versions for the whole project, you can just tell KMMBridge to use the Gradle version.
 
+>In the current version of KMMBridge the Android version is not automatically incremented while the iOS version is. If you need the versions to be aligned, you need to manage the versions manually (by using [ManualVersionManager](#ManualVersionManager)).
+
 ### Incrementing Version Managers
 
 All incrementing version managers need a base version, which should be the first two numbers of a three number semantic versioning scheme. CocoaPods, and especially SPM, do not work well with less structured version strings.
@@ -89,3 +91,47 @@ kmmbridge {
   manualVersions()
 }
 ```
+
+## Naming
+
+In Kotlin code you can set the name of your Framework as well as the name of your Podfile (when using cocoapods).
+
+**Framework base name** controls the name that will eventually be used in the Swift `import` statement.
+
+When using Cocoapods:
+
+```kotlin
+kotlin {
+    cocoapods {
+        framework {
+            baseName = "FRAMEWORKNAME"
+        }
+    }
+}
+```
+
+When using SPM you can set the framework name in the `kmmbridge` block:
+
+```kotlin
+kmmbridge {
+    frameworkName.set("FRAMEWORKNAME")
+}
+```
+
+Cocoapods only:
+**Podfile name** controls the name that will eventually be used in the iOS Podfile, and is the name of the podspec file. This is written to the podspec in the `spec.name` field.
+
+```kotlin
+kotlin {
+    cocoapods {
+        name = "PODNAME"
+    }
+}
+```
+
+The podspec is uploaded to a folder in the podspec repo based on the KMMBridge version and the Podfile name. Therefore, the path looks like this:
+```
+<podspec-repo-url>/<podname>/<kmm-version>/<podname>.podspec
+```
+
+There is a danger of having naming conflicts. If two projects haven't configured their cocoapods naming, and are running with the default where they are named after the gradle module (eg "shared") then there's a possibility that both will upload a podspec file to the repository with the same name.
