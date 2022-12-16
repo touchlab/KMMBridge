@@ -16,6 +16,8 @@ package co.touchlab.faktory
 import co.touchlab.faktory.internal.ProcOutputException
 import co.touchlab.faktory.versionmanager.VersionException
 import org.gradle.api.*
+import org.gradle.api.publish.PublishingExtension
+import org.gradle.api.tasks.TaskProvider
 import org.gradle.api.tasks.bundling.Zip
 import org.gradle.kotlin.dsl.*
 import org.jetbrains.kotlin.gradle.plugin.mpp.Framework
@@ -48,9 +50,9 @@ class KMMBridgePlugin : Plugin<Project> {
         }
     }
 
-    private fun Project.configureZipTask(extension: KmmBridgeExtension): Pair<Task, File> {
+    private fun Project.configureZipTask(extension: KmmBridgeExtension): Pair<TaskProvider<Zip>, File> {
         val zipFile = zipFilePath()
-        val zipTask = task<Zip>("zipXCFramework") {
+        val zipTask = tasks.register<Zip>("zipXCFramework") {
             group = TASK_GROUP_NAME
             from("$buildDir/XCFrameworks/${extension.buildType.get().getName()}")
             destinationDirectory.set(zipFile.parentFile)
@@ -123,7 +125,7 @@ class KMMBridgePlugin : Plugin<Project> {
         val (zipTask, zipFile) = configureZipTask(extension)
         val dependencyManagers = extension.dependencyManagers.get()
 
-        val uploadTask = task("uploadXCFramework") {
+        val uploadTask = tasks.register("uploadXCFramework") {
             group = TASK_GROUP_NAME
 
             dependsOn(zipTask)
@@ -142,7 +144,7 @@ class KMMBridgePlugin : Plugin<Project> {
             })
         }
 
-        val publishRemoteTask = task("kmmBridgePublish") {
+        val publishRemoteTask = tasks.register("kmmBridgePublish") {
             group = TASK_GROUP_NAME
             dependsOn(uploadTask)
 
@@ -160,6 +162,8 @@ class KMMBridgePlugin : Plugin<Project> {
             dependencyManager.configure(this, uploadTask, publishRemoteTask)
         }
 
-        zipTask.dependsOn(findXCFrameworkAssembleTask())
+        zipTask.configure {
+            dependsOn(findXCFrameworkAssembleTask())
+        }
     }
 }

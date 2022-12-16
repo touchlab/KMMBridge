@@ -20,6 +20,7 @@ import org.gradle.api.UnknownTaskException
 import org.gradle.api.plugins.ExtensionAware
 import org.gradle.api.plugins.ExtraPropertiesExtension
 import org.gradle.api.publish.PublishingExtension
+import org.gradle.api.tasks.TaskProvider
 import org.gradle.kotlin.dsl.findByType
 import org.gradle.kotlin.dsl.getByType
 import org.jetbrains.kotlin.gradle.dsl.KotlinMultiplatformExtension
@@ -89,15 +90,19 @@ internal fun writeGitTagVersion(project: Project, versionString: String) {
 internal const val TASK_GROUP_NAME = "kmmbridge"
 internal const val EXTENSION_NAME = "kmmbridge"
 
-internal fun Project.findXCFrameworkAssembleTask(buildType: NativeBuildType? = null): Task {
+internal fun Project.findXCFrameworkAssembleTask(buildType: NativeBuildType? = null): TaskProvider<Task> {
     val extension = extensions.getByType<KmmBridgeExtension>()
     val name = extension.frameworkName.get()
     val buildTypeString = (buildType ?: extension.buildType.get()).getName().capitalize()
     val taskWithoutName = "assemble${buildTypeString}XCFramework"
     val taskWithName = "assemble${name.capitalize()}${buildTypeString}XCFramework"
-    return try {
-        tasks.findByName(taskWithName) ?: tasks.findByName(taskWithoutName)!!
-    } catch (e: NullPointerException) {
-        throw UnknownTaskException("Cannot find XCFramework assemble task. Tried ${taskWithName} and ${taskWithoutName}.", e)
+    return runCatching {
+        tasks.named(taskWithName)
+    }.recoverCatching {
+        tasks.named(taskWithoutName)
+    }.getOrElse {
+        throw UnknownTaskException(
+            "Cannot find XCFramework assemble task. Tried ${taskWithName} and ${taskWithoutName}."
+        )
     }
 }
