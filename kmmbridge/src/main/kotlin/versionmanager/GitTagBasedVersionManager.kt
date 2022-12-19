@@ -13,7 +13,12 @@
 
 package co.touchlab.faktory.versionmanager
 
-import co.touchlab.faktory.internal.*
+import co.touchlab.faktory.TEMP_PUBLISH_TAG_PREFIX
+import co.touchlab.faktory.internal.ProcOutputException
+import co.touchlab.faktory.internal.maxVersion
+import co.touchlab.faktory.internal.prepVersionString
+import co.touchlab.faktory.internal.procRunFailThrow
+import co.touchlab.faktory.internal.procRunSequence
 import org.gradle.api.Project
 
 abstract class GitTagBasedVersionManager : VersionManager {
@@ -36,11 +41,25 @@ abstract class GitTagBasedVersionManager : VersionManager {
         }
 
         var maxCount = 0
-
         procRunSequence("git", "tag") { sequence ->
             maxCount = maxVersion(versionPrefixTrimmed, sequence)
         }
+        project.logger.info("KMMBridge: Max tag version $versionPrefixTrimmed$maxCount")
 
-        return "${versionPrefixTrimmed}${maxCount + 1}"
+        // If we had a partial publish, make sure the next version we publish is greater
+        var maxPartial = 0
+        procRunSequence("git", "tag") { sequence ->
+            val partialVersionSequence = sequence
+                .filter { it.startsWith(TEMP_PUBLISH_TAG_PREFIX) }
+                .map { it.removePrefix(TEMP_PUBLISH_TAG_PREFIX) }
+            maxPartial = maxVersion(versionPrefixTrimmed, partialVersionSequence)
+        }
+        project.logger.info("KMMBridge: Max partial tag version $versionPrefixTrimmed$maxPartial")
+
+        val nextVersion = "${versionPrefixTrimmed}${maxOf(maxCount, maxPartial) + 1}"
+        project.logger.info("KMMBridge: Next version is $nextVersion")
+        return nextVersion
     }
+
+    override val needsGitTags: Boolean = true
 }
