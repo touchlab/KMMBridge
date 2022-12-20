@@ -62,7 +62,7 @@ There are 2 parameters, both are optional:
 * gradle_params - If your Gradle build needs custom params, like properties, pass them here.
 * PODSPEC_SSH_KEY - The SSH key for publishing.
 
-When publishing in a CI action you need to add the credentials to `~/.netrc` before running publish to validate the podspec. To do this simply pass the custom `netrc` params in our GitHub Workflow.
+When publishing in a CI action you need to add the credentials to `~/.netrc` before running publish, for example to validate the podspec or to authenticate to your artifact hosting. To do this simply pass the custom `netrc` params in our GitHub Workflow.
 
 You'll also need to add the username and password gradle params through the `gradle_params` secret in our workflow:
 
