@@ -4,7 +4,7 @@ sidebar_position: 1
 
 > **NO LONGER SUPPORTED!**
 > 
-> Github Release Artifact is no longer supported in versions 0.3.5+. The reason is it doesn't provide good enough benefits over using the maven artifact manager to publish to github packages.
+> Github Release Artifact and Github Enterprise Release Artifact are no longer supported in versions 0.3.5+. The reason is it doesn't provide good enough benefits over using the maven artifact manager to publish to Github packages. Please, use [Maven Artifacts](https://touchlab.github.io/KMMBridge/artifacts/MAVEN_REPO_ARTIFACTS) instead.
 
 # ~~GitHub Release Artifacts~~
 
