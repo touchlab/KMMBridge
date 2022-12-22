@@ -63,10 +63,6 @@ internal val Project.githubRepo
 internal val Project.spmBuildTargets: String?
     get() = project.findStringProperty("spmBuildTargets")
 
-internal val Project.alwaysWriteGitTags: Boolean
-    get() = kmmBridgeExtension.dependencyManagers.get()
-        .any { it.needsGitTags } || kmmBridgeExtension.versionManager.get().needsGitTags
-
 internal fun Project.zipFilePath(): File {
     val tempDir = file("$buildDir/faktory/zip")
     val artifactName = "frameworkarchive.zip"
@@ -81,39 +77,6 @@ internal fun Project.findStringProperty(name: String): String? {
     return null
 }
 
-/**
- * Write version to git tags
- */
-internal fun writeGitTagVersion(project: Project, versionString: String) {
-    project.procRunFailLog("git", "tag", "-a", versionString, "-m", "KMM release version $versionString")
-    project.procRunFailLog("git", "push", "--follow-tags")
-}
-
-/**
- * Writes a temporary tag that indicates we've started a publish operation for the given version.
- *
- * We'll delete any temporary tags once publishing finishes, but it helps us detect if publishing failed.
- */
-internal fun writePartialPublishGitTag(project: Project, version: String) {
-    val tempTag = TEMP_PUBLISH_TAG_PREFIX + version
-    project.procRunFailThrow("git", "tag", tempTag)
-    project.procRunFailThrow("git", "push", "origin", "tag", tempTag)
-}
-
-/**
- * Removes any temporary tags from previously started publish operations
- */
-internal fun cleanupTemporaryTags(project: Project) {
-    procRunSequence("git", "tag") { sequence ->
-        val partialVersionSequence = sequence
-            .filter { it.startsWith(TEMP_PUBLISH_TAG_PREFIX) }
-        partialVersionSequence.forEach { tag ->
-            project.logger.warn("Deleting tag $tag")
-            project.procRunFailThrow("git", "tag", "-d", tag)
-            project.procRunFailThrow("git", "push", "origin", "-d", tag)
-        }
-    }
-}
 
 internal const val TASK_GROUP_NAME = "kmmbridge"
 internal const val EXTENSION_NAME = "kmmbridge"

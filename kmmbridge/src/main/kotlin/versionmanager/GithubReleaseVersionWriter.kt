@@ -11,20 +11,17 @@
  * the License.
  */
 
-package co.touchlab.faktory.versionmanager
+package versionmanager
 
-import co.touchlab.faktory.TEMP_PUBLISH_TAG_PREFIX
+import co.touchlab.faktory.githubRepo
+import co.touchlab.faktory.internal.GithubCalls
+import co.touchlab.faktory.internal.procRunFailLog
+import co.touchlab.faktory.versionmanager.GitRemoteVersionWriter
 import org.gradle.api.Project
 
-object GitTagVersionManager : GitTagBasedVersionManager() {
-    override fun markerVersion(project: Project, versionString: String): String? {
-        return "$TEMP_PUBLISH_TAG_PREFIX$versionString"
+object GithubReleaseVersionWriter : GitRemoteVersionWriter(){
+    override fun finalVersion(project: Project, version: String) {
+        val commitId = project.procRunFailLog("git", "rev-parse", "HEAD").first()
+        GithubCalls.createRelease(project, project.githubRepo, version, commitId)
     }
-
-    override fun filterMarkerVersion(project: Project, versionString: String): (String) -> Boolean =
-        {
-            it.startsWith(
-                TEMP_PUBLISH_TAG_PREFIX
-            )
-        }
 }

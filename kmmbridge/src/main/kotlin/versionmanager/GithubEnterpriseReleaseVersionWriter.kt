@@ -11,16 +11,17 @@
  * the License.
  */
 
-package co.touchlab.faktory.versionmanager
+package versionmanager
 
 import co.touchlab.faktory.githubRepo
-import co.touchlab.faktory.internal.GithubCalls
+import co.touchlab.faktory.internal.GithubEnterpriseCalls
 import co.touchlab.faktory.internal.procRunFailLog
+import co.touchlab.faktory.versionmanager.GitRemoteVersionWriter
 import org.gradle.api.Project
 
-object GithubReleaseVersionManager : GitTagBasedVersionManager() {
-    override fun recordVersion(project: Project, versionString: String) {
+object GithubEnterpriseReleaseVersionWriter : GitRemoteVersionWriter() {
+    override fun finalVersion(project: Project, version: String) {
         val commitId = project.procRunFailLog("git", "rev-parse", "HEAD").first()
-        GithubCalls.createRelease(project, project.githubRepo, versionString, commitId)
+        GithubEnterpriseCalls.createRelease(project, project.githubRepo, version, commitId)
     }
 }

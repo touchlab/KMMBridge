@@ -16,10 +16,8 @@ package co.touchlab.faktory.versionmanager
 import org.gradle.api.Project
 
 object TimestampVersionManager : VersionManager {
-    override fun getVersion(project: Project, versionPrefix: String): String =
+    override fun getVersion(project: Project, versionPrefix: String, versionWriter: VersionWriter): String =
         "${versionPrefix}.${System.currentTimeMillis()}"
-
-    override fun recordVersion(project: Project, versionString: String) {}
 
     override val needsGitTags: Boolean = false
 }

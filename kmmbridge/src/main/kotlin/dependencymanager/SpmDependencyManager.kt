@@ -14,7 +14,7 @@
 package co.touchlab.faktory.dependencymanager
 
 import co.touchlab.faktory.*
-import co.touchlab.faktory.internal.procRunFailLog
+import co.touchlab.faktory.internal.procRunWarnLog
 import localdevmanager.LocalDevManager
 import org.gradle.api.Action
 import org.gradle.api.Project
@@ -28,8 +28,7 @@ class SpmDependencyManager(
     /**
      * Folder where the Package.swift file lives
      */
-    private val _swiftPackageFolder: String?,
-    private val commitManually: Boolean,
+    private val _swiftPackageFolder: String?
 ) : DependencyManager, LocalDevManager {
     private fun Project.swiftPackageFolder(): String = _swiftPackageFolder ?: this.findRepoRoot()
     private fun Project.swiftPackageFilePath(): String = "${stripEndSlash(swiftPackageFolder())}/Package.swift"
@@ -48,35 +47,17 @@ class SpmDependencyManager(
                     val checksum = project.findSpmChecksum(zipFile)
                     val url = project.urlFile.readText()
                     project.writePackageFile(extension.frameworkName.get(), url, checksum)
-                }
-            })
-        }
-
-        val commitAndPushPackageFileTask = project.task("commitAndPushPackageFile") {
-            group = TASK_GROUP_NAME
-            inputs.files(project.swiftPackageFilePath())
-
-            dependsOn(updatePackageSwiftTask)
-
-            @Suppress("ObjectLiteralToLambda")
-            doLast(object : Action<Task> {
-                override fun execute(t: Task) {
                     val version = project.versionFile.readText()
-                    project.procRunFailLog("git", "add", project.file(project.swiftPackageFilePath()).absolutePath)
-                    project.procRunFailLog("git", "commit", "-m", "KMM SPM package release for $version")
-                    project.procRunFailLog("git", "push")
-
-                    if (commitManually && !project.alwaysWriteGitTags) {
-                        // In manual commit mode, we won't have pushed a tag elsewhere, so make sure to do it here if
-                        // we called this task directly.
-                        writeGitTagVersion(project, version)
-                    }
+                    val versionWriter = extension.versionWriter.get()
+                    versionWriter.runGitStatement(project, "git", "add", project.file(project.swiftPackageFilePath()).absolutePath)
+                    versionWriter.runGitStatement(project, "git", "commit", "-m", "KMM SPM package release for $version")
+                    versionWriter.runGitStatement(project, "git", "push")
                 }
             })
         }
 
         updatePackageSwiftTask.dependsOn(uploadTask)
-        publishRemoteTask.dependsOn(if (commitManually) updatePackageSwiftTask else commitAndPushPackageFileTask)
+        publishRemoteTask.dependsOn(updatePackageSwiftTask)
     }
 
     private fun Project.writePackageFile(packageName: String, url: String, checksum: String) {
@@ -118,7 +99,7 @@ class SpmDependencyManager(
         file(swiftPackageFilePath()).writeText(data)
     }
 
-    override val needsGitTags: Boolean = !commitManually
+    override val needsGitTags: Boolean = true
     override fun configureLocalDev(project: Project) {
         val extension = project.kmmBridgeExtension
         project.task("spmDevBuild") {
@@ -214,7 +195,16 @@ let package = Package(
 )
 """.trimIndent()
 
+/**
+ * For new projects that aren't in git repos, it's *probably* OK to just return the current folder
+ * until this is resolved, or let the user enter it manually.
+ */
 private fun Project.findRepoRoot(): String {
-    val repoFile = File(procRunFailLog("git", "rev-parse", "--show-toplevel").first())
-    return projectDir.toPath().relativize(repoFile.toPath()).toString()
+    val results = procRunWarnLog("git", "rev-parse", "--show-toplevel")
+    return if (results.isEmpty()) {
+        "."
+    } else {
+        val repoFile = File(results.first())
+        projectDir.toPath().relativize(repoFile.toPath()).toString()
+    }
 }

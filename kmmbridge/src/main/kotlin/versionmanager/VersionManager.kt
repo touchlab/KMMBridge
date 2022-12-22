@@ -19,13 +19,17 @@ interface VersionManager {
     /**
      * Compute a final version to use for publication, based on the plugin versionPrefix
      */
-    fun getVersion(project: Project, versionPrefix: String): String
+    fun getVersion(project: Project, versionPrefix: String, versionWriter: VersionWriter): String
+
+    fun markerVersion(project: Project, versionString: String): String? = null
+
+    fun filterMarkerVersion(project: Project, versionString: String): (String) -> Boolean = { _ -> false }
 
     /**
      * Versions that need to write somewhere need to do it after everything else is done.
      * Called after dependency managers are done.
      */
-    fun recordVersion(project: Project, versionString: String)
+    fun recordVersion(project: Project, versionString: String){}
 
     /**
      * Whether this version manager requires git tags to work. When true, kmmbridge will perform git operations internally.
@@ -33,4 +37,4 @@ interface VersionManager {
     val needsGitTags: Boolean
 }
 
-class VersionException(val localDevOk:Boolean, message: String?): Exception(message)
+class VersionException(val localDevOk: Boolean, message: String?) : Exception(message)
