@@ -11,12 +11,11 @@
  * the License.
  */
 
-package versionmanager
+package co.touchlab.faktory.versionmanager
 
 import co.touchlab.faktory.githubRepo
 import co.touchlab.faktory.internal.GithubCalls
 import co.touchlab.faktory.internal.procRunFailLog
-import co.touchlab.faktory.versionmanager.GitRemoteVersionWriter
 import org.gradle.api.Project
 
 object GithubReleaseVersionWriter : GitRemoteVersionWriter(){
