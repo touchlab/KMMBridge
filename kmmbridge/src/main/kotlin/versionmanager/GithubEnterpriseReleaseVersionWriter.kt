@@ -20,7 +20,7 @@ import co.touchlab.faktory.versionmanager.GitRemoteVersionWriter
 import org.gradle.api.Project
 
 object GithubEnterpriseReleaseVersionWriter : GitRemoteVersionWriter() {
-    override fun finalVersion(project: Project, version: String) {
+    override fun writeFinalVersion(project: Project, version: String) {
         val commitId = project.procRunFailLog("git", "rev-parse", "HEAD").first()
         GithubEnterpriseCalls.createRelease(project, project.githubRepo, version, commitId)
     }

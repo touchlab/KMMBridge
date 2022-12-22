@@ -153,9 +153,9 @@ class KMMBridgePlugin : Plugin<Project> {
                     val deployUrl = artifactManager.deployArtifact(project, zipFile, version)
                     urlFile.writeText(deployUrl)
 
-                    val markerVersionString = versionManager.markerVersion(project, version)
+                    val markerVersionString = versionManager.createMarkerVersion(project, version)
                     if(markerVersionString != null){
-                        versionWriter.markerVersion(project, markerVersionString)
+                        versionWriter.writeMarkerVersion(project, markerVersionString)
                     }
                 }
             })
@@ -171,7 +171,7 @@ class KMMBridgePlugin : Plugin<Project> {
 
                     val publishedVersion = versionFile.readText()
 
-                    versionWriter.finalVersion(project, publishedVersion)
+                    versionWriter.writeFinalVersion(project, publishedVersion)
                     versionWriter.cleanMarkerVersions(project, versionManager.filterMarkerVersion(project, publishedVersion))
                 }
             })

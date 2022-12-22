@@ -49,9 +49,14 @@ class SpmDependencyManager(
                     project.writePackageFile(extension.frameworkName.get(), url, checksum)
                     val version = project.versionFile.readText()
                     val versionWriter = extension.versionWriter.get()
-                    versionWriter.runGitStatement(project, "git", "add", project.file(project.swiftPackageFilePath()).absolutePath)
-                    versionWriter.runGitStatement(project, "git", "commit", "-m", "KMM SPM package release for $version")
-                    versionWriter.runGitStatement(project, "git", "push")
+
+                    // This feels like it shouldn't be here, but if we're trying to be precise with git operations,
+                    // moving this would require leaking info about the file outside, which also seems weird. I'm
+                    // still not sure we should try to be this precise with the git ops, considering this should
+                    // pretty much always be in CI, but anyway.
+                    versionWriter.runGitStatement(project, "add", project.file(project.swiftPackageFilePath()).absolutePath)
+                    versionWriter.runGitStatement(project, "commit", "-m", "KMM SPM package release for $version")
+                    versionWriter.runGitStatement(project, "push")
                 }
             })
         }

@@ -42,7 +42,7 @@ open class GitRemoteVersionWriter: VersionWriter {
         procRunSequence("git", "tag", block = block)
     }
 
-    override fun markerVersion(project: Project, version: String) {
+    override fun writeMarkerVersion(project: Project, version: String) {
         val tempTag = TEMP_PUBLISH_TAG_PREFIX + version
         project.procRunFailThrow("git", "tag", tempTag)
         project.procRunFailThrow("git", "push", "origin", "tag", tempTag)
@@ -59,12 +59,12 @@ open class GitRemoteVersionWriter: VersionWriter {
         }
     }
 
-    override fun finalVersion(project: Project, version: String) {
+    override fun writeFinalVersion(project: Project, version: String) {
         project.procRunFailLog("git", "tag", "-a", version, "-m", "KMM release version $version")
         project.procRunFailLog("git", "push", "--follow-tags")
     }
 
     override fun runGitStatement(project: Project, vararg params: String) {
-        project.procRunFailLog(*params)
+        project.procRunFailLog("git", *params)
     }
 }

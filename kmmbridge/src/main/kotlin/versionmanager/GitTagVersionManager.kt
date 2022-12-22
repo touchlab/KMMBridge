@@ -17,7 +17,7 @@ import co.touchlab.faktory.TEMP_PUBLISH_TAG_PREFIX
 import org.gradle.api.Project
 
 object GitTagVersionManager : GitTagBasedVersionManager() {
-    override fun markerVersion(project: Project, versionString: String): String? {
+    override fun createMarkerVersion(project: Project, versionString: String): String? {
         return "$TEMP_PUBLISH_TAG_PREFIX$versionString"
     }
 
