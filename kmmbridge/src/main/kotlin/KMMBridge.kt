@@ -103,7 +103,7 @@ class KMMBridgePlugin : Plugin<Project> {
 
         // Early-out with a warning if user hasn't added required config yet, to ensure project still syncs
         val artifactManager = extension.artifactManager.orNull ?: run {
-            project.logger.warn("You must apply an artifact manager! Call `artifactManager.set(...)` or a configuration function like `mavenPublishArtifacts()` or `githubReleaseArtifacts()` in your `kmmbridge` block.")
+            project.logger.warn("You must apply an artifact manager! Call `artifactManager.set(...)` or a configuration function like `mavenPublishArtifacts()` in your `kmmbridge` block.")
             return
         }
         val versionManager = extension.versionManager.orNull ?: run {

@@ -10,7 +10,7 @@ kmmbridge {
     spm(project, "../", project.name)
 
     /* Artifact managers */
-    githubReleaseArtifacts("release-")
+    mavenPublishArtifacts("release-")
     // or
     s3PublicArtifacts(
             "us-east-2",

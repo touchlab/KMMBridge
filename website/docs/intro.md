@@ -86,7 +86,7 @@ At the top level in the same file, put the `kmmbridge` configuration:
 
 ```kotlin
 kmmbridge {
-    githubReleaseArtifacts()
+    mavenPublishArtifacts()
     githubReleaseVersions()
     spm()
     cocoapods("git@github.com:touchlab/PublicPodSpecs.git")

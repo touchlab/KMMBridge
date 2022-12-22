@@ -31,7 +31,7 @@ Here is the suggested config for SPM:
 
 ```kotlin
 kmmbridge {
-    githubReleaseArtifacts()
+    mavenPublishArtifacts()
     githubReleaseVersions()
     versionPrefix.set("0.1")
     spm()

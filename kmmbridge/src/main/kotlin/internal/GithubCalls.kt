@@ -13,7 +13,7 @@
 
 package co.touchlab.faktory.internal
 
-import co.touchlab.faktory.artifactmanager.GithubReleaseException
+import artifactmanager.GithubReleaseException
 import co.touchlab.faktory.githubPublishToken
 import com.google.gson.Gson
 import okhttp3.MediaType.Companion.toMediaTypeOrNull
