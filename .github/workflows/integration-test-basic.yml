@@ -72,7 +72,7 @@ jobs:
       # TODO can we cache this so it only runs once instead of running for every test case?
       - name: Local publish plugin
         run: |
-          ./gradlew publishToMavenLocal -PRELEASE_SIGNING_ENABLED=false -PVERSION_NAME=999
+          ./gradlew publishToMavenLocal -PRELEASE_SIGNING_ENABLED=false -PVERSION_NAME=999 --info
 
       - name: Publish shared
         run: |
