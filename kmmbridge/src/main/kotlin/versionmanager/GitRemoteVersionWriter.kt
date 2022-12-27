@@ -13,7 +13,6 @@
 
 package co.touchlab.faktory.versionmanager
 
-import co.touchlab.faktory.TEMP_PUBLISH_TAG_PREFIX
 import co.touchlab.faktory.internal.ProcOutputException
 import co.touchlab.faktory.internal.procRunFailLog
 import co.touchlab.faktory.internal.procRunFailThrow
@@ -43,9 +42,8 @@ open class GitRemoteVersionWriter: VersionWriter {
     }
 
     override fun writeMarkerVersion(project: Project, version: String) {
-        val tempTag = TEMP_PUBLISH_TAG_PREFIX + version
-        project.procRunFailThrow("git", "tag", tempTag)
-        project.procRunFailThrow("git", "push", "origin", "tag", tempTag)
+        project.procRunFailThrow("git", "tag", version)
+        project.procRunFailThrow("git", "push", "origin", "tag", version)
     }
 
     override fun cleanMarkerVersions(project: Project, filter: (String) -> Boolean) {
