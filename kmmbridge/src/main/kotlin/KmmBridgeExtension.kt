@@ -29,8 +29,8 @@ import org.gradle.api.Project
 import org.gradle.api.provider.ListProperty
 import org.gradle.api.provider.Property
 import org.jetbrains.kotlin.gradle.plugin.mpp.NativeBuildType
-import versionmanager.GithubEnterpriseReleaseVersionWriter
-import versionmanager.GithubReleaseVersionWriter
+import co.touchlab.faktory.versionmanager.GithubEnterpriseReleaseVersionWriter
+import co.touchlab.faktory.versionmanager.GithubReleaseVersionWriter
 
 interface KmmBridgeExtension {
     /**
