@@ -1,4 +1,4 @@
-name: "Integration Test Basic"
+name: "Integration Test Fail Retry"
 
 on:
   push:
