@@ -19,6 +19,7 @@ import localdevmanager.LocalDevManager
 import org.gradle.api.Action
 import org.gradle.api.Project
 import org.gradle.api.Task
+import org.gradle.api.tasks.TaskProvider
 import org.jetbrains.kotlin.gradle.plugin.mpp.NativeBuildType
 import java.io.ByteArrayOutputStream
 import java.io.File
@@ -33,9 +34,9 @@ class SpmDependencyManager(
     private fun Project.swiftPackageFolder(): String = _swiftPackageFolder ?: this.findRepoRoot()
     private fun Project.swiftPackageFilePath(): String = "${stripEndSlash(swiftPackageFolder())}/Package.swift"
 
-    override fun configure(project: Project, uploadTask: Task, publishRemoteTask: Task) {
+    override fun configure(project: Project, uploadTask: TaskProvider<Task>, publishRemoteTask: TaskProvider<Task>) {
         val extension = project.kmmBridgeExtension
-        val updatePackageSwiftTask = project.task("updatePackageSwift") {
+        val updatePackageSwiftTask = project.tasks.register("updatePackageSwift") {
             group = TASK_GROUP_NAME
             val zipFile = project.zipFilePath()
             inputs.files(zipFile, project.urlFile, project.versionFile)
@@ -61,8 +62,8 @@ class SpmDependencyManager(
             })
         }
 
-        updatePackageSwiftTask.dependsOn(uploadTask)
-        publishRemoteTask.dependsOn(updatePackageSwiftTask)
+        updatePackageSwiftTask.configure { dependsOn(uploadTask) }
+        publishRemoteTask.configure { dependsOn(updatePackageSwiftTask) }
     }
 
     private fun Project.writePackageFile(packageName: String, url: String, checksum: String) {
@@ -107,7 +108,7 @@ class SpmDependencyManager(
     override val needsGitTags: Boolean = true
     override fun configureLocalDev(project: Project) {
         val extension = project.kmmBridgeExtension
-        project.task("spmDevBuild") {
+        project.tasks.register("spmDevBuild") {
             group = TASK_GROUP_NAME
             dependsOn(project.findXCFrameworkAssembleTask(NativeBuildType.DEBUG))
 
