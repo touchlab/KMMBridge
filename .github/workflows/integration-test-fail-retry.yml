@@ -15,11 +15,11 @@ on:
       
 jobs:
   build:
-    concurrency: "integration-test-basic"
+    concurrency: "integration-test-fail-retry"
     runs-on: macos-12
     env:
       GITHUB_PUBLISH_USER: "Touchlab-Bot"
-      TEST_URL: "KmmBridgeIntegrationTest"
+      TEST_URL: "KmmBridgeIntegrationTestFailRetry"
 
     steps:
       - uses: actions/checkout@v3
@@ -46,7 +46,7 @@ jobs:
         with:
           ssh-private-key: |
             ${{ secrets.PODSPEC_SSH_KEY }}
-            ${{ secrets.INTEGRATION_TEST_MAVEN_PUBLISH_SSH_KEY }}
+            ${{ secrets.INTEGRATION_TEST_FAIL_RETRY_GITHUB_TOKEN }}
 
       - name: Cache build tooling
         uses: actions/cache@v2
