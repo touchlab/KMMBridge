@@ -13,8 +13,10 @@
 
 package co.touchlab.faktory
 
-import co.touchlab.faktory.internal.ProcOutputException
+import co.touchlab.faktory.versionmanager.GitRemoteVersionWriter
+import co.touchlab.faktory.versionmanager.NoOpVersionWriter
 import co.touchlab.faktory.versionmanager.VersionException
+import co.touchlab.faktory.versionmanager.VersionWriter
 import org.gradle.api.*
 import org.gradle.api.publish.PublishingExtension
 import org.gradle.api.tasks.TaskProvider
@@ -111,8 +113,20 @@ class KMMBridgePlugin : Plugin<Project> {
             return
         }
 
+        // If no writer is set at this point, it means that we don't have a version manager that explicitly needs
+        // to record versions. That (currently) means manual or timestamp. In that case, we only *need* to write
+        // if the dependency manager needs it (SPM). If only Cocoapods, then we don't need to write anything.
+        // The user can disable *everything* by explicitly setting the version writer with a custom one, or
+        // calling `noGitOperations()` in setup
+        val versionWriter :VersionWriter = extension.versionWriter.orNull ?: run {
+            if(extension.dependencyManagers.get().any { it.needsGitTags })
+                GitRemoteVersionWriter()
+            else
+                NoOpVersionWriter
+        }
+
         val version = try {
-            versionManager.getVersion(project, extension.versionPrefix.get())
+            versionManager.getVersion(project, extension.versionPrefix.get(), versionWriter)
         } catch (e: VersionException) {
             if (e.localDevOk) {
                 project.logger.info("(KMMBridge) ${e.message}")
@@ -140,6 +154,11 @@ class KMMBridgePlugin : Plugin<Project> {
                     logger.info("Uploading XCFramework version $version")
                     val deployUrl = artifactManager.deployArtifact(project, zipFile, version)
                     urlFile.writeText(deployUrl)
+
+                    val markerVersionString = versionManager.createMarkerVersion(project, version)
+                    if(markerVersionString != null){
+                        versionWriter.writeMarkerVersion(project, markerVersionString)
+                    }
                 }
             })
         }
@@ -151,7 +170,11 @@ class KMMBridgePlugin : Plugin<Project> {
             @Suppress("ObjectLiteralToLambda")
             doLast(object : Action<Task> {
                 override fun execute(t: Task) {
-                    extension.versionManager.get().recordVersion(project, versionFile.readText())
+
+                    val publishedVersion = versionFile.readText()
+
+                    versionWriter.writeFinalVersion(project, publishedVersion)
+                    versionWriter.cleanMarkerVersions(project, versionManager.filterMarkerVersion(project, publishedVersion))
                 }
             })
         }

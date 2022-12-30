@@ -13,34 +13,40 @@
 
 package co.touchlab.faktory.versionmanager
 
-import co.touchlab.faktory.internal.*
+import co.touchlab.faktory.TEMP_PUBLISH_TAG_PREFIX
+import co.touchlab.faktory.internal.ProcOutputException
+import co.touchlab.faktory.internal.maxVersion
+import co.touchlab.faktory.internal.prepVersionString
+import co.touchlab.faktory.internal.procRunFailThrow
+import co.touchlab.faktory.internal.procRunSequence
 import org.gradle.api.Project
 
 abstract class GitTagBasedVersionManager : VersionManager {
-    override fun getVersion(project: Project, versionPrefix: String): String {
+    override fun getVersion(project: Project, versionPrefix: String, versionWriter: VersionWriter): String {
         val versionPrefixTrimmed = prepVersionString(versionPrefix)
 
-        // Need to make sure we have all the tags. If no tags, we don't continue (but don't fail)
-        // This will usually happen when doing local dev.
-        try {
-            project.procRunFailThrow("git", "pull", "--tags")
-        } catch (e: ProcOutputException) {
-            val localOk = e.output.any { it.contains("There is no tracking information for the current branch") }
-            throw VersionException(
-                localOk, if (localOk) {
-                    "Version cannot be loaded. Publishing disabled (this is fine for local development)"
-                } else {
-                    "${e.message}\n${e.output.joinToString("\n")}"
-                }
-            )
-        }
+        versionWriter.initVersions(project)
 
         var maxCount = 0
-
-        procRunSequence("git", "tag") { sequence ->
+        versionWriter.scanVersions(project) { sequence ->
             maxCount = maxVersion(versionPrefixTrimmed, sequence)
         }
+        project.logger.info("KMMBridge: Max tag version $versionPrefixTrimmed$maxCount")
 
-        return "${versionPrefixTrimmed}${maxCount + 1}"
+        // If we had a partial publish, make sure the next version we publish is greater
+        var maxPartial = 0
+        versionWriter.scanVersions(project) { sequence ->
+            val partialVersionSequence = sequence
+                .filter { it.startsWith(TEMP_PUBLISH_TAG_PREFIX) }
+                .map { it.removePrefix(TEMP_PUBLISH_TAG_PREFIX) }
+            maxPartial = maxVersion(versionPrefixTrimmed, partialVersionSequence)
+        }
+        project.logger.info("KMMBridge: Max partial tag version $versionPrefixTrimmed$maxPartial")
+
+        val nextVersion = "${versionPrefixTrimmed}${maxOf(maxCount, maxPartial) + 1}"
+        project.logger.info("KMMBridge: Next version is $nextVersion")
+        return nextVersion
     }
+
+    override val needsGitTags: Boolean = true
 }

@@ -14,6 +14,8 @@
 package co.touchlab.faktory
 
 import co.touchlab.faktory.internal.procRunFailLog
+import co.touchlab.faktory.internal.procRunFailThrow
+import co.touchlab.faktory.internal.procRunSequence
 import org.gradle.api.Project
 import org.gradle.api.Task
 import org.gradle.api.UnknownTaskException
@@ -62,9 +64,6 @@ internal val Project.githubRepo
 internal val Project.spmBuildTargets: String?
     get() = project.findStringProperty("spmBuildTargets")
 
-internal val Project.alwaysWriteGitTags: Boolean
-    get() = kmmBridgeExtension.dependencyManagers.get().any { it.needsGitTags }
-
 internal fun Project.zipFilePath(): File {
     val tempDir = file("$buildDir/faktory/zip")
     val artifactName = "frameworkarchive.zip"
@@ -79,16 +78,10 @@ internal fun Project.findStringProperty(name: String): String? {
     return null
 }
 
-/**
- * Write version to git tags
- */
-internal fun writeGitTagVersion(project: Project, versionString: String) {
-    project.procRunFailLog("git", "tag", "-a", versionString, "-m", "KMM release version $versionString")
-    project.procRunFailLog("git", "push", "--follow-tags")
-}
 
 internal const val TASK_GROUP_NAME = "kmmbridge"
 internal const val EXTENSION_NAME = "kmmbridge"
+internal const val TEMP_PUBLISH_TAG_PREFIX = "kmmbridge-tmp-publishing-"
 
 internal fun Project.findXCFrameworkAssembleTask(buildType: NativeBuildType? = null): TaskProvider<Task> {
     val extension = extensions.getByType<KmmBridgeExtension>()

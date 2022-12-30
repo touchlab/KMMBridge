@@ -92,6 +92,35 @@ kmmbridge {
 }
 ```
 
+## Version Writer
+
+You usually don't need to worry about the version writer. Depending on the version manager you're using, and if you're publishing to SPM, 
+there are git operations that need to be run. If you're doing a lot of coordinated git operations in your CI workflow, you may want to control 
+or disable KMMBridge git operations.
+
+You can simply disable all git operations by calling the following in config:
+
+```kotlin
+kmmbridge { 
+  noGitOperations()
+}
+```
+
+Alternatively, you can set a custom version writer:
+
+```kotlin
+kmmbridge {
+    versionWriter.set(myWriter)
+}
+```
+
+:::caution
+
+The git operations necessary to manage versions can be complex. Managing this on your own can introduce 
+errors that are difficult to diagnose.
+
+:::
+
 ## Naming
 
 In Kotlin code you can set the name of your Framework as well as the name of your Podfile (when using cocoapods).

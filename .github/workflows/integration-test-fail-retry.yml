@@ -1,4 +1,4 @@
-name: "Integration Test Basic"
+name: "Integration Test Fail Retry"
 
 on:
   push:
@@ -15,11 +15,11 @@ on:
       
 jobs:
   build:
-    concurrency: "integration-test-basic"
+    concurrency: "integration-test-fail-retry"
     runs-on: macos-12
     env:
       GITHUB_PUBLISH_USER: "Touchlab-Bot"
-      TEST_URL: "KmmBridgeIntegrationTest"
+      TEST_URL: "KmmBridgeIntegrationTestFailRetry"
 
     steps:
       - uses: actions/checkout@v3
@@ -46,19 +46,7 @@ jobs:
         with:
           ssh-private-key: |
             ${{ secrets.PODSPEC_SSH_KEY }}
-            ${{ secrets.INTEGRATION_TEST_MAVEN_PUBLISH_SSH_KEY }}
-
-      - uses: extractions/netrc@938ddbfb73b4efee33e57db13aba434b35af2f93 # v1
-        with:
-          machine: api.github.com
-          username: ${{ env.GITHUB_PUBLISH_USER }}
-          password: ${{ secrets.INTEGRATION_TEST_GITHUB_TOKEN }}
-
-      - uses: extractions/netrc@938ddbfb73b4efee33e57db13aba434b35af2f93 # v1
-        with:
-          machine: maven.pkg.github.com
-          username: ${{ env.GITHUB_PUBLISH_USER }}
-          password: ${{ secrets.INTEGRATION_TEST_GITHUB_TOKEN }}
+            ${{ secrets.INTEGRATION_TEST_FAIL_RETRY_GITHUB_TOKEN }}
 
       - name: Cache build tooling
         uses: actions/cache@v2
@@ -68,11 +56,24 @@ jobs:
             ~/.konan
           key: ${{ runner.os }}-v4-${{ hashFiles('*.gradle.kts') }}
 
-
       # TODO can we cache this so it only runs once instead of running for every test case?
       - name: Local publish plugin
         run: |
-          ./gradlew publishToMavenLocal -PRELEASE_SIGNING_ENABLED=false -PVERSION_NAME=999 --info
+          ./gradlew publishToMavenLocal -PRELEASE_SIGNING_ENABLED=false -PVERSION_NAME=999
+
+      - name: Publish shared
+        continue-on-error: true
+        run: |
+          cd build/${{ env.TEST_URL }}
+          ./gradlew kmmBridgePublish -PGITHUB_PUBLISH_TOKEN=${{ secrets.INTEGRATION_TEST_GITHUB_TOKEN }} -PGITHUB_REPO=touchlab/${{ env.TEST_URL }} -PGITHUB_PUBLISH_USER=${{ env.GITHUB_PUBLISH_USER }} --no-daemon --stacktrace
+        env:
+          GRADLE_OPTS: -Dkotlin.incremental=false -Dorg.gradle.jvmargs="-Xmx3g -XX:MaxPermSize=2048m -XX:+HeapDumpOnOutOfMemoryError -Dfile.encoding=UTF-8 -XX:MaxMetaspaceSize=512m"
+
+      - uses: extractions/netrc@938ddbfb73b4efee33e57db13aba434b35af2f93 # v1
+        with:
+          machine: maven.pkg.github.com
+          username: ${{ env.GITHUB_PUBLISH_USER }}
+          password: ${{ secrets.INTEGRATION_TEST_GITHUB_TOKEN }}
 
       - name: Publish shared
         run: |
