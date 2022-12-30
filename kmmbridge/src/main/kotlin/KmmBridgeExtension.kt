@@ -16,8 +16,6 @@ package co.touchlab.faktory
 import co.touchlab.faktory.artifactmanager.ArtifactManager
 import co.touchlab.faktory.artifactmanager.AwsS3PublicArtifactManager
 import co.touchlab.faktory.artifactmanager.FaktoryServerArtifactManager
-import co.touchlab.faktory.artifactmanager.GithubEnterpriseReleaseArtifactManager
-import co.touchlab.faktory.artifactmanager.GithubReleaseArtifactManager
 import co.touchlab.faktory.artifactmanager.MavenPublishArtifactManager
 import co.touchlab.faktory.dependencymanager.CocoapodsDependencyManager
 import co.touchlab.faktory.dependencymanager.DependencyManager
@@ -71,18 +69,6 @@ interface KmmBridgeExtension {
                 altBaseUrl
             )
         )
-    }
-
-    fun githubReleaseArtifacts(
-        artifactRelease: String? = null
-    ) {
-        artifactManager.setAndFinalize(GithubReleaseArtifactManager(artifactRelease))
-    }
-
-    fun githubEnterpriseReleaseArtifacts(
-        artifactRelease: String? = null
-    ) {
-        artifactManager.set(GithubEnterpriseReleaseArtifactManager(artifactRelease))
     }
 
     fun Project.faktoryServerArtifacts(faktoryReadKey: String? = null) {

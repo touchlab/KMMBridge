@@ -1,6 +1,6 @@
 package co.touchlab.faktory.internal
 
-import co.touchlab.faktory.artifactmanager.GithubReleaseException
+import artifactmanager.GithubReleaseException
 import co.touchlab.faktory.githubEnterpriseHost
 import co.touchlab.faktory.githubEnterpriseRepoOwner
 import co.touchlab.faktory.githubPublishToken
