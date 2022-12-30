@@ -54,6 +54,9 @@ internal val Project.githubEnterpriseRepoOwner
     get() = (project.property("GITHUB_REPO_OWNER")
         ?: throw IllegalArgumentException("KMMBridge Github operations need property GITHUB_REPO_OWNER")) as String
 
+internal val Project.enablePublishing: Boolean
+    get() = project.findStringProperty("ENABLE_PUBLISHING")?.toBoolean() ?: false
+
 internal val Project.githubPublishUser: String?
     get() = project.findStringProperty("GITHUB_PUBLISH_USER")
 

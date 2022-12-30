@@ -76,7 +76,7 @@ jobs:
       - name: Publish shared
         run: |
           cd build/${{ env.TEST_URL }}
-          ./gradlew kmmBridgePublish -PGITHUB_PUBLISH_TOKEN=${{ secrets.INTEGRATION_TEST_GITHUB_TOKEN }} -PGITHUB_REPO=touchlab/${{ env.TEST_URL }} -PGITHUB_PUBLISH_USER=${{ env.GITHUB_PUBLISH_USER }} --no-daemon --stacktrace
+          ./gradlew kmmBridgePublish -PENABLE_PUBLISHING=true -PGITHUB_PUBLISH_TOKEN=${{ secrets.INTEGRATION_TEST_GITHUB_TOKEN }} -PGITHUB_REPO=touchlab/${{ env.TEST_URL }} -PGITHUB_PUBLISH_USER=${{ env.GITHUB_PUBLISH_USER }} --no-daemon --stacktrace
         env:
           GRADLE_OPTS: -Dkotlin.incremental=false -Dorg.gradle.jvmargs="-Xmx3g -XX:MaxPermSize=2048m -XX:+HeapDumpOnOutOfMemoryError -Dfile.encoding=UTF-8 -XX:MaxMetaspaceSize=512m"
 
