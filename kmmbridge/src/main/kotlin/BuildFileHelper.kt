@@ -11,9 +11,8 @@
  * the License.
  */
 
-import co.touchlab.faktory.githubPublishToken
+import co.touchlab.faktory.*
 import co.touchlab.faktory.githubPublishUser
-import co.touchlab.faktory.githubRepo
 import co.touchlab.faktory.publishingExtension
 import org.gradle.api.Project
 import java.net.URI
@@ -30,20 +29,16 @@ import java.net.URI
 @Suppress("unused")
 fun Project.addGithubPackagesRepository() {
     publishingExtension.apply {
-        try {
-            val githubPublishUser = project.githubPublishUser ?: "cirunner"
-            val githubPublishToken = project.githubPublishToken
-            val githubRepo = project.githubRepo
-            repositories.maven {
-                name = "GitHubPackages"
-                url = URI.create("https://maven.pkg.github.com/$githubRepo")
-                credentials {
-                    username = githubPublishUser
-                    password = githubPublishToken
-                }
+        val githubPublishUser = project.githubPublishUser ?: "cirunner"
+        val githubRepo = project.githubRepoOrNull ?: return
+        val githubPublishToken = project.githubPublishTokenOrNull ?: return
+        repositories.maven {
+            name = "GitHubPackages"
+            url = URI.create("https://maven.pkg.github.com/$githubRepo")
+            credentials {
+                username = githubPublishUser
+                password = githubPublishToken
             }
-        } catch (e: Exception) {
-            // Ignore
         }
     }
 }
