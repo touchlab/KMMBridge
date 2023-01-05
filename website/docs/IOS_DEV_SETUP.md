@@ -11,7 +11,7 @@ For developers editing Kotlin, you will want to test locally-built Kotlin code d
 
 ## Private GitHub Releases
 
-If you are using private GitHub artifacts, you'll need to add auth info for that to work. See [GITHUB_RELEASE_ARTIFACTS](artifacts/GITHUB_RELEASE_ARTIFACTS.md#private-repos).
+If you are using private GitHub artifacts, you'll need to add auth info for that to work. See [the section here](DEFAULT_GITHUB_FLOW.md#private-repos).
 
 *You must do this before attempting to integrate dependency managers!!!*
 

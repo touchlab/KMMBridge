@@ -16,24 +16,19 @@ package co.touchlab.faktory
 import co.touchlab.faktory.artifactmanager.ArtifactManager
 import co.touchlab.faktory.artifactmanager.AwsS3PublicArtifactManager
 import co.touchlab.faktory.artifactmanager.FaktoryServerArtifactManager
-import co.touchlab.faktory.artifactmanager.GithubEnterpriseReleaseArtifactManager
-import co.touchlab.faktory.artifactmanager.GithubReleaseArtifactManager
 import co.touchlab.faktory.artifactmanager.MavenPublishArtifactManager
 import co.touchlab.faktory.dependencymanager.CocoapodsDependencyManager
 import co.touchlab.faktory.dependencymanager.DependencyManager
 import co.touchlab.faktory.dependencymanager.SpecRepo
 import co.touchlab.faktory.dependencymanager.SpmDependencyManager
-import co.touchlab.faktory.versionmanager.GitTagVersionManager
-import co.touchlab.faktory.versionmanager.GithubEnterpriseReleaseVersionManager
-import co.touchlab.faktory.versionmanager.GithubReleaseVersionManager
-import co.touchlab.faktory.versionmanager.ManualVersionManager
-import co.touchlab.faktory.versionmanager.TimestampVersionManager
-import co.touchlab.faktory.versionmanager.VersionManager
+import co.touchlab.faktory.versionmanager.*
 import localdevmanager.LocalDevManager
 import org.gradle.api.Project
 import org.gradle.api.provider.ListProperty
 import org.gradle.api.provider.Property
 import org.jetbrains.kotlin.gradle.plugin.mpp.NativeBuildType
+import co.touchlab.faktory.versionmanager.GithubEnterpriseReleaseVersionWriter
+import co.touchlab.faktory.versionmanager.GithubReleaseVersionWriter
 
 interface KmmBridgeExtension {
     /**
@@ -51,6 +46,8 @@ interface KmmBridgeExtension {
     val buildType: Property<NativeBuildType>
 
     val versionManager: Property<VersionManager>
+
+    val versionWriter: Property<VersionWriter>
 
     val versionPrefix: Property<String>
 
@@ -74,18 +71,6 @@ interface KmmBridgeExtension {
         )
     }
 
-    fun githubReleaseArtifacts(
-        artifactRelease: String? = null
-    ) {
-        artifactManager.setAndFinalize(GithubReleaseArtifactManager(artifactRelease))
-    }
-
-    fun githubEnterpriseReleaseArtifacts(
-        artifactRelease: String? = null
-    ) {
-        artifactManager.set(GithubEnterpriseReleaseArtifactManager(artifactRelease))
-    }
-
     fun Project.faktoryServerArtifacts(faktoryReadKey: String? = null) {
         artifactManager.setAndFinalize(FaktoryServerArtifactManager(faktoryReadKey, this))
     }
@@ -102,16 +87,32 @@ interface KmmBridgeExtension {
         versionManager.setAndFinalize(TimestampVersionManager)
     }
 
+    private fun Property<VersionWriter>.setIfNull(versionWriter: VersionWriter){
+        if(!isPresent){
+            set(versionWriter)
+        }
+    }
+
     fun gitTagVersions() {
         versionManager.setAndFinalize(GitTagVersionManager)
+        versionWriter.setIfNull(GitRemoteVersionWriter())
     }
 
     fun githubReleaseVersions() {
-        versionManager.setAndFinalize(GithubReleaseVersionManager)
+        versionManager.setAndFinalize(GitTagVersionManager)
+        versionWriter.setIfNull(GithubReleaseVersionWriter)
     }
 
     fun githubEnterpriseReleaseVersions() {
-        versionManager.set(GithubEnterpriseReleaseVersionManager)
+        versionManager.setAndFinalize(GitTagVersionManager)
+        versionWriter.setIfNull(GithubEnterpriseReleaseVersionWriter)
+    }
+
+    /**
+     * This is advanced. You *really* need to know what you're doing.
+     */
+    fun noGitOperations(){
+        versionWriter.set(NoOpVersionWriter)
     }
 
     fun manualVersions() {
@@ -120,9 +121,8 @@ interface KmmBridgeExtension {
 
     fun Project.spm(
         spmDirectory: String? = null,
-        commitManually: Boolean = false,
     ) {
-        val dependencyManager = SpmDependencyManager(spmDirectory, commitManually)
+        val dependencyManager = SpmDependencyManager(spmDirectory)
         dependencyManagers.set(dependencyManagers.getOrElse(emptyList()) + dependencyManager)
         localDevManager.setAndFinalize(dependencyManager)
     }

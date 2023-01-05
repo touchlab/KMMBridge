@@ -14,11 +14,12 @@
 package co.touchlab.faktory.dependencymanager
 
 import co.touchlab.faktory.*
-import co.touchlab.faktory.internal.procRunFailLog
+import co.touchlab.faktory.internal.procRunWarnLog
 import localdevmanager.LocalDevManager
 import org.gradle.api.Action
 import org.gradle.api.Project
 import org.gradle.api.Task
+import org.gradle.api.tasks.TaskProvider
 import org.jetbrains.kotlin.gradle.plugin.mpp.NativeBuildType
 import java.io.ByteArrayOutputStream
 import java.io.File
@@ -28,15 +29,14 @@ class SpmDependencyManager(
     /**
      * Folder where the Package.swift file lives
      */
-    private val _swiftPackageFolder: String?,
-    private val commitManually: Boolean,
+    private val _swiftPackageFolder: String?
 ) : DependencyManager, LocalDevManager {
     private fun Project.swiftPackageFolder(): String = _swiftPackageFolder ?: this.findRepoRoot()
     private fun Project.swiftPackageFilePath(): String = "${stripEndSlash(swiftPackageFolder())}/Package.swift"
 
-    override fun configure(project: Project, uploadTask: Task, publishRemoteTask: Task) {
+    override fun configure(project: Project, uploadTask: TaskProvider<Task>, publishRemoteTask: TaskProvider<Task>) {
         val extension = project.kmmBridgeExtension
-        val updatePackageSwiftTask = project.task("updatePackageSwift") {
+        val updatePackageSwiftTask = project.tasks.register("updatePackageSwift") {
             group = TASK_GROUP_NAME
             val zipFile = project.zipFilePath()
             inputs.files(zipFile, project.urlFile, project.versionFile)
@@ -48,29 +48,22 @@ class SpmDependencyManager(
                     val checksum = project.findSpmChecksum(zipFile)
                     val url = project.urlFile.readText()
                     project.writePackageFile(extension.frameworkName.get(), url, checksum)
-                }
-            })
-        }
-
-        val commitAndPushPackageFileTask = project.task("commitAndPushPackageFile") {
-            group = TASK_GROUP_NAME
-            inputs.files(project.swiftPackageFilePath())
-
-            dependsOn(updatePackageSwiftTask)
-
-            @Suppress("ObjectLiteralToLambda")
-            doLast(object : Action<Task> {
-                override fun execute(t: Task) {
                     val version = project.versionFile.readText()
-                    project.procRunFailLog("git", "add", project.file(project.swiftPackageFilePath()).absolutePath)
-                    project.procRunFailLog("git", "commit", "-m", "KMM SPM package release for $version")
-                    project.procRunFailLog("git", "push")
+                    val versionWriter = extension.versionWriter.get()
+
+                    // This feels like it shouldn't be here, but if we're trying to be precise with git operations,
+                    // moving this would require leaking info about the file outside, which also seems weird. I'm
+                    // still not sure we should try to be this precise with the git ops, considering this should
+                    // pretty much always be in CI, but anyway.
+                    versionWriter.runGitStatement(project, "add", project.file(project.swiftPackageFilePath()).absolutePath)
+                    versionWriter.runGitStatement(project, "commit", "-m", "KMM SPM package release for $version")
+                    versionWriter.runGitStatement(project, "push")
                 }
             })
         }
 
-        updatePackageSwiftTask.dependsOn(uploadTask)
-        publishRemoteTask.dependsOn(if (commitManually) updatePackageSwiftTask else commitAndPushPackageFileTask)
+        updatePackageSwiftTask.configure { dependsOn(uploadTask) }
+        publishRemoteTask.configure { dependsOn(updatePackageSwiftTask) }
     }
 
     private fun Project.writePackageFile(packageName: String, url: String, checksum: String) {
@@ -115,7 +108,7 @@ class SpmDependencyManager(
     override val needsGitTags: Boolean = true
     override fun configureLocalDev(project: Project) {
         val extension = project.kmmBridgeExtension
-        project.task("spmDevBuild") {
+        project.tasks.register("spmDevBuild") {
             group = TASK_GROUP_NAME
             dependsOn(project.findXCFrameworkAssembleTask(NativeBuildType.DEBUG))
 
@@ -208,7 +201,16 @@ let package = Package(
 )
 """.trimIndent()
 
+/**
+ * For new projects that aren't in git repos, it's *probably* OK to just return the current folder
+ * until this is resolved, or let the user enter it manually.
+ */
 private fun Project.findRepoRoot(): String {
-    val repoFile = File(procRunFailLog("git", "rev-parse", "--show-toplevel").first())
-    return projectDir.toPath().relativize(repoFile.toPath()).toString()
+    val results = procRunWarnLog("git", "rev-parse", "--show-toplevel")
+    return if (results.isEmpty()) {
+        "."
+    } else {
+        val repoFile = File(results.first())
+        projectDir.toPath().relativize(repoFile.toPath()).toString()
+    }
 }

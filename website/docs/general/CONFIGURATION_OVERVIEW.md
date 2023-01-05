@@ -14,9 +14,9 @@ This implementation will publish to your S3 bucket. By default it will set the a
 
 The S3 artifact manager is really the starting point for teams that need a more custom implementation (Azure, Google Cloud, private hosting, etc).
 
-###  [GitHub Release Artifacts](../artifacts/GITHUB_RELEASE_ARTIFACTS.md)
-
-This implementation will create a release in GitHub that exists only to upload artifacts. It was the first GitHub implementation that we had working while finishing the maven publishing. This artifact manager will likely be deprecated in future releases, unless we get sufficient feedback that suggests we keep it.
+:::note Github Release Artifacts
+KMMBridge previously had a separate `githubReleaseArtifacts()` option, but it is no longer supported in versions 0.3.5+. The reason is it doesn't provide good enough benefits over using the [maven artifact manager](../artifacts/MAVEN_REPO_ARTIFACTS) to publish to Github packages. If using an old version of KMMBridge you can find the documentation [here](/github_release_artifacts)
+:::
 
 ## Dependency Managers
 
@@ -92,6 +92,35 @@ kmmbridge {
 }
 ```
 
+## Version Writer
+
+You usually don't need to worry about the version writer. Depending on the version manager you're using, and if you're publishing to SPM, 
+there are git operations that need to be run. If you're doing a lot of coordinated git operations in your CI workflow, you may want to control 
+or disable KMMBridge git operations.
+
+You can simply disable all git operations by calling the following in config:
+
+```kotlin
+kmmbridge { 
+  noGitOperations()
+}
+```
+
+Alternatively, you can set a custom version writer:
+
+```kotlin
+kmmbridge {
+    versionWriter.set(myWriter)
+}
+```
+
+:::caution
+
+The git operations necessary to manage versions can be complex. Managing this on your own can introduce 
+errors that are difficult to diagnose.
+
+:::
+
 ## Naming
 
 In Kotlin code you can set the name of your Framework as well as the name of your Podfile (when using cocoapods).
@@ -110,10 +139,12 @@ kotlin {
 }
 ```
 
-When using SPM:
+When using SPM you can set the framework name in the `kmmbridge` block:
 
 ```kotlin
-// TODO: How to set framework name for spm?
+kmmbridge {
+    frameworkName.set("FRAMEWORKNAME")
+}
 ```
 
 Cocoapods only:

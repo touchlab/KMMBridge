@@ -15,13 +15,14 @@ package co.touchlab.faktory.artifactmanager
 
 import org.gradle.api.Project
 import org.gradle.api.Task
+import org.gradle.api.tasks.TaskProvider
 import java.io.File
 
 interface ArtifactManager {
     /**
      * Do configuration specific to this `ArtifactManager`.
      */
-    fun configure(project: Project, version: String, uploadTask: Task, kmmPublishTask: Task) {}
+    fun configure(project: Project, version: String, uploadTask: TaskProvider<Task>, kmmPublishTask: TaskProvider<Task>) {}
 
     /**
      * Send the thing, and return a link to the thing...

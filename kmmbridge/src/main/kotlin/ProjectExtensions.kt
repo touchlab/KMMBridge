@@ -14,12 +14,15 @@
 package co.touchlab.faktory
 
 import co.touchlab.faktory.internal.procRunFailLog
+import co.touchlab.faktory.internal.procRunFailThrow
+import co.touchlab.faktory.internal.procRunSequence
 import org.gradle.api.Project
 import org.gradle.api.Task
 import org.gradle.api.UnknownTaskException
 import org.gradle.api.plugins.ExtensionAware
 import org.gradle.api.plugins.ExtraPropertiesExtension
 import org.gradle.api.publish.PublishingExtension
+import org.gradle.api.tasks.TaskProvider
 import org.gradle.kotlin.dsl.findByType
 import org.gradle.kotlin.dsl.getByType
 import org.jetbrains.kotlin.gradle.dsl.KotlinMultiplatformExtension
@@ -61,9 +64,6 @@ internal val Project.githubRepo
 internal val Project.spmBuildTargets: String?
     get() = project.findStringProperty("spmBuildTargets")
 
-internal val Project.alwaysWriteGitTags: Boolean
-    get() = kmmBridgeExtension.dependencyManagers.get().any { it.needsGitTags }
-
 internal fun Project.zipFilePath(): File {
     val tempDir = file("$buildDir/faktory/zip")
     val artifactName = "frameworkarchive.zip"
@@ -78,26 +78,24 @@ internal fun Project.findStringProperty(name: String): String? {
     return null
 }
 
-/**
- * Write version to git tags
- */
-internal fun writeGitTagVersion(project: Project, versionString: String) {
-    project.procRunFailLog("git", "tag", "-a", versionString, "-m", "KMM release version $versionString")
-    project.procRunFailLog("git", "push", "--follow-tags")
-}
 
 internal const val TASK_GROUP_NAME = "kmmbridge"
 internal const val EXTENSION_NAME = "kmmbridge"
+internal const val TEMP_PUBLISH_TAG_PREFIX = "kmmbridge-tmp-publishing-"
 
-internal fun Project.findXCFrameworkAssembleTask(buildType: NativeBuildType? = null): Task {
+internal fun Project.findXCFrameworkAssembleTask(buildType: NativeBuildType? = null): TaskProvider<Task> {
     val extension = extensions.getByType<KmmBridgeExtension>()
     val name = extension.frameworkName.get()
     val buildTypeString = (buildType ?: extension.buildType.get()).getName().capitalize()
     val taskWithoutName = "assemble${buildTypeString}XCFramework"
     val taskWithName = "assemble${name.capitalize()}${buildTypeString}XCFramework"
-    return try {
-        tasks.findByName(taskWithName) ?: tasks.findByName(taskWithoutName)!!
-    } catch (e: NullPointerException) {
-        throw UnknownTaskException("Cannot find XCFramework assemble task. Tried ${taskWithName} and ${taskWithoutName}.", e)
+    return runCatching {
+        tasks.named(taskWithName)
+    }.recoverCatching {
+        tasks.named(taskWithoutName)
+    }.getOrElse {
+        throw UnknownTaskException(
+            "Cannot find XCFramework assemble task. Tried ${taskWithName} and ${taskWithoutName}."
+        )
     }
 }

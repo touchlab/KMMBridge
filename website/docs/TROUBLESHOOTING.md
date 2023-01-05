@@ -31,3 +31,10 @@ kotlin {
 
 You have duplicate frameworks being declared. The CocoaPods plugin is adding frameworks automatically for all darwin/Apple
 targets, so explicitly declaring them is redundant.
+
+### Error: "Received status code 422 from server: Unprocessable Entity" when using GitHub Packages
+
+If you have multiple repos publishing to the same group and artifact, you'll get this error. Changing the 
+artifact name fixes it. See below.
+
+https://github.com/orgs/community/discussions/23474
