@@ -31,15 +31,17 @@ class FaktoryServerArtifactManager(
 
     private val faktoryReadKey: String = faktoryReadKey ?: project.findStringProperty("FAKTORY_READ_KEY")
     ?: error("Must provide faktoryReadKey as argument to factoryServer() or gradle property \"FAKTORY_READ_KEY\"")
+    val faktorySecretKey: String? = project.findStringProperty("FAKTORY_SECRET_KEY")
 
     override fun deployArtifact(project: Project, zipFilePath: File, version: String): String {
-        val fileName = obscureFileName(project, version)
-        uploadArtifact(project, zipFilePath, fileName)
-        return deployUrl(project, fileName)
+        val deployUrl = deployUrl(project, version)
+        uploadArtifact(project, zipFilePath, deployUrl.fileName)
+        return deployUrl.url
     }
 
-    private fun deployUrl(project: Project, zipFileName: String): String {
-        return faktoryReadUrl(zipFileName, faktoryReadKey)
+    override fun deployUrl(project: Project, version: String): ArtifactManager.DeployUrl {
+        val fileName = obscureFileName(project, version)
+        return ArtifactManager.DeployUrl(fileName, faktoryReadUrl(fileName, faktoryReadKey))
     }
 
     private fun uploadArtifact(project: Project, zipFilePath: File, fileName: String) {
@@ -50,7 +52,7 @@ class FaktoryServerArtifactManager(
             .readTimeout(Duration.ofMinutes(2))
             .build()
 
-        val faktoryKey = project.faktorySecretKey ?: error("No Faktory secret key provided!")
+        val faktoryKey = faktorySecretKey ?: error("No Faktory secret key provided!")
 
         val request: Request = Request.Builder()
             .url(faktoryPutUrl(fileName, faktoryKey))
@@ -88,5 +90,3 @@ private val FAKTORY_SERVER = if (isDev) {
 } else {
     "https://api.touchlab.dev"
 }
-
-private val Project.faktorySecretKey: String? get() = findStringProperty("FAKTORY_SECRET_KEY")

@@ -33,9 +33,9 @@ class AwsS3PublicArtifactManager(
 ) : ArtifactManager {
 
     override fun deployArtifact(project: Project, zipFilePath: File, version: String): String {
-        val fileName = obscureFileName(project, version)
-        uploadArtifact(zipFilePath, fileName)
-        return deployUrl(fileName)
+        val deployUrl = deployUrl(project, version)
+        uploadArtifact(zipFilePath, deployUrl.fileName)
+        return deployUrl.url
     }
 
     /**
@@ -43,9 +43,10 @@ class AwsS3PublicArtifactManager(
      *
      * @see uploadArtifact
      */
-    private fun deployUrl(zipFileName: String): String {
+    override fun deployUrl(project: Project, version: String): ArtifactManager.DeployUrl {
+        val fileName = obscureFileName(project, version)
         val baseUrl = altBaseUrl ?: "https://${s3Bucket}.s3.${s3Region}.amazonaws.com"
-        return "${baseUrl}/$zipFileName"
+        return ArtifactManager.DeployUrl(fileName, "${baseUrl}/$fileName")
     }
 
     /**

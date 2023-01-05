@@ -50,6 +50,11 @@ class KMMBridgePlugin : Plugin<Project> {
             configureLocalDev()
             configureArtifactManagerAndDeploy()
         }
+
+        tasks.register<PrintConfigTask>("printConfig") {
+            group = TASK_GROUP_NAME
+            this.extension.set(extension)
+        }
     }
 
     private fun Project.configureZipTask(extension: KmmBridgeExtension): Pair<TaskProvider<Zip>, File> {
