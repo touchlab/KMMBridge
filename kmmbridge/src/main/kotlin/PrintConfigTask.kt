@@ -37,8 +37,6 @@ abstract class PrintConfigTask: DefaultTask() {
 
         val versionManagerName = when (versionManager) {
             is GitTagVersionManager -> "Git Tag"
-            is GithubEnterpriseReleaseVersionManager -> "Github Enterprise Release"
-            is GithubReleaseVersionManager -> "Github Release"
             is ManualVersionManager -> "Manual"
             is TimestampVersionManager -> "Timestamp"
             else -> "Unknown"
@@ -52,8 +50,6 @@ abstract class PrintConfigTask: DefaultTask() {
                 println("Faktory Server")
                 checkNotNull(artifactManager.faktorySecretKey) { "No Faktory secret key provided!" }
             }
-            is GithubEnterpriseReleaseArtifactManager -> println("Github Enterprise Release")
-            is GithubReleaseArtifactManager -> println("Github Release")
             is MavenPublishArtifactManager -> println("Maven Publish")
             else -> println("Unknown")
         }
@@ -67,7 +63,7 @@ abstract class PrintConfigTask: DefaultTask() {
         }
 
         val version = try {
-            versionManager.getVersion(project, extension.versionPrefix.get())
+            versionManager.getVersion(project, extension.versionPrefix.get(), extension.versionWriter.get())
         } catch (e: VersionException) {
             if (e.localDevOk) {
                 project.logger.info("(KMMBridge) ${e.message}")
