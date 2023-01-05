@@ -75,19 +75,25 @@ jobs:
           ./gradlew publishToMavenLocal -PRELEASE_SIGNING_ENABLED=false -PVERSION_NAME=999 --info
 
       - name: Publish shared
+        id: publish1
         run: |
           cd build/${{ env.TEST_URL }}
-          ./gradlew kmmBridgePublish -PGITHUB_PUBLISH_TOKEN=${{ secrets.INTEGRATION_TEST_GITHUB_TOKEN }} -PGITHUB_REPO=touchlab/${{ env.TEST_URL }} -PGITHUB_PUBLISH_USER=${{ env.GITHUB_PUBLISH_USER }} -Pversion="3.3.3" --no-daemon --stacktrace
+          ./gradlew kmmBridgePublish -PGITHUB_PUBLISH_TOKEN=${{ secrets.INTEGRATION_TEST_GITHUB_TOKEN }} -PGITHUB_REPO=touchlab/${{ env.TEST_URL }} -PGITHUB_PUBLISH_USER=${{ env.GITHUB_PUBLISH_USER }} -Pversion="3.3.5" --no-daemon --stacktrace
         env:
           GRADLE_OPTS: -Dkotlin.incremental=false -Dorg.gradle.jvmargs="-Xmx3g -XX:MaxPermSize=2048m -XX:+HeapDumpOnOutOfMemoryError -Dfile.encoding=UTF-8 -XX:MaxMetaspaceSize=512m"
 
-      - name: Publish shared
+      - name: Publish shared again
+        id: publish2
         continue-on-error: true
         run: |
           cd build/${{ env.TEST_URL }}
-          ./gradlew kmmBridgePublish -PGITHUB_PUBLISH_TOKEN=${{ secrets.INTEGRATION_TEST_GITHUB_TOKEN }} -PGITHUB_REPO=touchlab/${{ env.TEST_URL }} -PGITHUB_PUBLISH_USER=${{ env.GITHUB_PUBLISH_USER }} -Pversion="3.3.3" --no-daemon --stacktrace
+          ./gradlew kmmBridgePublish -PGITHUB_PUBLISH_TOKEN=${{ secrets.INTEGRATION_TEST_GITHUB_TOKEN }} -PGITHUB_REPO=touchlab/${{ env.TEST_URL }} -PGITHUB_PUBLISH_USER=${{ env.GITHUB_PUBLISH_USER }} -Pversion="3.3.5" --no-daemon --stacktrace
         env:
           GRADLE_OPTS: -Dkotlin.incremental=false -Dorg.gradle.jvmargs="-Xmx3g -XX:MaxPermSize=2048m -XX:+HeapDumpOnOutOfMemoryError -Dfile.encoding=UTF-8 -XX:MaxMetaspaceSize=512m"
+
+      - name: Check repeated fails
+        if: steps.publish1.outcome != 'success' || steps.publish2.outcome == 'success'
+        run: exit 1
 
       - name: Build SPM Sample
         run: |
