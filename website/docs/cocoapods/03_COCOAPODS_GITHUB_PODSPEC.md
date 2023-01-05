@@ -62,14 +62,13 @@ key pair on your local machine using the following command
 `ssh-keygen -t ed25519 -f deploykey -C "git@github.com:<ORG>/<PODSPEC REPO>"`
 
 - `-f deploykey` gives a custom name `deploykey` to the generated keys and will put both keys in the current directory.
-  If
-  you run this command in your repo make sure you delete these files after finishing setup and do NOT commit them to
+  If you run this command in your repo make sure you delete these files after finishing setup and do NOT commit them to
   your repo.
 
 - `-C "git@github.com:<ORG>/<PODSPEC REPO>"` adds the ***spec repo*** as a comment to the key that gives the ssh client a hint on when to
   use this key. This is optional but recommended.
 
-:::warn
+:::caution Warning
 
 Generally the comment in the key is not important, but in this case, the workflow configures access to a specific repo based
 on the comment. If you have failures like `ERROR: Repository not found.` or `fatal: Could not read from remote repository.`, 
