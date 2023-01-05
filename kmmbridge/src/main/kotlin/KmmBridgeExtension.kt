@@ -137,13 +137,30 @@ interface KmmBridgeExtension {
     fun Project.cocoapods(
         specRepoUrl: String,
         allowWarnings: Boolean = true,
-        verboseErrors: Boolean = false
+        verboseErrors: Boolean = false,
     ) {
         kotlin.cocoapods // This will throw error if we didn't apply cocoapods plugin
 
         val dependencyManager = CocoapodsDependencyManager({
             SpecRepo.Private(specRepoUrl)
         }, allowWarnings, verboseErrors)
+
+        dependencyManagers.set(dependencyManagers.getOrElse(emptyList()) + dependencyManager)
+    }
+
+    /**
+     * Enable CocoaPods publication using the [Trunk](https://github.com/CocoaPods/Specs) as a spec repo
+     *
+     * @param allowWarnings Allow publishing with warnings. Defaults to true.
+     * @param verboseErrors Output extra error info. Generally used if publishing fails. Defaults to false.
+     */
+    fun Project.cocoapodsTrunk(
+        allowWarnings: Boolean = true,
+        verboseErrors: Boolean = false,
+    ) {
+        kotlin.cocoapods // This will throw error if we didn't apply cocoapods plugin
+
+        val dependencyManager = CocoapodsDependencyManager({ SpecRepo.Trunk }, allowWarnings, verboseErrors)
 
         dependencyManagers.set(dependencyManagers.getOrElse(emptyList()) + dependencyManager)
     }
