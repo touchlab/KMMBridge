@@ -13,9 +13,6 @@
 
 package co.touchlab.faktory
 
-import co.touchlab.faktory.internal.procRunFailLog
-import co.touchlab.faktory.internal.procRunFailThrow
-import co.touchlab.faktory.internal.procRunSequence
 import org.gradle.api.Project
 import org.gradle.api.Task
 import org.gradle.api.UnknownTaskException
@@ -39,27 +36,9 @@ internal val Project.versionFile get() = file("$buildDir/faktory/version")
 
 // Cocoapods is an extension of KMP extension so you can't just do project.extensions.getByType<CocoapodsExtension>()
 internal val KotlinMultiplatformExtension.cocoapodsOrNull get() = (this as ExtensionAware).extensions.findByType<CocoapodsExtension>()
-internal val KotlinMultiplatformExtension.cocoapods get() = cocoapodsOrNull
-    ?: error("You must apply the org.jetbrains.kotlin.native.cocoapods plugin to use cocoapods() configuration")
-
-internal val Project.githubPublishToken
-    get() = (project.property("GITHUB_PUBLISH_TOKEN")
-        ?: throw IllegalArgumentException("KMMBridge Github operations need property GITHUB_PUBLISH_TOKEN")) as String
-
-internal val Project.githubEnterpriseHost
-    get() = (project.property("GITHUB_ENTERPRISE_HOST")
-        ?: throw IllegalArgumentException("KMMBridge Github operations need property GITHUB_ENTERPRISE_HOST")) as String
-
-internal val Project.githubEnterpriseRepoOwner
-    get() = (project.property("GITHUB_REPO_OWNER")
-        ?: throw IllegalArgumentException("KMMBridge Github operations need property GITHUB_REPO_OWNER")) as String
-
-internal val Project.githubPublishUser: String?
-    get() = project.findStringProperty("GITHUB_PUBLISH_USER")
-
-internal val Project.githubRepo
-    get() = (project.findStringProperty("GITHUB_REPO")
-        ?: throw IllegalArgumentException("KMMBridge Github operations need a repo param or property GITHUB_REPO"))
+internal val KotlinMultiplatformExtension.cocoapods
+    get() = cocoapodsOrNull
+        ?: error("You must apply the org.jetbrains.kotlin.native.cocoapods plugin to use cocoapods() configuration")
 
 internal val Project.spmBuildTargets: String?
     get() = project.findStringProperty("spmBuildTargets")

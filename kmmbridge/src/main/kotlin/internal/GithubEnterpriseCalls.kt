@@ -1,47 +1,34 @@
+/*
+ * Copyright (c) 2022 Touchlab.
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
+ * in compliance with the License. You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software distributed under the License
+ * is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express
+ * or implied. See the License for the specific language governing permissions and limitations under
+ * the License.
+ */
+
 package co.touchlab.faktory.internal
 
-import co.touchlab.faktory.githubEnterpriseHost
-import co.touchlab.faktory.githubEnterpriseRepoOwner
-import co.touchlab.faktory.githubPublishToken
-import com.google.gson.Gson
-import okhttp3.MediaType.Companion.toMediaTypeOrNull
-import okhttp3.OkHttpClient
-import okhttp3.Request
-import okhttp3.RequestBody.Companion.toRequestBody
+import co.touchlab.faktory.findStringProperty
 import org.gradle.api.Project
-import java.time.Duration
 
-object GithubEnterpriseCalls {
+object GithubEnterpriseCalls : BaseGithubCalls() {
 
-    private val okHttpClient = OkHttpClient.Builder()
-        .callTimeout(Duration.ofMinutes(5))
-        .connectTimeout(Duration.ofMinutes(2))
-        .writeTimeout(Duration.ofMinutes(5))
-        .readTimeout(Duration.ofMinutes(2))
-        .build()
+    private val Project.githubEnterpriseHost
+        get() = (project.findStringProperty("GITHUB_ENTERPRISE_HOST")
+            ?: throw IllegalArgumentException("KMMBridge Github operations need property GITHUB_ENTERPRISE_HOST"))
 
-    fun createRelease(project: Project, repo: String, tag: String, commitId: String?): Int {
-        val gson = Gson()
-        val token = project.githubPublishToken
+    private val Project.githubEnterpriseRepoOwner
+        get() = (project.findStringProperty("GITHUB_REPO_OWNER")
+            ?: throw IllegalArgumentException("KMMBridge Github operations need property GITHUB_REPO_OWNER"))
+
+    override fun createUrl(project: Project, repoName: String, releasesSuffix: String): String {
         val host = project.githubEnterpriseHost
         val owner = project.githubEnterpriseRepoOwner
-
-        val createReleaseBody = commitId?.let {
-            CreateReleaseWithCommitBody(tag, it)
-        } ?: CreateReleaseBody(tag)
-
-        val createRequest = Request.Builder()
-            .url("https://${host}/api/v3/repos/${owner}/${repo}/releases")
-            .post(
-                gson.toJson(createReleaseBody).toRequestBody("application/json".toMediaTypeOrNull())
-            )
-            .addHeader("Accept", "application/vnd.github+json")
-            .addHeader("Authorization", "Bearer $token")
-            .build()
-
-        return gson.fromJson(
-            okHttpClient.newCall(createRequest).execute().body!!.string(),
-            IdReply::class.java
-        ).id
+        return "https://${host}/api/uploads/repos/${owner}/${repoName}/releases/${releasesSuffix}"
     }
 }

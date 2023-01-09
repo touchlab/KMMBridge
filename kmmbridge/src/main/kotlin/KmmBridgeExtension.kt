@@ -21,13 +21,14 @@ import co.touchlab.faktory.dependencymanager.CocoapodsDependencyManager
 import co.touchlab.faktory.dependencymanager.DependencyManager
 import co.touchlab.faktory.dependencymanager.SpecRepo
 import co.touchlab.faktory.dependencymanager.SpmDependencyManager
+import co.touchlab.faktory.internal.GithubCalls
+import co.touchlab.faktory.internal.GithubEnterpriseCalls
 import co.touchlab.faktory.versionmanager.*
 import localdevmanager.LocalDevManager
 import org.gradle.api.Project
 import org.gradle.api.provider.ListProperty
 import org.gradle.api.provider.Property
 import org.jetbrains.kotlin.gradle.plugin.mpp.NativeBuildType
-import co.touchlab.faktory.versionmanager.GithubEnterpriseReleaseVersionWriter
 import co.touchlab.faktory.versionmanager.GithubReleaseVersionWriter
 
 interface KmmBridgeExtension {
@@ -51,7 +52,7 @@ interface KmmBridgeExtension {
 
     val versionPrefix: Property<String>
 
-    fun s3PublicArtifacts(
+    fun Project.s3PublicArtifacts(
         region: String,
         bucket: String,
         accessKeyId: String,
@@ -100,12 +101,12 @@ interface KmmBridgeExtension {
 
     fun githubReleaseVersions() {
         versionManager.setAndFinalize(GitTagVersionManager)
-        versionWriter.setIfNull(GithubReleaseVersionWriter)
+        versionWriter.setIfNull(GithubReleaseVersionWriter(GithubCalls))
     }
 
     fun githubEnterpriseReleaseVersions() {
         versionManager.setAndFinalize(GitTagVersionManager)
-        versionWriter.setIfNull(GithubEnterpriseReleaseVersionWriter)
+        versionWriter.setIfNull(GithubReleaseVersionWriter(GithubEnterpriseCalls))
     }
 
     /**
