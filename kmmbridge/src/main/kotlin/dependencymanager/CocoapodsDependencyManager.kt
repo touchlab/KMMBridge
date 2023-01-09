@@ -105,7 +105,7 @@ private fun Project.generatePodspec(outputFile: File) = with(kotlin.cocoapods) {
         "|    spec.dependency '${pod.name}'$versionSuffix"
     }.joinToString(separator = "\n")
 
-    val vendoredFramework = "${frameworkName}.xcframework"
+    val vendoredFramework = "${name}.xcframework"
     val vendoredFrameworks =
         if (extraSpecAttributes.containsKey("vendored_frameworks")) "" else "|    spec.vendored_frameworks      = '$vendoredFramework'"
 
