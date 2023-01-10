@@ -30,20 +30,16 @@ import java.net.URI
 @Suppress("unused")
 fun Project.addGithubPackagesRepository() {
     publishingExtension.apply {
-        try {
-            val githubPublishUser = project.githubPublishUser ?: "cirunner"
-            val githubPublishToken = project.githubPublishToken
-            val githubRepo = project.githubRepo
-            repositories.maven {
-                name = "GitHubPackages"
-                url = URI.create("https://maven.pkg.github.com/$githubRepo")
-                credentials {
-                    username = githubPublishUser
-                    password = githubPublishToken
-                }
+        val githubPublishUser = project.githubPublishUser ?: "cirunner"
+        val githubRepo = project.githubRepoOrNull ?: return
+        val githubPublishToken = project.githubPublishTokenOrNull ?: return
+        repositories.maven {
+            name = "GitHubPackages"
+            url = URI.create("https://maven.pkg.github.com/$githubRepo")
+            credentials {
+                username = githubPublishUser
+                password = githubPublishToken
             }
-        } catch (e: Exception) {
-            // Ignore
         }
     }
 }
