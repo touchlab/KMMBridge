@@ -19,19 +19,8 @@ import org.gradle.api.Project
 import java.io.File
 
 interface GithubApi {
-    fun findReleaseId(project: Project, repoName: String, artifactReleaseTag: String): Int?
 
     fun createRelease(project: Project, repo: String, tag: String, commitId: String?): Int
-
-    fun uploadZipFile(project: Project, zipFilePath: File, repo: String, releaseId: Int, fileName: String): String
-}
-
-/**
- * Write version to git tags
- */
-internal fun writeGitTagVersion(project: Project, versionString: String) {
-    project.procRunFailLog("git", "tag", "-a", versionString, "-m", "KMM release version $versionString")
-    project.procRunFailLog("git", "push", "--follow-tags")
 }
 
 internal val Project.githubPublishToken

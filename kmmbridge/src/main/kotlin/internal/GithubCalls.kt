@@ -17,8 +17,8 @@ import org.gradle.api.Project
 
 object GithubCalls: BaseGithubCalls() {
 
-    override fun createUrl(project: Project, repoName: String, releasesSuffix: String): String {
-        return "https://api.github.com/repos/${repoName}/releases/${releasesSuffix}"
+    override fun createUrl(project: Project, repoName: String): String {
+        return "https://api.github.com/repos/${repoName}/releases"
     }
 }
 

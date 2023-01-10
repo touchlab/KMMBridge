@@ -26,9 +26,9 @@ object GithubEnterpriseCalls : BaseGithubCalls() {
         get() = (project.findStringProperty("GITHUB_REPO_OWNER")
             ?: throw IllegalArgumentException("KMMBridge Github operations need property GITHUB_REPO_OWNER"))
 
-    override fun createUrl(project: Project, repoName: String, releasesSuffix: String): String {
+    override fun createUrl(project: Project, repoName: String): String {
         val host = project.githubEnterpriseHost
         val owner = project.githubEnterpriseRepoOwner
-        return "https://${host}/api/uploads/repos/${owner}/${repoName}/releases/${releasesSuffix}"
+        return "https://${host}/api/uploads/repos/${owner}/${repoName}/releases"
     }
 }

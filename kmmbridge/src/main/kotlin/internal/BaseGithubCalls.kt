@@ -18,7 +18,7 @@ abstract class BaseGithubCalls : GithubApi {
     /**
      * releasesSuffix - suffix for the url following the .../releases/
      */
-    protected abstract fun createUrl(project: Project, repoName: String, releasesSuffix: String): String
+    protected abstract fun createUrl(project: Project, repoName: String): String
 
     private val okHttpClient = OkHttpClient.Builder()
         .callTimeout(Duration.ofMinutes(5))
@@ -34,7 +34,7 @@ abstract class BaseGithubCalls : GithubApi {
         val createReleaseBody = createReleaseBody(commitId, tag)
 
         val createRequest = Request.Builder()
-            .url(createUrl(project = project, repoName = repo, releasesSuffix = ""))
+            .url(createUrl(project = project, repoName = repo))
             .post(gson.toJson(createReleaseBody).toRequestBody("application/json".toMediaTypeOrNull()))
             .addHeader("Accept", "application/vnd.github+json")
             .addHeader("Authorization", "Bearer $token")
@@ -49,62 +49,4 @@ abstract class BaseGithubCalls : GithubApi {
     private fun createReleaseBody(commitId: String?, tag: String): Any = commitId?.let {
         CreateReleaseWithCommitBody(tag, commitId)
     } ?: CreateReleaseBody(tag)
-
-    override fun uploadZipFile(
-        project: Project,
-        zipFilePath: File,
-        repo: String,
-        releaseId: Int,
-        fileName: String
-    ): String {
-        val gson = Gson()
-        val token = project.githubPublishToken
-        val body: RequestBody = zipFilePath.asRequestBody("application/zip".toMediaTypeOrNull())
-
-        val uploadRequest = Request.Builder()
-            .url(
-                createUrl(
-                    project = project,
-                    repoName = repo,
-                    releasesSuffix = "${releaseId}/assets?name=${
-                        URLEncoder.encode(
-                            fileName, "UTF-8"
-                        )
-                    }"
-                )
-            )
-            .post(body)
-            .addHeader("Accept", "application/vnd.github+json")
-            .addHeader("Authorization", "Bearer $token")
-            .addHeader("Content-Type", "application/zip").build()
-
-        val response = okHttpClient.newCall(uploadRequest).execute()
-        if (response.code != 201) {
-            throw GithubReleaseException("Upload call failed ${response.code}, ${response.message}")
-        }
-        val uploadResponseString = response.body!!.string()
-        return gson.fromJson(uploadResponseString, UploadReply::class.java).url
-    }
-
-    override fun findReleaseId(
-        project: Project,
-        repoName: String,
-        artifactReleaseTag: String
-    ): Int? {
-        val token = project.githubPublishToken
-        val request: Request =
-            Request.Builder()
-                .url(createUrl(project = project, repoName = repoName, releasesSuffix = "tags/${artifactReleaseTag}"))
-                .get()
-                .addHeader("Accept", "application/vnd.github+json")
-                .addHeader("Authorization", "Bearer $token")
-                .build()
-
-        val responseString = okHttpClient.newCall(request).execute().body!!.string()
-        return if (!responseString.contains("Not Found")) {
-            Gson().fromJson(responseString, IdReply::class.java).id
-        } else {
-            null
-        }
-    }
 }
