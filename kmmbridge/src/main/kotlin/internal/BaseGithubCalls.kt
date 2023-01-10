@@ -1,16 +1,11 @@
 package co.touchlab.faktory.internal
 
-import artifactmanager.GithubReleaseException
 import com.google.gson.Gson
 import okhttp3.MediaType.Companion.toMediaTypeOrNull
 import okhttp3.OkHttpClient
 import okhttp3.Request
-import okhttp3.RequestBody
-import okhttp3.RequestBody.Companion.asRequestBody
 import okhttp3.RequestBody.Companion.toRequestBody
 import org.gradle.api.Project
-import java.io.File
-import java.net.URLEncoder
 import java.time.Duration
 
 abstract class BaseGithubCalls : GithubApi {
