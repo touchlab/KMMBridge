@@ -48,7 +48,9 @@ class KMMBridgePlugin : Plugin<Project> {
         afterEvaluate {
             configureXcFramework()
             configureLocalDev()
-            configureArtifactManagerAndDeploy()
+            if(enablePublishing) {
+                configureArtifactManagerAndDeploy()
+            }
         }
     }
 
