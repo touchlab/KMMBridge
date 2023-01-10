@@ -13,14 +13,15 @@
 
 package co.touchlab.faktory.versionmanager
 
-import co.touchlab.faktory.githubRepo
-import co.touchlab.faktory.internal.GithubCalls
+import co.touchlab.faktory.internal.GithubApi
+import co.touchlab.faktory.internal.githubRepo
 import co.touchlab.faktory.internal.procRunFailLog
 import org.gradle.api.Project
 
-object GithubReleaseVersionWriter : GitRemoteVersionWriter(){
+class GithubReleaseVersionWriter(private val githubApi: GithubApi) : GitRemoteVersionWriter(){
+
     override fun writeFinalVersion(project: Project, version: String) {
         val commitId = project.procRunFailLog("git", "rev-parse", "HEAD").first()
-        GithubCalls.createRelease(project, project.githubRepo, version, commitId)
+        githubApi.createRelease(project, project.githubRepo, version, commitId)
     }
 }

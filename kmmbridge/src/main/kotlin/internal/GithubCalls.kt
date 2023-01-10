@@ -13,33 +13,12 @@
 
 package co.touchlab.faktory.internal
 
-import co.touchlab.faktory.githubPublishToken
-import com.google.gson.Gson
-import okhttp3.MediaType.Companion.toMediaTypeOrNull
-import okhttp3.OkHttpClient
-import okhttp3.Request
-import okhttp3.RequestBody.Companion.toRequestBody
 import org.gradle.api.Project
-import java.time.Duration
 
-object GithubCalls {
-    private val okHttpClient =
-        OkHttpClient.Builder().callTimeout(Duration.ofMinutes(5)).connectTimeout(Duration.ofMinutes(2))
-            .writeTimeout(Duration.ofMinutes(5)).readTimeout(Duration.ofMinutes(2)).build()
+object GithubCalls: BaseGithubCalls() {
 
-    fun createRelease(project: Project, repo: String, tag: String, commitId: String?): Int {
-        val gson = Gson()
-        val token = project.githubPublishToken
-        val createReleaseBody = if (commitId == null) {
-            CreateReleaseBody(tag)
-        } else {
-            CreateReleaseWithCommitBody(tag, commitId)
-        }
-        val createRequest = Request.Builder().url("https://api.github.com/repos/${repo}/releases")
-            .post(gson.toJson(createReleaseBody).toRequestBody("application/json".toMediaTypeOrNull()))
-            .addHeader("Accept", "application/vnd.github+json").addHeader("Authorization", "Bearer $token").build()
-
-        return gson.fromJson(okHttpClient.newCall(createRequest).execute().body!!.string(), IdReply::class.java).id
+    override fun createUrl(project: Project, repoName: String): String {
+        return "https://api.github.com/repos/${repoName}/releases"
     }
 }
 
