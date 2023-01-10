@@ -14,9 +14,7 @@
 package co.touchlab.faktory.internal
 
 import co.touchlab.faktory.findStringProperty
-import co.touchlab.faktory.kmmBridgeExtension
 import org.gradle.api.Project
-import java.io.File
 
 interface GithubApi {
 
@@ -24,12 +22,28 @@ interface GithubApi {
 }
 
 internal val Project.githubPublishToken
-    get() = (project.property("GITHUB_PUBLISH_TOKEN")
-        ?: throw IllegalArgumentException("KMMBridge Github operations need property GITHUB_PUBLISH_TOKEN")) as String
+    get() = githubPublishTokenOrNull
+        ?: throw IllegalArgumentException("KMMBridge Github operations need property GITHUB_PUBLISH_TOKEN")
+
+internal val Project.githubPublishTokenOrNull: String?
+    get() = project.property("GITHUB_PUBLISH_TOKEN") as String?
 
 internal val Project.githubPublishUser: String?
     get() = project.findStringProperty("GITHUB_PUBLISH_USER")
 
-internal val Project.githubRepo
-    get() = (project.findStringProperty("GITHUB_REPO")
-        ?: throw IllegalArgumentException("KMMBridge Github operations need a repo param or property GITHUB_REPO"))
+internal val Project.githubRepo: String
+    get() = githubRepoOrNull
+        ?: throw IllegalArgumentException("KMMBridge Github operations need a repo param or property GITHUB_REPO")
+
+internal val Project.githubRepoOrNull: String?
+    get() {
+        val repo = project.findStringProperty("GITHUB_REPO") ?: return null
+        val repoWithoutGitSuffix = repo.removeSuffix(".git")
+        val regex = Regex("((.*)[/:])?(?<owner>[^:/]+)/(?<repo>[^/]+)")
+        val matchResult = regex.matchEntire(repoWithoutGitSuffix)
+        if (matchResult != null) {
+            return (matchResult.groups["owner"]!!.value + "/" + matchResult.groups["repo"]!!.value)
+        } else {
+            throw IllegalArgumentException("Incorrect Github repository path, should be \"Owner/Repo\"")
+        }
+    }
