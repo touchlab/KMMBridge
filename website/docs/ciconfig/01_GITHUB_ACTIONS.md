@@ -57,12 +57,14 @@ If you are publishing to Cocoapods, you'll likely need the `PODSPEC_SSH_KEY` sec
 
 ## Params
 
-There are 2 parameters, both are optional:
+There are 4 optional parameters:
 
 * gradle_params - If your Gradle build needs custom params, like properties, pass them here.
 * PODSPEC_SSH_KEY - The SSH key for publishing.
+* module - the module to run the publish task in, used when you have multiple publishable modules
+* publishTask - the task to run if not `kmmBridgePublish`. If using this make sure the task you give will also run `kmmBridgePublish`
 
-When publishing in a CI action you need to add the credentials to `~/.netrc` before running publish, for example to validate the podspec or to authenticate to your artifact hosting. To do this simply pass the custom `netrc` params in our GitHub Workflow.
+When publishing in a CI action you may need to add the credentials to `~/.netrc` before running publish, for example to validate the podspec or to authenticate to your artifact hosting. To do this simply pass the custom `netrc` params in our GitHub Workflow.
 
 You'll also need to add the username and password gradle params through the `gradle_params` secret in our workflow:
 
