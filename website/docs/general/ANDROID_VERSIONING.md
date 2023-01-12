@@ -1,5 +1,6 @@
 ---
 title: Android Versioning
+sidebar_position: 2
 ---
 
 # Publishing Android Alongside KMMBridge

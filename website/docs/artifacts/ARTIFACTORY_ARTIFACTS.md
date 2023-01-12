@@ -1,3 +1,7 @@
+---
+sidebar_position: 4
+---
+
 # Artifactory Artifacts
 If you're using Artifactory to store artifacts, you just have to set up a repo on Artifactory and add your repo url and credentials in the
 `publishing` block [see this example](MAVEN_REPO_ARTIFACTS.md#1-configure-push-access), as well as [configure client read access](MAVEN_REPO_ARTIFACTS.md#2-configure-client-read-access)
