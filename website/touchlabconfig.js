@@ -1,0 +1,21 @@
+const orgName = "touchlab";
+const repoName = "KMMBridge";
+
+const docusaurusConfig = {
+    title: "KMMBridge",
+    tagline: "Kotlin Mobile Multiplatform Packaging",
+    url: `https://touchlab.github.io/`,
+    baseUrl: `/KMMBridge/`,
+    organizationName: orgName, // Usually your GitHub org/user name.
+    projectName: repoName, // Usually your repo name.
+
+};
+
+const extraConfig = {
+    trackingID: 'G-KS3X65QJM2',
+}
+
+module.exports = {
+    docusaurusConfig: docusaurusConfig,
+    extraConfig: extraConfig
+};
