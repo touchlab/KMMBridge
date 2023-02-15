@@ -14,15 +14,15 @@
 package co.touchlab.faktory.dependencymanager
 
 import co.touchlab.faktory.*
-import co.touchlab.faktory.internal.procRun
 import co.touchlab.faktory.internal.procRunFailLog
 import co.touchlab.faktory.kotlin
 import org.gradle.api.Action
 import org.gradle.api.Project
 import org.gradle.api.Task
-import org.gradle.api.tasks.Exec
 import org.gradle.api.tasks.TaskProvider
-import org.gradle.kotlin.dsl.task
+import org.jetbrains.kotlin.gradle.plugin.cocoapods.KotlinCocoapodsPlugin
+import org.jetbrains.kotlin.gradle.plugin.mpp.Framework
+import org.jetbrains.kotlin.gradle.plugin.mpp.KotlinNativeTarget
 import java.io.File
 
 sealed class SpecRepo {
@@ -105,7 +105,20 @@ private fun Project.generatePodspec(outputFile: File) = with(kotlin.cocoapods) {
         "|    spec.dependency '${pod.name}'$versionSuffix"
     }.joinToString(separator = "\n")
 
-    val vendoredFramework = "${name}.xcframework"
+    // Logic for frameworkName pulled from various pieces of PodspecTask, CocoapodsExtension, and KotlinCocoapodsPlugin
+    val anyPodFramework = project.provider {
+        val anyTarget = project.kotlin.targets
+            .withType(KotlinNativeTarget::class.java)
+            .matching { it.konanTarget.family.isAppleFamily }.first()
+        val anyFramework = anyTarget.binaries
+            .matching { it.name.startsWith(KotlinCocoapodsPlugin.POD_FRAMEWORK_PREFIX) }
+            .withType(Framework::class.java)
+            .first()
+        anyFramework
+    }
+    val frameworkName = anyPodFramework.map { it.baseName }
+
+    val vendoredFramework = "${frameworkName.get()}.xcframework"
     val vendoredFrameworks =
         if (extraSpecAttributes.containsKey("vendored_frameworks")) "" else "|    spec.vendored_frameworks      = '$vendoredFramework'"
 
