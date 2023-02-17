@@ -1,3 +1,7 @@
+---
+sidebar_position: 3
+---
+
 # Groovy Build Scripts
 
 KMMBridge was written and tested with Kotlin Gradle scripts. It's possible to use from Groovy, but most syntax is less
