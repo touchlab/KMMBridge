@@ -42,15 +42,16 @@ kmmbridge {
 
 There is an option to disable git operations and commit the generated `Package.swift` by yourself.
 Typical usage would be when using `manualVersions()` or `timestampVersions()` to avoid all automatic git interaction.
-Using `commitManually` is somewhat dangerous, as the publication state is inconsistent at the end of the kmmBridgePublish task. 
+Using this flow is somewhat dangerous, as the publication state is inconsistent at the end of the kmmBridgePublish task.
 The user is responsible for manually committing the updated package file, or else the new version will not be available to downstream consumers.
 When using `gitTagVersions()` if you don't commit and tag the newest version, the next publishing might fail because the version is not incremented correctly.
 
-To do so set the `commitManually` parameter to `true`.
+To do so, call `noGitOperations()` in your `kmmbridge` block.
 
 ```kotlin
 kmmbridge {
-    spm(commitManually = true)
+    spm()
+    noGitOperations()
     // Other config...
 }
 ```
