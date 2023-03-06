@@ -4,6 +4,80 @@
  * work well for content-centric websites.
  */
 
+@import url('https://fonts.googleapis.com/css2?family=Architects+Daughter&family=Inter:wght@400;500;600;700;800;900&display=fallback');
+
+@import 'preflight-wrapper.css';
+
+/*@tailwind base;*/
+@tailwind components;
+@tailwind utilities;
+
+@import 'additional-styles/utility-patterns.css';
+@import 'additional-styles/range-slider.css';
+@import 'additional-styles/toggle-switch.css';
+
+@import 'additional-styles/theme.css';
+
+.auto-height{
+  max-width: 100%;
+  height: auto;
+}
+
+.navbar {
+  opacity: .9;
+}
+
+.language-swift{
+  background-color: #25252a !important;
+}
+
+.language-swift .function {
+  color: #aa85e5 !important;
+}
+
+.language-swift .function-definition {
+  color: #89ddfb !important;
+}
+
+.language-swift .string-literal {
+  color: #ef8876 !important;
+}
+
+.language-swift .string-literal.interpolation {
+  color: white !important;
+}
+
+.language-swift .interpolation-punctuation.punctuation {
+  color: white !important;
+}
+
+.language-swift .token.class-name {
+  color: #89ddfb !important;
+}
+
+.language-swift .token.plain {
+  color: white !important;
+}
+
+.language-swift .keyword {
+  font-weight: bold;
+  color: #ef82b0 !important;
+}
+
+.language-swift .boolean {
+  font-weight: bold;
+  color: #ef82b0 !important;
+}
+
+.language-swift .punctuation + .class-name {
+  font-weight: bold;
+  color: white !important;
+}
+
+.hidemenu {
+  display: none;
+}
+
 /* You can override the default Infima variables here. */
 :root {
   /*--ifm-color-primary: #007521;*/

@@ -2,7 +2,7 @@
 
 CocoaPods supports hosting private podspec repos. These are Git repos that only host release publishing info for
 CocoaPods podspecs, not their actual code. If you are planning to publish KMM Xcode Frameworks with CocoaPods, that
-means you'll need a separate Git repo dedicated to publishing podspec versoins. See the
+means you'll need a separate Git repo dedicated to publishing podspec versions. See the
 [CocoaPods Documentation](https://guides.cocoapods.org/making/private-cocoapods.html) for more context.
 
 ## Note
@@ -25,7 +25,7 @@ work on an empty repository that contains no commits.
 ## Adding the Spec Repo to Your Project
 
 Once you've created a spec repo, you'll need to pass the url to KMMBridge in the configuration block. Make sure to use the
-ssh url and not the http url or the CI setup described here won't work. 
+ssh url and not the http url or the CI setup described here won't work.
 
 ```kotlin
 kmmbridge {
@@ -35,20 +35,40 @@ kmmbridge {
   // cocoapods("https://github.com/ORG/REPO.git")
 }
 ```
-## Deploy Keys 
+
+### Publishing Podspecs to the Public Cocoapods Trunk
+
+If your cocoapod will be public rather than private, you may want to publish to the
+public [Cocoapods Trunk](https://github.com/CocoaPods/Specs) rather than a private spec repo. You can do this by
+calling `cocoapodsTrunk()` instead of `cocoapods()`:
+
+```kotlin
+kmmbridge {
+  ...
+  cocoapodsTrunk()
+}
+```
+
+Some alternate setup is required in order to publish to Trunk. See [the Cocoapods documentation](
+https://guides.cocoapods.org/making/getting-setup-with-trunk.html) for details.
+
+## Deploy Keys
+
 ### Create Deploy Keys
+
 You'll need a deploy key to give your CI access to the spec repo. To set up a deploy key, create an ssh public/private
 key pair on your local machine using the following command
 
 `ssh-keygen -t ed25519 -f deploykey -C "git@github.com:<ORG>/<PODSPEC REPO>"`
 
-- `-f deploykey` gives a custom name `deploykey` to the generated keys and will put both keys in the current directory. If
-  you run this command in your repo make sure you delete these files after finishing setup and do NOT commit them to your repo.
+- `-f deploykey` gives a custom name `deploykey` to the generated keys and will put both keys in the current directory.
+  If you run this command in your repo make sure you delete these files after finishing setup and do NOT commit them to
+  your repo.
 
 - `-C "git@github.com:<ORG>/<PODSPEC REPO>"` adds the ***spec repo*** as a comment to the key that gives the ssh client a hint on when to
   use this key. This is optional but recommended.
 
-:::warn
+:::caution Warning
 
 Generally the comment in the key is not important, but in this case, the workflow configures access to a specific repo based
 on the comment. If you have failures like `ERROR: Repository not found.` or `fatal: Could not read from remote repository.`, 

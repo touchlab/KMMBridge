@@ -1,3 +1,7 @@
+---
+sidebar_position: 1
+---
+
 # Maven Repository Artifacts
 
 You can use a "standard" Maven repository to store your KMMBridge zip artifact. This will push the XCFramework zip archive to a standard maven/gradle endpoint. Using this artifact storage method allows for a wider range of publication possibilities, and utilizes standard Gradle publishing config.

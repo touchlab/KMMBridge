@@ -17,6 +17,9 @@ Building and publishing binary Xcode Frameworks from Kotlin is certainly possibl
 
 For more context, see Nate Ebel’s talk from Droidcon NYC 2022: [Adopting Kotlin Multiplatform in Brownfield Applications](https://www.droidcon.com/2022/09/29/adopting-kotlin-multiplatform-in-brownfield-applications/). It's a very good overview of the startup issues teams face.
 
+<genericCta message="We build solutions that get teams started smoothly with Kotlin Multiplatform Mobile and ensure their success in production. Join our community to learn how your peers are adopting KMM."
+link="https://form.typeform.com/to/MJTpmm#hubspot_utk=xxxxx&hubspot_page_name=xxxxx&hubspot_page_url=xxxxx" buttonMessage="Subscribe!"/>
+
 ## Simple Getting Started Setup
 
 If you are using GitHub for source control, and are OK with using GitHub Actions to build and GitHub releases for published artifacts, we have a simple setup flow you can use. It is the easiest default to start from.
@@ -111,13 +114,9 @@ and code written for specific use cases. Please let us know if you run into issu
 ### Some notes
 
 * Groovy was not a focus during dev. All testing effort has been with Kotlin Gradle scripts. See [GROOVY_BUILD_SCRIPTS](general/GROOVY_BUILD_SCRIPTS.md) for suggestions and samples if needed.
-* We are working on a more standard Gradle/Maven back end that should let you use things like GitHub packages and Artifactory. If you have alternate implementation ideas, we'd love to hear from you.
 
 ## See Also
 
 [TROUBLESHOOTING](TROUBLESHOOTING.md)
 
-> ## Subscribe!
->
-> We build solutions that get teams started smoothly with Kotlin Multiplatform Mobile and ensure their success in production. Join our community to learn how your peers are adopting KMM.
-[Sign up here](https://go.touchlab.co/newsletter-gh)!
+
