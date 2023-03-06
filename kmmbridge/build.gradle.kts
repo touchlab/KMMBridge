@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022 Touchlab.
+ * Copyright (c) 2023 Touchlab.
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
  * in compliance with the License. You may obtain a copy of the License at
  *
@@ -49,13 +49,13 @@ dependencies {
     implementation(kotlin("gradle-plugin"))
     implementation(kotlin("compiler-embeddable"))
 
-    implementation("javax.json:javax.json-api:1.1.4")
-    implementation("org.glassfish:javax.json:1.1.4")
+    implementation("jakarta.json:jakarta.json-api:2.1.1")
+    implementation("org.glassfish:jakarta.json:2.0.1")
     implementation("commons-codec:commons-codec:1.15")
-    implementation("software.amazon.awssdk:s3:2.17.276")
+    implementation("software.amazon.awssdk:s3:2.20.17")
 
     implementation("com.squareup.okhttp3:okhttp:4.10.0")
-    implementation("com.google.code.gson:gson:2.9.0")
+    implementation("com.google.code.gson:gson:2.10.1")
     testImplementation(kotlin("test"))
 }
 
