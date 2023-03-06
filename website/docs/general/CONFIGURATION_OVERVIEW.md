@@ -18,6 +18,8 @@ These are some of the parameters you should be aware of:
 ./gradelew -PENABLE_PUBLISHING=true [your tasks]
 ```
 
+[See KMMBridgeGithubWorkflow for an example](https://github.com/touchlab/KMMBridgeGithubWorkflow/blob/b99bb8222c2c38980d18cedd175a0d0c5f88e2dc/.github/workflows/faktorybuildbranches.yml#L94)
+
 `GITHUB_PUBLISH_TOKEN` - Gradle parameter. For GitHub releases, you'll need to pass in a GitHub token. It is available in GitHub actions.
 
 `GITHUB_REPO` - Gradle parameter. For GitHub releases, the repo you want to point to.
