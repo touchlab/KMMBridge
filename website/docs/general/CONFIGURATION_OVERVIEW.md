@@ -4,6 +4,26 @@ sidebar_position: 1
 
 # Configuration Overview
 
+## Workflow Configuration
+
+For local development, KMMBridge configures XCFrameworks and, if you're using SPM, the SPM local dev flow. Publishing a build is really intended to happen from CI. To publish from your local machine or a custom CI flow, you'll need to be aware of some parameters that KMMBridge expects.
+
+Generally speaking, you should refer to [the GitHub workflow](https://github.com/touchlab/KMMBridgeGithubWorkflow/blob/main/.github/workflows/faktorybuildbranches.yml) for an up-to-date example with everything you'll need.
+
+These are some of the parameters you should be aware of:
+
+`ENABLE_PUBLISHING` - Gradle parameter. For local dev, by default we avoid certain operations that are only necessary if you are publishing. Pass in
+
+```shell
+./gradelew -PENABLE_PUBLISHING=true [your tasks]
+```
+
+[See KMMBridgeGithubWorkflow for an example](https://github.com/touchlab/KMMBridgeGithubWorkflow/blob/b99bb8222c2c38980d18cedd175a0d0c5f88e2dc/.github/workflows/faktorybuildbranches.yml#L94)
+
+`GITHUB_PUBLISH_TOKEN` - Gradle parameter. For GitHub releases, you'll need to pass in a GitHub token. It is available in GitHub actions.
+
+`GITHUB_REPO` - Gradle parameter. For GitHub releases, the repo you want to point to.
+
 ## Artifact Managers
 
 Artifact Managers handle uploading the binary and generate the url that will be used to access the binary. These implementations are very specific to the back end hosting being used. Current implementations:

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022 Touchlab.
+ * Copyright (c) 2023 Touchlab.
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
  * in compliance with the License. You may obtain a copy of the License at
  *
@@ -39,6 +39,9 @@ internal val KotlinMultiplatformExtension.cocoapodsOrNull get() = (this as Exten
 internal val KotlinMultiplatformExtension.cocoapods
     get() = cocoapodsOrNull
         ?: error("You must apply the org.jetbrains.kotlin.native.cocoapods plugin to use cocoapods() configuration")
+
+internal val Project.enablePublishing: Boolean
+    get() = project.findStringProperty("ENABLE_PUBLISHING")?.toBoolean() ?: false
 
 internal val Project.spmBuildTargets: String?
     get() = project.findStringProperty("spmBuildTargets")

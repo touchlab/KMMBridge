@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022 Touchlab.
+ * Copyright (c) 2023 Touchlab.
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
  * in compliance with the License. You may obtain a copy of the License at
  *
@@ -19,6 +19,7 @@ import software.amazon.awssdk.auth.credentials.AwsBasicCredentials
 import software.amazon.awssdk.core.sync.RequestBody
 import software.amazon.awssdk.regions.Region
 import software.amazon.awssdk.services.s3.S3Client
+import software.amazon.awssdk.services.s3.S3Configuration
 import software.amazon.awssdk.services.s3.model.HeadObjectRequest
 import software.amazon.awssdk.services.s3.model.PutObjectRequest
 import java.io.File
@@ -56,6 +57,7 @@ class AwsS3PublicArtifactManager(
     @Suppress("NAME_SHADOWING")
     private fun uploadArtifact(zipFilePath: File, fileName: String) {
         val s3Client = S3Client.builder()
+            .serviceConfiguration(S3Configuration.builder().pathStyleAccessEnabled(true).build())
             .region(Region.of(s3Region))
             .credentialsProvider {
                 AwsBasicCredentials.create(
