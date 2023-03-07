@@ -1,33 +1,32 @@
 import React from 'react';
-import clsx from 'clsx';
 import Layout from '@theme/Layout';
-import Link from '@docusaurus/Link';
 import useDocusaurusContext from '@docusaurus/useDocusaurusContext';
-import styles from './index.module.css';
-import HomepageFeatures from '@site/src/components/HomepageFeatures';
+import HeroAbout from '../components/HeroAbout';
+import FeaturesBlocks from '../components/FeaturesBlocks';
+import TopSpacer from '../components/TopSpacer';
+// import 'aos/dist/aos.css';
+// import AOS from 'aos';
 
-function HomepageHeader() {
+export default function Kmmpro(): JSX.Element {
   const {siteConfig} = useDocusaurusContext();
-  return (
-    <header className={clsx('hero hero--primary', styles.heroBanner)}>
-      <div className="container">
-        <h1 className="hero__title">{siteConfig.title}</h1>
-        <p className="hero__subtitle">{siteConfig.tagline}</p>
-      </div>
-    </header>
-  );
-}
 
-export default function Home(): JSX.Element {
-  const {siteConfig} = useDocusaurusContext();
+  // useEffect(() => {
+  //   AOS.init({
+  //     once: true,
+  //     disable: 'phone',
+  //     duration: 350,
+  //     easing: 'ease-out-sine',
+  //   });
+  // });
+
   return (
-    <Layout
-      title={`Hello from ${siteConfig.title}`}
-      description="Description will go into a meta tag in <head />">
-      <HomepageHeader />
-      <main>
-        <HomepageFeatures />
-      </main>
-    </Layout>
+      <Layout
+          title={`Kermit`}
+          description="">
+        <div className="preflight-wrapper">
+          <HeroAbout/>
+          <FeaturesBlocks/>
+        </div>
+      </Layout>
   );
 }

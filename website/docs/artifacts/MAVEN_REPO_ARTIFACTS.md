@@ -56,7 +56,7 @@ To access your published Xcode Framework package, you'll need to make sure Xcode
 
 ### Package Metadata
 
-Cocoapods publishes pacakge metadata to a git repo. See [CocoaPods setup](cocoapods/IOS_COCOAPODS).
+Cocoapods publishes pacakge metadata to a git repo. See [CocoaPods setup](../cocoapods/IOS_COCOAPODS).
 
 SPM uses git for publishing and git tags for versioning. See [SPM setup](../spm/IOS_SPM).
 

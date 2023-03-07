@@ -4,8 +4,8 @@ const repoName = "KMMBridge";
 const docusaurusConfig = {
     title: "KMMBridge",
     tagline: "Kotlin Mobile Multiplatform Packaging",
-    url: `https://touchlab.github.io/`,
-    baseUrl: `/KMMBridge/`,
+    url: `https://kmmbridge.touchlab.co/`,
+    baseUrl: `/`,
     organizationName: orgName, // Usually your GitHub org/user name.
     projectName: repoName, // Usually your repo name.
 

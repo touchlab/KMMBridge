@@ -18,6 +18,10 @@
 
 @import 'additional-styles/theme.css';
 
+.debug-border {
+  border: #d12f1b dotted thin;
+}
+
 .auto-height{
   max-width: 100%;
   height: auto;
@@ -27,51 +31,106 @@
   opacity: .9;
 }
 
-.language-swift{
+.banner-extra {
+  z-index: 1000;
+}
+
+[data-theme='dark'] .language-swift{
   background-color: #25252a !important;
 }
 
-.language-swift .function {
+[data-theme='dark'] .language-swift .function {
   color: #aa85e5 !important;
 }
 
-.language-swift .function-definition {
+[data-theme='dark'] .language-swift .function-definition {
   color: #89ddfb !important;
 }
 
-.language-swift .string-literal {
+[data-theme='dark'] .language-swift .string-literal {
   color: #ef8876 !important;
 }
 
-.language-swift .string-literal.interpolation {
+[data-theme='dark'] .language-swift .string-literal.interpolation {
   color: white !important;
 }
 
-.language-swift .interpolation-punctuation.punctuation {
+[data-theme='dark'] .language-swift .interpolation-punctuation.punctuation {
   color: white !important;
 }
 
-.language-swift .token.class-name {
+[data-theme='dark'] .language-swift .token.class-name {
   color: #89ddfb !important;
 }
 
-.language-swift .token.plain {
+[data-theme='dark'] .language-swift .token.plain {
   color: white !important;
 }
 
-.language-swift .keyword {
+[data-theme='dark'] .language-swift .keyword {
   font-weight: bold;
   color: #ef82b0 !important;
 }
 
-.language-swift .boolean {
+[data-theme='dark'] .language-swift .boolean {
   font-weight: bold;
   color: #ef82b0 !important;
 }
 
-.language-swift .punctuation + .class-name {
+[data-theme='dark'] .language-swift .punctuation + .class-name {
   font-weight: bold;
   color: white !important;
+}
+
+[data-theme='light'] .language-swift{
+  background-color: #ffffff !important;
+}
+
+[data-theme='light'] .language-swift .function {
+  color: #804fb8 !important;
+}
+
+[data-theme='light'] .language-swift .function-definition {
+  color: #ad3da3 !important;
+}
+
+[data-theme='light'] .language-swift .string-literal {
+  color: #d12f1b !important;
+}
+
+[data-theme='light'] .language-swift .string-literal.interpolation {
+  color: black !important;
+}
+
+[data-theme='light'] .language-swift .interpolation-punctuation.punctuation {
+  color: black !important;
+}
+
+[data-theme='light'] .language-swift .token.class-name {
+  color: #01638b !important;
+}
+
+[data-theme='light'] .language-swift .token.plain {
+  color: black !important;
+}
+
+[data-theme='light'] .language-swift .token.operator {
+  color: black !important;
+}
+
+[data-theme='light'] .language-swift .keyword {
+  font-weight: bold;
+  color: #ad3da3 !important;
+}
+
+[data-theme='light'] .language-swift .boolean {
+  font-weight: bold;
+  color: #ef82b0 !important;
+}
+
+[data-theme='light'] .language-swift .punctuation + .class-name {
+  /*font-weight: bold;*/
+  color: black !important;
 }
 
 .hidemenu {
@@ -116,4 +175,8 @@
   --ifm-color-primary-lighter: #24e7e7;
   --ifm-color-primary-lightest: #43eaea;
   --docusaurus-highlighted-code-line-bg: rgba(0, 0, 0, 0.3);
+}
+
+code {
+  border: 1px solid rgba(0, 0, 0, 0.2) !important;
 }

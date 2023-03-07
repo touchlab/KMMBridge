@@ -1,7 +1,7 @@
 // @ts-check
 // Note: type annotations allow type checking and IDEs autocompletion
 
-const lightCodeTheme = require('prism-react-renderer/themes/github');
+const lightCodeTheme = require('./intellijstylelight.js');
 const darkCodeTheme = require('./intellijstyle.js');
 const touchlabConfig = require('./touchlabconfig.js');
 
@@ -70,7 +70,7 @@ const config = {
       /** @type {import('@docusaurus/preset-classic').Options} */
       ({
         docs: {
-          routeBasePath: '/',
+          // routeBasePath: 'touchlab',
           sidebarPath: require.resolve('./sidebars.js'),
           // Please change this to your repo.
           // Remove this to remove the "edit this page" links.
@@ -79,7 +79,13 @@ const config = {
           showLastUpdateTime: true,
           showLastUpdateAuthor: true
         },
-        blog: false,
+        blog: {
+          showReadingTime: true,
+          // Please change this to your repo.
+          // Remove this to remove the "edit this page" links.
+          editUrl:
+              `https://github.com/${touchlabConfig.docusaurusConfig.organizationName}/${touchlabConfig.docusaurusConfig.projectName}/tree/main/website/`,
+        },
         theme: {
           customCss: require.resolve('./src/css/custom.css'),
         },
@@ -108,7 +114,7 @@ const config = {
           items: [
             {
               type: 'doc',
-              docId: 'intro',
+              docId: 'index',
               position: 'left',
               label: 'Docs',
             },
@@ -118,7 +124,7 @@ const config = {
               position: 'right',
             },
             {
-              href: 'https://github.com/touchlab/KMMBridge',
+              href: `https://github.com/${touchlabConfig.docusaurusConfig.organizationName}/${touchlabConfig.docusaurusConfig.projectName}`,
               label: 'GitHub',
               position: 'right',
             },
@@ -153,8 +159,8 @@ const config = {
               title: 'More',
               items: [
                 {
-                  label: 'KMMBridge GitHub',
-                  href: 'https://github.com/touchlab/KMMBridge',
+                  label: `${touchlabConfig.docusaurusConfig.projectName} GitHub`,
+                  href: `https://github.com/touchlab/${touchlabConfig.docusaurusConfig.organizationName}/${touchlabConfig.docusaurusConfig.projectName}`,
                 },
               ],
             },
