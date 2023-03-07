@@ -30,7 +30,7 @@ on:
       - "main"
 jobs:
   call-kmmbridge-publish:
-    uses: touchlab/KMMBridgeGithubWorkflow/.github/workflows/faktorybuildbranches.yml@v0.3
+    uses: touchlab/KMMBridgeGithubWorkflow/.github/workflows/faktorybuildbranches.yml@v0.7
     secrets:
       PODSPEC_SSH_KEY: ${{ secrets.PODSPEC_SSH_KEY }}
 ```
@@ -48,7 +48,7 @@ Then call our workflow:
 ```yaml
 jobs:
   call-kmmbridge-publish:
-    uses: touchlab/KMMBridgeGithubWorkflow/.github/workflows/faktorybuildbranches.yml@v0.3
+    uses: touchlab/KMMBridgeGithubWorkflow/.github/workflows/faktorybuildbranches.yml@v0.7
     secrets:
       PODSPEC_SSH_KEY: ${{ secrets.PODSPEC_SSH_KEY }}
 ```
