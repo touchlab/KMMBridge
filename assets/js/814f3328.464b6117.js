@@ -1,0 +1,1 @@
+"use strict";(self.webpackChunktouchlab=self.webpackChunktouchlab||[]).push([[2535],{5641:e=>{e.exports=JSON.parse('{"title":"Recent posts","items":[{"title":"Hello!","permalink":"/blog/2022/10/09/hello"}]}')}}]);
