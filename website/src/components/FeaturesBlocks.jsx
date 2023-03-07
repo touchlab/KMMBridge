@@ -47,7 +47,7 @@ export default function FeaturesBlocks() {
             {FeatureBlock(
                 "Local Development",
                 "Simply \"flip a switch\" and build/test Kotlin locally. Supports optimized local SPM development" ,
-                WarningSign
+                Cyborg
             )}
 
           </div>
