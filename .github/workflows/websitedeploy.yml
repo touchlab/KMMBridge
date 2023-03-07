@@ -52,11 +52,14 @@ jobs:
           repo: KMMBridgeGithubWorkflow
           excludes: prerelease, draft
 
+      - name: Echo Last Workflow Release
+        run: echo ${{ steps.workflowrelease.outputs.release }}
+
       - name: Find and Replace Workflow Version
         uses: jacobtomlinson/gha-find-replace@v2
         with:
           find: "{{WORKFLOW_VERSION_NAME}}"
-          replace: ${{ steps.keydb.outputs.release }}
+          replace: ${{ steps.workflowrelease.outputs.release }}
           regex: false
 
       - name: Publish website
