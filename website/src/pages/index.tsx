@@ -21,7 +21,7 @@ export default function Kmmpro(): JSX.Element {
 
   return (
       <Layout
-          title={`Kermit`}
+          title={`KMMBridge`}
           description="">
         <div className="preflight-wrapper">
           <HeroAbout/>
