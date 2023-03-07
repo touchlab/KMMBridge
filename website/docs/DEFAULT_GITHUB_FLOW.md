@@ -113,7 +113,7 @@ on: workflow_dispatch
 
 jobs:
   call-kmmbridge-publish:
-    uses: touchlab/KMMBridgeGithubWorkflow/.github/workflows/faktorybuildbranches.yml@v0.6
+    uses: touchlab/KMMBridgeGithubWorkflow/.github/workflows/faktorybuildbranches.yml@v0.7
 ```
 
 Note: if you are using CocoaPods and a podspec repo, your file should look like the following:
@@ -124,7 +124,7 @@ on: workflow_dispatch
 
 jobs:
   call-kmmbridge-publish:
-    uses: touchlab/KMMBridgeGithubWorkflow/.github/workflows/faktorybuildbranches.yml@v0.6
+    uses: touchlab/KMMBridgeGithubWorkflow/.github/workflows/faktorybuildbranches.yml@v0.7
     secrets:
       PODSPEC_SSH_KEY: ${{ secrets.PODSPEC_SSH_KEY }}
 ```
