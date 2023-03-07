@@ -27,7 +27,7 @@ export default function FeaturesBlocks() {
 
           {/* Section header */}
           <div className="max-w-3xl mx-auto text-center pb-12 md:pb-20">
-            <h2 className="h2 mb-4">Easily share Xcode Framework binaries from your shared Kotlin code</h2>
+            <h2 className="h2 mb-4">Easily publish Xcode Framework binaries from your shared Kotlin code</h2>
             <p className="text-xl text-gray-700 dark:text-gray-400">Simpler, low-risk Kotlin code integration</p>
           </div>
 
