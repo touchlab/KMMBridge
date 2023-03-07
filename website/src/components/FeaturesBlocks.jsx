@@ -1,5 +1,7 @@
 import React, {useState} from 'react';
 import {
+  Box2d,
+  Box3d,
   Cyborg,
   FilterOrganization, Messaging, NetworkConnection,
   Note, ThumbUp,
@@ -35,7 +37,7 @@ export default function FeaturesBlocks() {
             {FeatureBlock(
                 "Package Managers",
                 "CocoaPods and SPM support, with private or public publish locations",
-                Note
+                Box2d
             )}
 
             {FeatureBlock(

@@ -59,7 +59,7 @@ export function Cyborg() {
             return (
                 <g transform="translate(22 21)" strokeLinecap="square" strokeWidth="2" fill="none" fillRule="evenodd">
                     <path className="stroke-current text-slate-100" d="M17 22v-6.3a8.97 8.97 0 003-6.569A9.1 9.1 0 0011.262 0 9 9 0 002 9v1l-2 5 2 1v4a2 2 0 002 2h4a5 5 0 005-5v-5" />
-                    <circle className="stroke-current text-slate-300" cx="13" cy="9" r="3" />
+                    <circle className="stroke-current text-blue-300" cx="13" cy="9" r="3" />
                 </g>
             )
         })}</>
@@ -72,7 +72,7 @@ export function ThumbUp() {
             return (
                 <g strokeLinecap="square" strokeWidth="2" fill="none" fillRule="evenodd">
                     <path className="stroke-current text-slate-100" d="M29 42h10.229a2 2 0 001.912-1.412l2.769-9A2 2 0 0042 29h-7v-4c0-2.373-1.251-3.494-2.764-3.86a1.006 1.006 0 00-1.236.979V26l-5 6" />
-                    <path className="stroke-current text-slate-300" d="M22 30h4v12h-4z" />
+                    <path className="stroke-current text-blue-300" d="M22 30h4v12h-4z" />
                 </g>
             )
         })}</>
@@ -148,6 +148,37 @@ export function WarningSign() {
                             <circle cx="12" cy="17.5" r="1.5" stroke="none" className="fill-current text-slate-300"></circle>
                         </g>
                     </g>
+            )
+        })}</>
+    )
+}
+export function Box3d() {
+    return (
+        <>{CircleBlock(() => {
+            return (
+                <g stroke-linecap="square" stroke-width="2" fill="none" className="stroke-current text-slate-100 nc-icon-wrapper" stroke-linejoin="miter"
+                   stroke-miterlimit="10" transform="translate(20 19)">
+                    <line data-cap="butt" x1="6.5" y1="3.25" x2="18.5" y2="9.25" stroke-linecap="butt"
+                          className="stroke-current text-slate-100"></line>
+                    <polyline data-cap="butt" points="23,7 13,12 1,6 " stroke-linecap="butt"></polyline>
+                    <line data-cap="butt" x1="13" y1="12" x2="13" y2="23" stroke-linecap="butt"></line>
+                    <polygon points="23,7 23,17 13,23 1,17 1,6 11,1 "></polygon>
+                </g>
+            )
+        })}</>
+    )
+}
+
+export function Box2d() {
+    return (
+        <>{CircleBlock(() => {
+            return (
+                <g stroke-linecap="square" stroke-width="2" fill="none" className="stroke-current text-slate-100 nc-icon-wrapper" stroke-linejoin="miter"
+                   stroke-miterlimit="10" transform="translate(20 18)">
+                    <line data-cap="butt" x1="1" y1="6" x2="23" y2="6" stroke-linecap="butt"></line>
+                    <polygon points="23,6 17,1 7,1 1,6 1,23 23,23 "></polygon>
+                    <polygon points=" 15,13 9,13 9,6 11,1 13,1 15,6 " className="stroke-current text-blue-300"></polygon>
+                </g>
             )
         })}</>
     )
