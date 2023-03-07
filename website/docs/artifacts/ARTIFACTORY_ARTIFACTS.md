@@ -16,7 +16,7 @@ You'll also need to add the username and password gradle params through the `gra
 ```yaml
 jobs:
   call-kmmbridge-publish:
-    uses: touchlab/KMMBridgeGithubWorkflow/.github/workflows/faktorybuildbranches.yml@v0.7
+    uses: touchlab/KMMBridgeGithubWorkflow/.github/workflows/faktorybuildbranches.yml@{{WORKFLOW_VERSION_NAME}}
     with: 
       netrcMachine: touchlabartifactory.jfrog.io
     secrets:

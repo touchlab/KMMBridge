@@ -44,6 +44,21 @@ jobs:
           replace: ${{ steps.last_release.outputs.tag_name }}
           regex: false
 
+      - name: Find Workflow Release
+        id: workflowrelease
+        uses: pozetroninc/github-action-get-latest-release@master
+        with:
+          owner: touchlab
+          repo: KMMBridgeGithubWorkflow
+          excludes: prerelease, draft
+
+      - name: Find and Replace Workflow Version
+        uses: jacobtomlinson/gha-find-replace@v2
+        with:
+          find: "{{WORKFLOW_VERSION_NAME}}"
+          replace: ${{ steps.keydb.outputs.release }}
+          regex: false
+
       - name: Publish website
         run: |
           git config --global user.email "kgalligan@gmail.com"
