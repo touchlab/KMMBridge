@@ -13,8 +13,13 @@
 
 package co.touchlab.faktory.dependencymanager
 
-import co.touchlab.faktory.*
+import co.touchlab.faktory.TASK_GROUP_NAME
+import co.touchlab.faktory.findXCFrameworkAssembleTask
 import co.touchlab.faktory.internal.procRunWarnLog
+import co.touchlab.faktory.kmmBridgeExtension
+import co.touchlab.faktory.urlFile
+import co.touchlab.faktory.versionFile
+import co.touchlab.faktory.zipFilePath
 import localdevmanager.LocalDevManager
 import org.gradle.api.Action
 import org.gradle.api.Project
@@ -29,7 +34,8 @@ class SpmDependencyManager(
     /**
      * Folder where the Package.swift file lives
      */
-    private val _swiftPackageFolder: String?
+    private val _swiftPackageFolder: String?,
+    private val useCustomPackageFile: Boolean,
 ) : DependencyManager, LocalDevManager {
     private fun Project.swiftPackageFolder(): String = _swiftPackageFolder ?: this.findRepoRoot()
     private fun Project.swiftPackageFilePath(): String = "${stripEndSlash(swiftPackageFolder())}/Package.swift"
@@ -47,7 +53,11 @@ class SpmDependencyManager(
                 override fun execute(t: Task) {
                     val checksum = project.findSpmChecksum(zipFile)
                     val url = project.urlFile.readText()
-                    project.writePackageFile(extension.frameworkName.get(), url, checksum)
+                    if (useCustomPackageFile && project.hasCustomPackageFile()) {
+                        project.modifyPackageFileVariables(extension.frameworkName.get(), url, checksum)
+                    } else {
+                        project.writePackageFile(extension.frameworkName.get(), url, checksum)
+                    }
                     val version = project.versionFile.readText()
                     val versionWriter = extension.versionWriter.get()
 
@@ -55,7 +65,11 @@ class SpmDependencyManager(
                     // moving this would require leaking info about the file outside, which also seems weird. I'm
                     // still not sure we should try to be this precise with the git ops, considering this should
                     // pretty much always be in CI, but anyway.
-                    versionWriter.runGitStatement(project, "add", project.file(project.swiftPackageFilePath()).absolutePath)
+                    versionWriter.runGitStatement(
+                        project,
+                        "add",
+                        project.file(project.swiftPackageFilePath()).absolutePath
+                    )
                     versionWriter.runGitStatement(project, "commit", "-m", "KMM SPM package release for $version")
                     versionWriter.runGitStatement(project, "push")
                 }
@@ -64,6 +78,27 @@ class SpmDependencyManager(
 
         updatePackageSwiftTask.configure { dependsOn(uploadTask) }
         publishRemoteTask.configure { dependsOn(updatePackageSwiftTask) }
+    }
+
+    private fun Project.hasCustomPackageFile(): Boolean {
+        val swiftPackageFile = file(swiftPackageFilePath())
+        return swiftPackageFile.readText().contains(KMMBRIDGE_VARIABLES_BEGIN)
+    }
+
+    private fun Project.modifyPackageFileVariables(
+        packageName: String,
+        url: String,
+        checksum: String,
+    ) {
+        val packageFile = file(swiftPackageFilePath())
+        packageFile.writeText(
+            getModifiedPackageFileText(
+                packageFile.readText(),
+                packageName,
+                url,
+                checksum
+            )
+        )
     }
 
     private fun Project.writePackageFile(packageName: String, url: String, checksum: String) {
@@ -107,6 +142,8 @@ class SpmDependencyManager(
 
     override val needsGitTags: Boolean = true
     override fun configureLocalDev(project: Project) {
+        if (useCustomPackageFile) return // No local dev when using a custom package file
+
         val extension = project.kmmBridgeExtension
         project.tasks.register("spmDevBuild") {
             group = TASK_GROUP_NAME
@@ -171,13 +208,55 @@ let package = Package(
     return packageFileString
 }
 
+private const val KMMBRIDGE_VARIABLES_BEGIN = "// BEGIN KMMBRIDGE VARIABLES BLOCK (do not edit)"
+private const val KMMBRIDGE_END = "// END KMMBRIDGE BLOCK"
+
+internal fun getModifiedPackageFileText(
+    oldPackageFile: String,
+    packageName: String,
+    url: String,
+    checksum: String,
+): String = buildString {
+    var editingManagedBlock = false
+    oldPackageFile.lines().forEach { line ->
+        when {
+            line == KMMBRIDGE_END -> {
+                editingManagedBlock = false
+            }
+
+            editingManagedBlock -> {
+                // Ignore old lines in our managed blocks because we've already edited them
+            }
+
+            line == KMMBRIDGE_VARIABLES_BEGIN -> {
+                editingManagedBlock = true
+                appendLine(
+                    """
+                    $KMMBRIDGE_VARIABLES_BEGIN
+                    let remoteKotlinUrl = "$url"
+                    let remoteKotlinChecksum = "$checksum"
+                    let packageName = "$packageName"
+                    $KMMBRIDGE_END
+                """.trimIndent()
+                )
+            }
+
+            else -> {
+                appendLine(line)
+            }
+        }
+    }
+}.removeSuffix("\n")
+
 private fun makePackageFileText(packageName: String, url: String, checksum: String): String = """
 // swift-tools-version:5.3
 import PackageDescription
 
+$KMMBRIDGE_VARIABLES_BEGIN
 let remoteKotlinUrl = "$url"
 let remoteKotlinChecksum = "$checksum"
 let packageName = "$packageName"
+$KMMBRIDGE_END
 
 let package = Package(
     name: packageName,
