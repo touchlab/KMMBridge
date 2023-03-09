@@ -69,6 +69,8 @@ kmmbridge {
 
 When this flag is set, rather than regenerating your entire package file during publication, KMMBridge will only update the variables it sets at the top of the package file. You are now responsible for using them correctly when making changes.
 
+This works by replacing a block of code that begins with the comment `// BEGIN KMMBRIDGE VARIABLES BLOCK (do not edit)` and ends with the comment `// END KMMBRIDGE BLOCK`. If the first line is not present, then the default package file will be generated instead. This lets you use the default package file as a starting point before making changes.
+
 :::caution
 The custom package file mode is new and experimental. The local dev flow using the `spmDevBuild` gradle task is disabled when `useCustomPackageFile` is true.
 :::
