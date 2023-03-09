@@ -41,6 +41,10 @@ class SpmDependencyManager(
     private fun Project.swiftPackageFilePath(): String = "${stripEndSlash(swiftPackageFolder())}/Package.swift"
 
     override fun configure(project: Project, uploadTask: TaskProvider<Task>, publishRemoteTask: TaskProvider<Task>) {
+        if (useCustomPackageFile && !project.hasKmmbridgeVariablesSection()) {
+            project.logger.error(CUSTOM_PACKAGE_FILE_ERROR)
+        }
+
         val extension = project.kmmBridgeExtension
         val updatePackageSwiftTask = project.tasks.register("updatePackageSwift") {
             group = TASK_GROUP_NAME
@@ -53,8 +57,12 @@ class SpmDependencyManager(
                 override fun execute(t: Task) {
                     val checksum = project.findSpmChecksum(zipFile)
                     val url = project.urlFile.readText()
-                    if (useCustomPackageFile && project.hasCustomPackageFile()) {
+                    if (useCustomPackageFile && project.hasKmmbridgeVariablesSection()) {
                         project.modifyPackageFileVariables(extension.frameworkName.get(), url, checksum)
+                    } else if (useCustomPackageFile) {
+                        // We warned you earlier, but you didn't fix it, so now we interrupt the publish because it's
+                        // probably not going to do what you want
+                        error(CUSTOM_PACKAGE_FILE_ERROR)
                     } else {
                         project.writePackageFile(extension.frameworkName.get(), url, checksum)
                     }
@@ -80,7 +88,7 @@ class SpmDependencyManager(
         publishRemoteTask.configure { dependsOn(updatePackageSwiftTask) }
     }
 
-    private fun Project.hasCustomPackageFile(): Boolean {
+    private fun Project.hasKmmbridgeVariablesSection(): Boolean {
         val swiftPackageFile = file(swiftPackageFilePath())
         return swiftPackageFile.readText().contains(KMMBRIDGE_VARIABLES_BEGIN)
     }
@@ -294,3 +302,10 @@ private fun Project.findRepoRoot(): String {
         projectDir.toPath().relativize(repoFile.toPath()).toString()
     }
 }
+
+private val CUSTOM_PACKAGE_FILE_ERROR =
+    """
+    KMMBridge: SPM configured with useCustomPackageFile=true, but no custom variable block detected! Add the following lines to your package file to generate variables for binaryTarget() declaration:
+        // BEGIN KMMBRIDGE VARIABLES BLOCK (do not edit)
+        // END KMMBRIDGE BLOCK
+    """.trimIndent()
