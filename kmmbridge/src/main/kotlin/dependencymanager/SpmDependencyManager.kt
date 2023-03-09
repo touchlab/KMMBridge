@@ -220,7 +220,7 @@ internal fun getModifiedPackageFileText(
     var editingManagedBlock = false
     oldPackageFile.lines().forEach { line ->
         when {
-            line == KMMBRIDGE_END -> {
+            line.trim() == KMMBRIDGE_END -> {
                 editingManagedBlock = false
             }
 
@@ -228,8 +228,9 @@ internal fun getModifiedPackageFileText(
                 // Ignore old lines in our managed blocks because we've already edited them
             }
 
-            line == KMMBRIDGE_VARIABLES_BEGIN -> {
+            line.trim() == KMMBRIDGE_VARIABLES_BEGIN -> {
                 editingManagedBlock = true
+                val indent = line.split(KMMBRIDGE_VARIABLES_BEGIN).first()
                 appendLine(
                     """
                     $KMMBRIDGE_VARIABLES_BEGIN
@@ -237,7 +238,7 @@ internal fun getModifiedPackageFileText(
                     let remoteKotlinChecksum = "$checksum"
                     let packageName = "$packageName"
                     $KMMBRIDGE_END
-                """.trimIndent()
+                """.trimIndent().prependIndent(indent)
                 )
             }
 

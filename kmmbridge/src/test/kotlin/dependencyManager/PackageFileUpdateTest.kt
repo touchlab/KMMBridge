@@ -79,4 +79,35 @@ class PackageFileUpdateTest {
         )
         assertEquals(expectedNewFile, newFile)
     }
+
+    @Test
+    fun indentedVariables() {
+        val oldFile = """
+            // For some reason my variables are indented in a strange way
+                // BEGIN KMMBRIDGE VARIABLES BLOCK (do not edit)
+                  let remoteKotlinUrl = "https://www.example.com/"
+             let remoteKotlinChecksum = "01234567890abcdef"
+                 let packageName = "TestPackage"
+               // END KMMBRIDGE BLOCK
+            // Fin
+        """.trimIndent()
+
+        val expectedNewFile = """
+            // For some reason my variables are indented in a strange way
+                // BEGIN KMMBRIDGE VARIABLES BLOCK (do not edit)
+                let remoteKotlinUrl = "https://www.example.com/"
+                let remoteKotlinChecksum = "fedcba9876543210"
+                let packageName = "TestPackage"
+                // END KMMBRIDGE BLOCK
+            // Fin
+        """.trimIndent()
+
+        val newFile = getModifiedPackageFileText(
+            oldFile,
+            "TestPackage",
+            "https://www.example.com/",
+            "fedcba9876543210"
+        )
+        assertEquals(expectedNewFile, newFile)
+    }
 }
