@@ -10,8 +10,6 @@ After setting up KMMBridge in your Kotlin project, you should configure SPM for 
 
 If you don't have a `Package.swift` file, or don't know how to set one up, that's OK. KMMBridge currently generates these files for you.
 
-> Note: If you'd prefer, or need to, manage your own `Package.swift` file, please reach out. An earlier version of the plugin modified the file rather than replacing it. We may add that feature back after KMMBridge is more stable.
-
 In the `kmmbridge` block, add `spm()`. If you call it without parameters, KMMBridge assumes you want the `Package.swift` file at the root of your repo (we also assume you're using Git).
 
 ```kotlin
@@ -57,6 +55,25 @@ kmmbridge {
 ```
 
 Once this is all set up, run a build so you have at least one version available.
+
+### Using a custom package file
+
+By default, KMMBridge fully manages your Package.swift file. This might not be what you want, if your published library needs to include more than just your Kotlin framework. If you need to customize your package file, pass the `useCustomPackageFile` flag when configuring SPM in KMMBridge:
+
+```kotlin
+kmmbridge {
+    ...
+    spm(useCustomPackageFile = true)
+}
+```
+
+When this flag is set, rather than regenerating your entire package file during publication, KMMBridge will only update the variables it sets at the top of the package file. You are now responsible for using them correctly when making changes.
+
+This works by replacing a block of code that begins with the comment `// BEGIN KMMBRIDGE VARIABLES BLOCK (do not edit)` and ends with the comment `// END KMMBRIDGE BLOCK`.
+
+:::caution
+The custom package file mode is new and experimental. The local dev flow using the `spmDevBuild` gradle task is disabled when `useCustomPackageFile` is true.
+:::
 
 ### Setting up SPM without using the Cocoapods plugin
 

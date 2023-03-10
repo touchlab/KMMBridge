@@ -23,13 +23,19 @@ import co.touchlab.faktory.dependencymanager.SpecRepo
 import co.touchlab.faktory.dependencymanager.SpmDependencyManager
 import co.touchlab.faktory.internal.GithubCalls
 import co.touchlab.faktory.internal.GithubEnterpriseCalls
-import co.touchlab.faktory.versionmanager.*
+import co.touchlab.faktory.versionmanager.GitRemoteVersionWriter
+import co.touchlab.faktory.versionmanager.GitTagVersionManager
+import co.touchlab.faktory.versionmanager.GithubReleaseVersionWriter
+import co.touchlab.faktory.versionmanager.ManualVersionManager
+import co.touchlab.faktory.versionmanager.NoOpVersionWriter
+import co.touchlab.faktory.versionmanager.TimestampVersionManager
+import co.touchlab.faktory.versionmanager.VersionManager
+import co.touchlab.faktory.versionmanager.VersionWriter
 import localdevmanager.LocalDevManager
 import org.gradle.api.Project
 import org.gradle.api.provider.ListProperty
 import org.gradle.api.provider.Property
 import org.jetbrains.kotlin.gradle.plugin.mpp.NativeBuildType
-import co.touchlab.faktory.versionmanager.GithubReleaseVersionWriter
 
 interface KmmBridgeExtension {
     /**
@@ -122,8 +128,9 @@ interface KmmBridgeExtension {
 
     fun Project.spm(
         spmDirectory: String? = null,
+        useCustomPackageFile: Boolean = false,
     ) {
-        val dependencyManager = SpmDependencyManager(spmDirectory)
+        val dependencyManager = SpmDependencyManager(spmDirectory, useCustomPackageFile)
         dependencyManagers.set(dependencyManagers.getOrElse(emptyList()) + dependencyManager)
         localDevManager.setAndFinalize(dependencyManager)
     }
