@@ -14,7 +14,7 @@ Review when introducing **usage changes**:
 - [Samples of using blog post](https://touchlab.co/samples-of-using-kmmbridge/) - Blog post describing KMMBridge usage in Samples
 - [Introducing KMMBRidge blog post](https://touchlab.co/introducing-kmmbridge-teams/) - Introduction of KMMBridge blog post
 - [KMMBridge readme](README.md) - readme of this project
-- [KMMBridge website](website/docs/intro.md) - KMMBridge documentation
+- [KMMBridge website](website/docs/index.md) - KMMBridge documentation
 
 Update when releasing **new version number**:
 
