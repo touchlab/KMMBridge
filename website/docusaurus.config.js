@@ -160,7 +160,7 @@ const config = {
               items: [
                 {
                   label: `${touchlabConfig.docusaurusConfig.projectName} GitHub`,
-                  href: `https://github.com/touchlab/${touchlabConfig.docusaurusConfig.organizationName}/${touchlabConfig.docusaurusConfig.projectName}`,
+                  href: `https://github.com/${touchlabConfig.docusaurusConfig.organizationName}/${touchlabConfig.docusaurusConfig.projectName}`,
                 },
               ],
             },
