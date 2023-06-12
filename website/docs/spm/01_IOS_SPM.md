@@ -114,7 +114,7 @@ For artifacts that are kept in private storage, you may need to add authenticati
 
 :::caution
 
-When you acces repos in GitHub with Xcode, you need to authenticate to GitHub. That isn't enough to access private GitHub release artifacts. You *also* need to add `~/.netrc` or Mac Keychain Access authentication info.
+When you access repos in GitHub with Xcode, you need to authenticate to GitHub. That isn't enough to access private GitHub release artifacts. You *also* need to add `~/.netrc` or Mac Keychain Access authentication info. 
 
 :::
 
