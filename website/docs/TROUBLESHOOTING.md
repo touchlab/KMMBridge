@@ -58,4 +58,4 @@ That block can be at the top-level or inside the publish task. [See here](https:
 
 ### Error: Task 'kmmBridgePublish' not found in root project 'MyProject'.
 
-KMMBridge won't configure it's publication tasks unless it knows you want it to. You must set the `ENABLE_PUBLISHING` gradle property to true (usually only in CI or when troubleshooting), and you must have publication fully configured, including an `artifactManager` and `dependencyManager`.
+KMMBridge won't configure its publication tasks unless it knows you want it to. You must set the `ENABLE_PUBLISHING` gradle property to true (usually only in CI or when troubleshooting), and you must have publication fully configured, including setting an `artifactManager` and `dependencyManager`.
