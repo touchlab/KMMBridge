@@ -44,3 +44,18 @@ https://github.com/orgs/community/discussions/23474
 In your Gradle script, if you're creating your own `XCFramework` like `XCFramework("<name>") then you should remove it as `KMMBridge` creates the `XCFramework` definitions automatically.
 
 We might add ability in future to automatically detect this and handle smoothly.
+
+### Error: "Could not PUT 'https://maven.pkg.github.com/MyOrg/MyRepo/MyRepo/shared-kmmbridge/0.0.1/shared-kmmbridge-0.0.1.zip'. Received status code 403 from server: Forbidden"
+
+You're publishing to github packages, but the workflow doesn't have the right permissions. You can add a permissions block like the following to fix this:
+
+```yaml
+permissions:
+  contents: write
+  packages: write
+```
+That block can be at the top-level or inside the publish task. [See here](https://github.com/touchlab/KMMBridgeSampleKotlin/blob/main/.github/workflows/main.yml) for an example.
+
+### Error: Task 'kmmBridgePublish' not found in root project 'MyProject'.
+
+KMMBridge won't configure its publication tasks unless it knows you want it to. You must set the `ENABLE_PUBLISHING` gradle property to true (usually only in CI or when troubleshooting), and you must have publication fully configured, including setting an `artifactManager` and `dependencyManager`.

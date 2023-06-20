@@ -136,3 +136,5 @@ addGithubPackagesRepository() // <- Add the GitHub Packages repo
 The `plugins` section, `group/version`, and `kotlin` blocks should looks pretty familiar to anybody who has done KMP/KMM work. You'll probably have more targets in `kotlin`, and probably more entries in `plugins`, but this setup would be complete and functional as presented.
 
 In `kmmbridge`, notice `mavenPublishArtifacts()` tells the plugin to push KMMBridge artifacts to a Maven repo. You then need to define a repo. Rather than do everything manually, you can just call `addGithubPackagesRepository()`, which will add the correct repo given parameters that are passed in from GitHub Actions.
+
+To publish to Github Packages through Github Actions, your workflow needs to run with write permissions. You can add `permissions: write-all` at the top-level in your workflow file to accomplish this, or see the [Github Actions documentation](https://docs.github.com/en/actions/using-jobs/assigning-permissions-to-jobs) for details on how to do more granular permissions.
