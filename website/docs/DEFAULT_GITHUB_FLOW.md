@@ -110,6 +110,9 @@ At the top of your project, if it does not already exist, add the folders `.gith
 ```yaml
 name: KMMBridge Publish Release
 on: workflow_dispatch
+permissions:
+  contents: write
+  packages: write
 
 jobs:
   call-kmmbridge-publish:
@@ -131,7 +134,7 @@ jobs:
 
 You need to pass the ssh key configured earlier.
 
-There are actually 2 versions of the workflow script. The other file, `faktorybuild.yml`, performs all operations in the same branch it's run on. `faktorybuildbranches.yml` creates a temporary branch to run builds. This is generally better, as the build process involves git operations which can overwrite files and possibly cause conflics.
+There are actually 2 versions of the workflow script. The other file, `faktorybuild.yml`, performs all operations in the same branch it's run on. `faktorybuildbranches.yml` creates a temporary branch to run builds. This is generally better, as the build process involves git operations which can overwrite files and possibly cause conflicts.
 
 ### 4 Add and push your code
 
@@ -155,7 +158,7 @@ If you're using the github packages for artifact hosting via `addGithubPackagesR
 These steps are needed for any private artifact hosting, but won't be necessary if your artifacts are hosted somewhere publicly accessible.
 :::
 
-First, get a personal access token from GitHub. Make sure it has at least `repo` permissions. You can add an expiration, but if you do, you'll need to remember to create a new one later...
+First, get a personal access token from GitHub. Make sure it has at least `repo` and `write:packages` permissions. You can add an expiration, but if you do, you'll need to remember to create a new one later...
 
 ![Screen Shot 2022-09-29 at 8.16.31 AM](https://tl-navigator-images.s3.us-east-1.amazonaws.com/docimages/2022-09-29_08-17-Screen%20Shot%202022-09-29%20at%208.16.31%20AM.png)
 
