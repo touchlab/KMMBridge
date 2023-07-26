@@ -21,6 +21,7 @@ import co.touchlab.faktory.dependencymanager.CocoapodsDependencyManager
 import co.touchlab.faktory.dependencymanager.DependencyManager
 import co.touchlab.faktory.dependencymanager.SpecRepo
 import co.touchlab.faktory.dependencymanager.SpmDependencyManager
+import co.touchlab.faktory.domain.SwiftToolVersion
 import co.touchlab.faktory.internal.GithubCalls
 import co.touchlab.faktory.internal.GithubEnterpriseCalls
 import co.touchlab.faktory.versionmanager.GitRemoteVersionWriter
@@ -126,11 +127,19 @@ interface KmmBridgeExtension {
         versionManager.setAndFinalize(ManualVersionManager)
     }
 
+    /**
+     * Enable Swift Package Manager publication
+     *
+     * @param spmDirectory Folder where the Package.swift file lives
+     * @param useCustomPackageFile Allow to use custom Package.swift file
+     * @param swiftToolVersion Specifies swift-tools-version in Package.swift. Default: [SwiftToolVersion.Default]
+     */
     fun Project.spm(
         spmDirectory: String? = null,
         useCustomPackageFile: Boolean = false,
+        swiftToolVersion: String = SwiftToolVersion.Default,
     ) {
-        val dependencyManager = SpmDependencyManager(spmDirectory, useCustomPackageFile)
+        val dependencyManager = SpmDependencyManager(spmDirectory, useCustomPackageFile, swiftToolVersion)
         dependencyManagers.set(dependencyManagers.getOrElse(emptyList()) + dependencyManager)
         localDevManager.setAndFinalize(dependencyManager)
     }

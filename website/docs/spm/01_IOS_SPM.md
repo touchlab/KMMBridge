@@ -56,6 +56,16 @@ kmmbridge {
 
 Once this is all set up, run a build so you have at least one version available.
 
+### Specifying swift tools version
+You can use the `swiftToolsVersion` parameter to set the swift tools version that will be written to the Package.swift header. If no value is provided, version 5.3 will be used by default:
+
+```kotlin
+kmmbridge {
+    ...
+    spm(swiftToolVersion = "5.8")
+}
+```
+
 ### Using a custom package file
 
 By default, KMMBridge fully manages your Package.swift file. This might not be what you want, if your published library needs to include more than just your Kotlin framework. If you need to customize your package file, pass the `useCustomPackageFile` flag when configuring SPM in KMMBridge:

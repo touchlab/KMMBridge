@@ -14,6 +14,7 @@
 package co.touchlab.faktory.dependencymanager
 
 import co.touchlab.faktory.TASK_GROUP_NAME
+import co.touchlab.faktory.domain.SwiftToolVersion
 import co.touchlab.faktory.findXCFrameworkAssembleTask
 import co.touchlab.faktory.internal.procRunWarnLog
 import co.touchlab.faktory.kmmBridgeExtension
@@ -36,6 +37,7 @@ class SpmDependencyManager(
      */
     private val _swiftPackageFolder: String?,
     private val useCustomPackageFile: Boolean,
+    private val _swiftToolVersion: String,
 ) : DependencyManager, LocalDevManager {
     private fun Project.swiftPackageFolder(): String = _swiftPackageFolder ?: this.findRepoRoot()
     private fun Project.swiftPackageFilePath(): String = "${stripEndSlash(swiftPackageFolder())}/Package.swift"
@@ -44,6 +46,9 @@ class SpmDependencyManager(
         if (useCustomPackageFile && !project.hasKmmbridgeVariablesSection()) {
             project.logger.error(CUSTOM_PACKAGE_FILE_ERROR)
         }
+
+        val swiftToolVersion = SwiftToolVersion.of(_swiftToolVersion)
+                               ?: throw IllegalArgumentException("Parameter swiftToolVersion should be not blank!")
 
         val extension = project.kmmBridgeExtension
         val updatePackageSwiftTask = project.tasks.register("updatePackageSwift") {
@@ -64,7 +69,7 @@ class SpmDependencyManager(
                         // probably not going to do what you want
                         error(CUSTOM_PACKAGE_FILE_ERROR)
                     } else {
-                        project.writePackageFile(extension.frameworkName.get(), url, checksum)
+                        project.writePackageFile(extension.frameworkName.get(), url, checksum, swiftToolVersion)
                     }
                     val version = project.versionFile.readText()
                     val versionWriter = extension.versionWriter.get()
@@ -109,9 +114,14 @@ class SpmDependencyManager(
         )
     }
 
-    private fun Project.writePackageFile(packageName: String, url: String, checksum: String) {
+    private fun Project.writePackageFile(
+        packageName: String,
+        url: String,
+        checksum: String,
+        swiftToolVersion: SwiftToolVersion
+    ) {
         val swiftPackageFile = file(swiftPackageFilePath())
-        val packageText = makePackageFileText(packageName, url, checksum)
+        val packageText = makePackageFileText(packageName, url, checksum, swiftToolVersion)
         swiftPackageFile.parentFile.mkdirs()
         swiftPackageFile.writeText(packageText)
     }
@@ -257,8 +267,13 @@ internal fun getModifiedPackageFileText(
     }
 }.removeSuffix("\n")
 
-private fun makePackageFileText(packageName: String, url: String, checksum: String): String = """
-// swift-tools-version:5.3
+private fun makePackageFileText(
+    packageName: String,
+    url: String,
+    checksum: String,
+    swiftToolVersion: SwiftToolVersion
+): String = """
+// swift-tools-version:${swiftToolVersion.name}
 import PackageDescription
 
 $KMMBRIDGE_VARIABLES_BEGIN
