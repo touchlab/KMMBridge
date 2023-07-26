@@ -15,17 +15,24 @@ package co.touchlab.faktory.dependencymanager
 
 import co.touchlab.faktory.TASK_GROUP_NAME
 import co.touchlab.faktory.domain.SwiftToolVersion
+import co.touchlab.faktory.domain.TargetPlatform
+import co.touchlab.faktory.dsl.TargetPlatformDsl
 import co.touchlab.faktory.findXCFrameworkAssembleTask
 import co.touchlab.faktory.internal.procRunWarnLog
 import co.touchlab.faktory.kmmBridgeExtension
+import co.touchlab.faktory.kotlin
 import co.touchlab.faktory.urlFile
 import co.touchlab.faktory.versionFile
 import co.touchlab.faktory.zipFilePath
+import domain.konanTarget
+import domain.swiftPackagePlatformName
 import localdevmanager.LocalDevManager
 import org.gradle.api.Action
 import org.gradle.api.Project
 import org.gradle.api.Task
 import org.gradle.api.tasks.TaskProvider
+import org.gradle.kotlin.dsl.withType
+import org.jetbrains.kotlin.gradle.plugin.mpp.KotlinNativeTarget
 import org.jetbrains.kotlin.gradle.plugin.mpp.NativeBuildType
 import java.io.ByteArrayOutputStream
 import java.io.File
@@ -38,6 +45,7 @@ class SpmDependencyManager(
     private val _swiftPackageFolder: String?,
     private val useCustomPackageFile: Boolean,
     private val _swiftToolVersion: String,
+    private val _targetPlatforms: TargetPlatformDsl.() -> Unit,
 ) : DependencyManager, LocalDevManager {
     private fun Project.swiftPackageFolder(): String = _swiftPackageFolder ?: this.findRepoRoot()
     private fun Project.swiftPackageFilePath(): String = "${stripEndSlash(swiftPackageFolder())}/Package.swift"
@@ -49,6 +57,14 @@ class SpmDependencyManager(
 
         val swiftToolVersion = SwiftToolVersion.of(_swiftToolVersion)
                                ?: throw IllegalArgumentException("Parameter swiftToolVersion should be not blank!")
+
+        val targetPlatforms = TargetPlatformDsl().apply(_targetPlatforms)
+            .targetPlatforms
+            .ifEmpty {
+                throw IllegalArgumentException("At least one target platform should be specified!")
+            }
+
+        val platforms = platforms(project, targetPlatforms)
 
         val extension = project.kmmBridgeExtension
         val updatePackageSwiftTask = project.tasks.register("updatePackageSwift") {
@@ -69,7 +85,7 @@ class SpmDependencyManager(
                         // probably not going to do what you want
                         error(CUSTOM_PACKAGE_FILE_ERROR)
                     } else {
-                        project.writePackageFile(extension.frameworkName.get(), url, checksum, swiftToolVersion)
+                        project.writePackageFile(extension.frameworkName.get(), url, checksum, swiftToolVersion, platforms)
                     }
                     val version = project.versionFile.readText()
                     val versionWriter = extension.versionWriter.get()
@@ -118,10 +134,11 @@ class SpmDependencyManager(
         packageName: String,
         url: String,
         checksum: String,
-        swiftToolVersion: SwiftToolVersion
+        swiftToolVersion: SwiftToolVersion,
+        platforms: String
     ) {
         val swiftPackageFile = file(swiftPackageFilePath())
-        val packageText = makePackageFileText(packageName, url, checksum, swiftToolVersion)
+        val packageText = makePackageFileText(packageName, url, checksum, swiftToolVersion, platforms)
         swiftPackageFile.parentFile.mkdirs()
         swiftPackageFile.writeText(packageText)
     }
@@ -170,17 +187,42 @@ class SpmDependencyManager(
             @Suppress("ObjectLiteralToLambda")
             doLast(object : Action<Task> {
                 override fun execute(t: Task) {
+                    val swiftToolVersion = SwiftToolVersion.of(_swiftToolVersion)
+                                           ?: throw IllegalArgumentException("Parameter swiftToolVersion should be not blank!")
+
+                    val targetPlatforms = TargetPlatformDsl().apply(_targetPlatforms)
+                        .targetPlatforms
+                        .ifEmpty {
+                            throw IllegalArgumentException("At least one target platform should be specified!")
+                        }
+
+                    val platforms = platforms(project, targetPlatforms)
+
                     project.writePackageFile(
                         makeLocalDevPackageFileText(
                             project.swiftPackageFolder(),
                             extension.frameworkName.get(),
-                            project
+                            project,
+                            swiftToolVersion,
+                            platforms
                         )
                     )
                 }
             })
         }
     }
+
+    private fun platforms(project: Project, targetPlatforms: List<TargetPlatform>): String = targetPlatforms.flatMap { platform ->
+        project.kotlin.targets
+            .withType<KotlinNativeTarget>()
+            .asSequence()
+            .filter { it.konanTarget.family.isAppleFamily }
+            .filter { appleTarget -> platform.targets.firstOrNull { it.konanTarget == appleTarget.konanTarget } != null }
+            .mapNotNull { it.konanTarget.family.swiftPackagePlatformName }
+            .distinct()
+            .map { platformName -> ".$platformName(.v${platform.version.name})" }
+            .toList()
+    }.joinToString(separator = ",\n")
 }
 
 internal fun stripEndSlash(path: String): String {
@@ -191,13 +233,19 @@ internal fun stripEndSlash(path: String): String {
     }
 }
 
-private fun makeLocalDevPackageFileText(swiftPackageFolder: String, frameworkName: String, project: Project): String {
+private fun makeLocalDevPackageFileText(
+    swiftPackageFolder: String,
+    frameworkName: String,
+    project: Project,
+    swiftToolVersion: SwiftToolVersion,
+    platforms: String
+): String {
     val swiftFolderPath = project.file(swiftPackageFolder).toPath()
     val projectBuildFolderPath = project.buildDir.toPath()
     val xcFrameworkPath =
         "${swiftFolderPath.relativize(projectBuildFolderPath)}/XCFrameworks/${NativeBuildType.DEBUG.getName()}"
     val packageFileString = """
-// swift-tools-version:5.3
+// swift-tools-version:${swiftToolVersion.name}
 import PackageDescription
 
 let packageName = "$frameworkName"
@@ -205,7 +253,7 @@ let packageName = "$frameworkName"
 let package = Package(
     name: packageName,
     platforms: [
-        .iOS(.v13)
+        $platforms
     ],
     products: [
         .library(
@@ -271,7 +319,8 @@ private fun makePackageFileText(
     packageName: String,
     url: String,
     checksum: String,
-    swiftToolVersion: SwiftToolVersion
+    swiftToolVersion: SwiftToolVersion,
+    platforms: String
 ): String = """
 // swift-tools-version:${swiftToolVersion.name}
 import PackageDescription
@@ -285,7 +334,7 @@ $KMMBRIDGE_END
 let package = Package(
     name: packageName,
     platforms: [
-        .iOS(.v13)
+        $platforms
     ],
     products: [
         .library(

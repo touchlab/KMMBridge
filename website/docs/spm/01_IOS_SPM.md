@@ -66,6 +66,17 @@ kmmbridge {
 }
 ```
 
+### Specifying target platforms and versions
+You can use the `targetPlatforms` lambda to add a targets and versions. Currently, only iOS target is supported:
+```kotlin
+kmmbridge {
+    ...
+    spm(targetPlatforms = {
+        iOS { v("14") }
+    })
+}
+```
+
 ### Using a custom package file
 
 By default, KMMBridge fully manages your Package.swift file. This might not be what you want, if your published library needs to include more than just your Kotlin framework. If you need to customize your package file, pass the `useCustomPackageFile` flag when configuring SPM in KMMBridge:

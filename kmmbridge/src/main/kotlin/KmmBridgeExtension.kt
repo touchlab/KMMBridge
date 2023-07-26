@@ -22,6 +22,7 @@ import co.touchlab.faktory.dependencymanager.DependencyManager
 import co.touchlab.faktory.dependencymanager.SpecRepo
 import co.touchlab.faktory.dependencymanager.SpmDependencyManager
 import co.touchlab.faktory.domain.SwiftToolVersion
+import co.touchlab.faktory.dsl.TargetPlatformDsl
 import co.touchlab.faktory.internal.GithubCalls
 import co.touchlab.faktory.internal.GithubEnterpriseCalls
 import co.touchlab.faktory.versionmanager.GitRemoteVersionWriter
@@ -138,8 +139,9 @@ interface KmmBridgeExtension {
         spmDirectory: String? = null,
         useCustomPackageFile: Boolean = false,
         swiftToolVersion: String = SwiftToolVersion.Default,
+        targetPlatforms: TargetPlatformDsl.() -> Unit = { iOS { v("13") } },
     ) {
-        val dependencyManager = SpmDependencyManager(spmDirectory, useCustomPackageFile, swiftToolVersion)
+        val dependencyManager = SpmDependencyManager(spmDirectory, useCustomPackageFile, swiftToolVersion, targetPlatforms)
         dependencyManagers.set(dependencyManagers.getOrElse(emptyList()) + dependencyManager)
         localDevManager.setAndFinalize(dependencyManager)
     }
