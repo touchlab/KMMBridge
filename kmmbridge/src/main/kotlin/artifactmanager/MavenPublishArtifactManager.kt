@@ -32,7 +32,7 @@ class MavenPublishArtifactManager(
         uploadTask: TaskProvider<Task>,
         kmmPublishTask: TaskProvider<Task>
     ) {
-        project.publishingExtension.publications.create(FRAMEWORK_PUBLICATION_NAME, MavenPublication::class.java) {
+        project.publishingExtension.publications.create(publicationName ?: FRAMEWORK_PUBLICATION_NAME, MavenPublication::class.java) {
             this.version = version
             val archiveProvider = project.tasks.named("zipXCFramework", Zip::class.java).flatMap {
                 it.archiveFile
