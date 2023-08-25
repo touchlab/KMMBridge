@@ -86,8 +86,8 @@ interface KmmBridgeExtension {
      * If using multiple repos, you can specify which one the `Package.swift` and/or podspec point to by
      * passing the name in here.
      */
-    fun Project.mavenPublishArtifacts(repository: String? = null, publication: String? = null) {
-        artifactManager.setAndFinalize(MavenPublishArtifactManager(this, publication, repository))
+    fun Project.mavenPublishArtifacts(repository: String? = null, publication: String? = null, artifactSuffix: String? = null) {
+        artifactManager.setAndFinalize(MavenPublishArtifactManager(this, publication, artifactSuffix, repository))
     }
 
     fun timestampVersions() {

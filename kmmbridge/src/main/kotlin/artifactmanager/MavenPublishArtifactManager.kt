@@ -20,10 +20,11 @@ private const val KMMBRIDGE_ARTIFACT_SUFFIX = "kmmbridge"
 class MavenPublishArtifactManager(
     val project: Project,
     private val publicationName: String?,
-    private val repositoryName: String?
-) : ArtifactManager {
+    artifactSuffix: String?,
+    private val repositoryName: String?,
+    ) : ArtifactManager {
     private val group: String = project.group.toString().replace(".", "/")
-    private val kmmbridgeArtifactId = "${project.name}-$KMMBRIDGE_ARTIFACT_SUFFIX"
+    private val kmmbridgeArtifactId = "${project.name}-${artifactSuffix ?: KMMBRIDGE_ARTIFACT_SUFFIX}"
 
     override fun configure(
         project: Project,
