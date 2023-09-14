@@ -106,7 +106,7 @@ targets.withType<KotlinNativeTarget> {
 }
 ```
 
-You can check out [build.gradle in this test](https://github.com/touchlab/KmmBridgeIntegrationTest-SPMWithoutCommit/blob/main/shared/build.gradle.kts) as an example.
+You can check out [build.gradle.kts in this test](https://github.com/touchlab/KmmBridgeIntegrationTest-SPMWithoutCommit/blob/main/shared/build.gradle.kts) as an example.
 
 ## Artifact Authentication
 
