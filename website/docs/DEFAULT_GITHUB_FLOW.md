@@ -152,7 +152,7 @@ When that run is complete, you should see a green result. If not, please reach o
 
 ## iOS Dev Machine Config
 
-If you're using the github packages for artifact hosting via `addGithubPackagesRepository()`, accessing the artifacts requires authentication even for public repos. You'll need to tell the local machine how to access the private file. You can do this either by editing the `~/.netrc` file, or by adding the info to your local keychain.
+If you're using the github packages for artifact hosting via `addGithubPackagesRepository()`, accessing the artifacts requires authentication. You'll need to tell the local machine how to access the private file. You can do this either by editing the `~/.netrc` file, or by adding the info to your local keychain.
 
 :::note
 These steps are needed for any private artifact hosting, but won't be necessary if your artifacts are hosted somewhere publicly accessible.
