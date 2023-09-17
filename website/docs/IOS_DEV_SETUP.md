@@ -11,9 +11,15 @@ For developers editing Kotlin, you will want to test locally-built Kotlin code d
 
 ## Private Artifacts
 
-If you are hosting artifacts somewhere private, you'll need to add auth info for that to work. See [the section here](DEFAULT_GITHUB_FLOW.md#private-repos).
+If you are hosting artifacts somewhere that requires authentication, you'll need to add auth info for that to work. See [the section here](DEFAULT_GITHUB_FLOW.md#ios-dev-machine-config).
 
 *You must do this before attempting to integrate dependency managers!!!*
+
+:::caution
+
+You can publish artifacts from public repos to GitHub Packages, but GitHub still requires a valid GitHub user to access those artifacts. If you are intending to publish a public library and do not want to force your users to configure GitHub auth, you'll need to host your library's binaries somewhere else.
+
+:::
 
 ## Using CocoaPods
 
