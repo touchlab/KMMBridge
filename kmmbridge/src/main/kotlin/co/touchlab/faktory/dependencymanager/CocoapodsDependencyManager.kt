@@ -100,10 +100,10 @@ private fun Project.generatePodspec(outputFile: File) = with(kotlin.cocoapods) {
         }
     }
 
-    val dependencies = pods.map { pod ->
+    val dependencies = pods.joinToString(separator = "\n") { pod ->
         val versionSuffix = if (pod.version != null) ", '${pod.version}'" else ""
         "|    spec.dependency '${pod.name}'$versionSuffix"
-    }.joinToString(separator = "\n")
+    }
 
     // Logic for frameworkName pulled from various pieces of PodspecTask, CocoapodsExtension, and KotlinCocoapodsPlugin
     val anyPodFramework = project.provider {
@@ -130,7 +130,7 @@ private fun Project.generatePodspec(outputFile: File) = with(kotlin.cocoapods) {
     val url = urlFile.readText()
     val version = versionFile.readText()
 
-    // 'Accept: application/octet-stream' needed for github release file downloads
+    // 'Accept: application/octet-stream' needed for GitHub release file downloads
     outputFile.writeText(
         """
             |Pod::Spec.new do |spec|

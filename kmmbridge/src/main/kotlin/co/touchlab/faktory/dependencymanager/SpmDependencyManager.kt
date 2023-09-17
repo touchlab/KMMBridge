@@ -15,7 +15,7 @@ package co.touchlab.faktory.dependencymanager
 
 import co.touchlab.faktory.*
 import co.touchlab.faktory.internal.procRunWarnLog
-import localdevmanager.LocalDevManager
+import co.touchlab.faktory.localdevmanager.LocalDevManager
 import org.gradle.api.Action
 import org.gradle.api.Project
 import org.gradle.api.Task
@@ -55,7 +55,7 @@ class SpmDependencyManager(
                     if (useCustomPackageFile && project.hasKmmbridgeVariablesSection()) {
                         project.modifyPackageFileVariables(extension.frameworkName.get(), url, checksum)
                     } else if (useCustomPackageFile) {
-                        // We warned you earlier, but you didn't fix it, so now we interrupt the publish because it's
+                        // We warned you earlier, but you didn't fix it, so now we interrupt the publish process because it's
                         // probably not going to do what you want
                         error(CUSTOM_PACKAGE_FILE_ERROR)
                     } else {
@@ -169,7 +169,8 @@ private fun makeLocalDevPackageFileText(swiftPackageFolder: String, frameworkNam
     val projectBuildFolderPath = project.buildDir.toPath()
     val xcFrameworkPath =
         "${swiftFolderPath.relativize(projectBuildFolderPath)}/XCFrameworks/${NativeBuildType.DEBUG.getName()}"
-    val packageFileString = """
+
+    return """
 // swift-tools-version:5.3
 import PackageDescription
 
@@ -195,8 +196,6 @@ let package = Package(
     ]
 )
 """.trimIndent()
-
-    return packageFileString
 }
 
 private const val KMMBRIDGE_VARIABLES_BEGIN = "// BEGIN KMMBRIDGE VARIABLES BLOCK (do not edit)"

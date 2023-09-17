@@ -34,7 +34,7 @@ internal val Project.publishingExtension get() = extensions.getByType<Publishing
 internal val Project.urlFile get() = file("$buildDir/faktory/url")
 internal val Project.versionFile get() = file("$buildDir/faktory/version")
 
-// Cocoapods is an extension of KMP extension so you can't just do project.extensions.getByType<CocoapodsExtension>()
+// Cocoapods is an extension of KMP extension, so you can't just do project.extensions.getByType<CocoapodsExtension>()
 internal val KotlinMultiplatformExtension.cocoapodsOrNull get() = (this as ExtensionAware).extensions.findByType<CocoapodsExtension>()
 internal val KotlinMultiplatformExtension.cocoapods
     get() = cocoapodsOrNull
@@ -46,6 +46,7 @@ internal val Project.enablePublishing: Boolean
 internal val Project.spmBuildTargets: String?
     get() = project.findStringProperty("spmBuildTargets")
 
+@Suppress("SpellCheckingInspection")
 internal fun Project.zipFilePath(): File {
     val tempDir = file("$buildDir/faktory/zip")
     val artifactName = "frameworkarchive.zip"
@@ -75,7 +76,7 @@ internal fun Project.findXCFrameworkAssembleTask(buildType: NativeBuildType? = n
         tasks.named(taskWithoutName)
     }.getOrElse {
         throw UnknownTaskException(
-            "Cannot find XCFramework assemble task. Tried ${taskWithName} and ${taskWithoutName}."
+            "Cannot find XCFramework assemble task. Tried $taskWithName and ${taskWithoutName}."
         )
     }
 }

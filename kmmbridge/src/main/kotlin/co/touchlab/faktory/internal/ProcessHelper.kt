@@ -18,7 +18,7 @@ import org.gradle.api.Project
 import java.io.BufferedReader
 import java.io.InputStreamReader
 
-internal fun procRun(vararg params: String, processLines: (String, Int) -> Unit): Unit {
+internal fun procRun(vararg params: String, processLines: (String, Int) -> Unit) {
     val process = ProcessBuilder(*params)
         .redirectErrorStream(true)
         .start()
@@ -36,32 +36,6 @@ internal fun procRun(vararg params: String, processLines: (String, Int) -> Unit)
     val returnValue = process.waitFor()
     if(returnValue != 0)
         throw GradleException("Process failed: ${params.joinToString(" ")}")
-}
-
-internal fun procRunSequence(vararg params: String, block:(Sequence<String>)->Unit) {
-    val process = ProcessBuilder(*params)
-        .redirectErrorStream(true)
-        .start()
-
-    val streamReader = InputStreamReader(process.inputStream)
-    val bufferedReader = BufferedReader(streamReader)
-
-    var thrown:Throwable? = null
-
-    try {
-        block(bufferedReader.lineSequence())
-    } catch (e: Throwable) {
-        thrown = e
-    }
-
-    bufferedReader.close()
-    val returnValue = process.waitFor()
-    if(returnValue != 0)
-        throw GradleException("Process failed: ${params.joinToString(" ")}", thrown)
-
-    if(thrown != null){
-        throw thrown
-    }
 }
 
 /**
@@ -93,19 +67,3 @@ internal fun Project.procRunWarnLog(vararg params: String):List<String>{
     }
     return output
 }
-
-/**
- * Run a process. If it fails, write output to gradle error log and throw exception.
- */
-internal fun Project.procRunFailThrow(vararg params: String):List<String>{
-    val output = mutableListOf<String>()
-    try {
-        logger.info("Project.procRunFailLog: ${params.joinToString(" ")}")
-        procRun(*params){ line, _ -> output.add(line)}
-    } catch (e: Exception) {
-        throw ProcOutputException("Project.procRunFailLog [failed]: ${params.joinToString(" ")}", output)
-    }
-    return output
-}
-
-class ProcOutputException(message: String?, val output: List<String>) : Exception(message)

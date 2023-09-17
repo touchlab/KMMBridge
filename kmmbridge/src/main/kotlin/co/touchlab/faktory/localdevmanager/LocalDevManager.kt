@@ -11,7 +11,7 @@
  * the License.
  */
 
-package localdevmanager
+package co.touchlab.faktory.localdevmanager
 
 import org.gradle.api.Project
 

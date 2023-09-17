@@ -12,7 +12,7 @@
  */
 
 buildscript {
-    val KOTLIN_VERSION: String by project
+    @Suppress("LocalVariableName") val KOTLIN_VERSION: String by project
     repositories {
         mavenLocal()
         mavenCentral()
