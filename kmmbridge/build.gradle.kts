@@ -16,7 +16,7 @@ plugins {
     kotlin("jvm")
     id("java-gradle-plugin")
     id("com.vanniktech.maven.publish.base")
-    id("com.gradle.plugin-publish") version "1.0.0"
+    id("com.gradle.plugin-publish") version "1.1.0"
 }
 
 repositories {
@@ -49,13 +49,12 @@ dependencies {
     implementation(kotlin("gradle-plugin"))
     implementation(kotlin("compiler-embeddable"))
 
-    implementation("jakarta.json:jakarta.json-api:2.1.1")
-    implementation("org.glassfish:jakarta.json:2.0.1")
     implementation("commons-codec:commons-codec:1.15")
     implementation("software.amazon.awssdk:s3:2.20.17")
 
     implementation("com.squareup.okhttp3:okhttp:4.10.0")
     implementation("com.google.code.gson:gson:2.10.1")
+
     testImplementation(kotlin("test"))
 }
 

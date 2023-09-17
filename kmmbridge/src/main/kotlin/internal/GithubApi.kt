@@ -16,24 +16,11 @@ package co.touchlab.faktory.internal
 import co.touchlab.faktory.findStringProperty
 import org.gradle.api.Project
 
-interface GithubApi {
-
-    fun createRelease(project: Project, repo: String, tag: String, commitId: String?): Int
-}
-
-internal val Project.githubPublishToken
-    get() = githubPublishTokenOrNull
-        ?: throw IllegalArgumentException("KMMBridge Github operations need property GITHUB_PUBLISH_TOKEN")
-
 internal val Project.githubPublishTokenOrNull: String?
     get() = project.property("GITHUB_PUBLISH_TOKEN") as String?
 
 internal val Project.githubPublishUser: String?
     get() = project.findStringProperty("GITHUB_PUBLISH_USER")
-
-internal val Project.githubRepo: String
-    get() = githubRepoOrNull
-        ?: throw IllegalArgumentException("KMMBridge Github operations need a repo param or property GITHUB_REPO")
 
 internal val Project.githubRepoOrNull: String?
     get() {

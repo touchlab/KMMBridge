@@ -13,13 +13,8 @@
 
 package co.touchlab.faktory.dependencymanager
 
-import co.touchlab.faktory.TASK_GROUP_NAME
-import co.touchlab.faktory.findXCFrameworkAssembleTask
+import co.touchlab.faktory.*
 import co.touchlab.faktory.internal.procRunWarnLog
-import co.touchlab.faktory.kmmBridgeExtension
-import co.touchlab.faktory.urlFile
-import co.touchlab.faktory.versionFile
-import co.touchlab.faktory.zipFilePath
 import localdevmanager.LocalDevManager
 import org.gradle.api.Action
 import org.gradle.api.Project
@@ -66,20 +61,8 @@ class SpmDependencyManager(
                     } else {
                         project.writePackageFile(extension.frameworkName.get(), url, checksum)
                     }
-                    val version = project.versionFile.readText()
-                    val versionWriter = extension.versionWriter.get()
 
-                    // This feels like it shouldn't be here, but if we're trying to be precise with git operations,
-                    // moving this would require leaking info about the file outside, which also seems weird. I'm
-                    // still not sure we should try to be this precise with the git ops, considering this should
-                    // pretty much always be in CI, but anyway.
-                    versionWriter.runGitStatement(
-                        project,
-                        "add",
-                        project.file(project.swiftPackageFilePath()).absolutePath
-                    )
-                    versionWriter.runGitStatement(project, "commit", "-m", "KMM SPM package release for $version")
-                    versionWriter.runGitStatement(project, "push")
+                    // TODO: Maybe write Package file path?
                 }
             })
         }

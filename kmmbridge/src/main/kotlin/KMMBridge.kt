@@ -13,22 +13,27 @@
 
 package co.touchlab.faktory
 
-import co.touchlab.faktory.versionmanager.GitRemoteVersionWriter
-import co.touchlab.faktory.versionmanager.NoOpVersionWriter
+import co.touchlab.faktory.versionmanager.ManualVersionManager
 import co.touchlab.faktory.versionmanager.VersionException
-import co.touchlab.faktory.versionmanager.VersionWriter
-import org.gradle.api.*
-import org.gradle.api.publish.PublishingExtension
+import org.gradle.api.Action
+import org.gradle.api.Plugin
+import org.gradle.api.Project
+import org.gradle.api.Task
 import org.gradle.api.tasks.TaskProvider
 import org.gradle.api.tasks.bundling.Zip
-import org.gradle.kotlin.dsl.*
+import org.gradle.kotlin.dsl.create
+import org.gradle.kotlin.dsl.getByType
+import org.gradle.kotlin.dsl.register
+import org.gradle.kotlin.dsl.withType
 import org.jetbrains.kotlin.gradle.plugin.mpp.Framework
 import org.jetbrains.kotlin.gradle.plugin.mpp.KotlinNativeTarget
 import org.jetbrains.kotlin.gradle.plugin.mpp.NativeBuildType
 import org.jetbrains.kotlin.gradle.plugin.mpp.apple.XCFramework
 import org.jetbrains.kotlin.gradle.plugin.mpp.apple.XCFrameworkConfig
-import java.io.*
-import java.util.*
+import java.io.File
+import kotlin.collections.filter
+import kotlin.collections.flatMap
+import kotlin.collections.forEach
 
 @Suppress("unused")
 class KMMBridgePlugin : Plugin<Project> {
@@ -37,13 +42,8 @@ class KMMBridgePlugin : Plugin<Project> {
         val extension = extensions.create<KmmBridgeExtension>(EXTENSION_NAME)
 
         extension.dependencyManagers.convention(emptyList())
+        extension.versionManager.convention(ManualVersionManager)
         extension.buildType.convention(NativeBuildType.RELEASE)
-
-        // Don't call `kotlin` directly as that'd create an order dependency on the Kotlin Multiplatform plugin
-        val fallbackVersion = project.provider {
-            kotlin.cocoapodsOrNull?.version ?: version.toString()
-        }
-        extension.versionPrefix.convention(fallbackVersion)
 
         afterEvaluate {
             configureXcFramework()
@@ -115,20 +115,8 @@ class KMMBridgePlugin : Plugin<Project> {
             return
         }
 
-        // If no writer is set at this point, it means that we don't have a version manager that explicitly needs
-        // to record versions. That (currently) means manual or timestamp. In that case, we only *need* to write
-        // if the dependency manager needs it (SPM). If only Cocoapods, then we don't need to write anything.
-        // The user can disable *everything* by explicitly setting the version writer with a custom one, or
-        // calling `noGitOperations()` in setup
-        val versionWriter :VersionWriter = extension.versionWriter.orNull ?: run {
-            if(extension.dependencyManagers.get().any { it.needsGitTags })
-                GitRemoteVersionWriter()
-            else
-                NoOpVersionWriter
-        }
-
         val version = try {
-            versionManager.getVersion(project, extension.versionPrefix.get(), versionWriter)
+            versionManager.getVersion(project)
         } catch (e: VersionException) {
             if (e.localDevOk) {
                 project.logger.info("(KMMBridge) ${e.message}")
@@ -156,11 +144,6 @@ class KMMBridgePlugin : Plugin<Project> {
                     logger.info("Uploading XCFramework version $version")
                     val deployUrl = artifactManager.deployArtifact(project, zipFile, version)
                     urlFile.writeText(deployUrl)
-
-                    val markerVersionString = versionManager.createMarkerVersion(project, version)
-                    if(markerVersionString != null){
-                        versionWriter.writeMarkerVersion(project, markerVersionString)
-                    }
                 }
             })
         }
@@ -172,11 +155,7 @@ class KMMBridgePlugin : Plugin<Project> {
             @Suppress("ObjectLiteralToLambda")
             doLast(object : Action<Task> {
                 override fun execute(t: Task) {
-
-                    val publishedVersion = versionFile.readText()
-
-                    versionWriter.writeFinalVersion(project, publishedVersion)
-                    versionWriter.cleanMarkerVersions(project, versionManager.filterMarkerVersion(project, publishedVersion))
+                    // currently just a dependency anchor
                 }
             })
         }

@@ -21,16 +21,9 @@ import co.touchlab.faktory.dependencymanager.CocoapodsDependencyManager
 import co.touchlab.faktory.dependencymanager.DependencyManager
 import co.touchlab.faktory.dependencymanager.SpecRepo
 import co.touchlab.faktory.dependencymanager.SpmDependencyManager
-import co.touchlab.faktory.internal.GithubCalls
-import co.touchlab.faktory.internal.GithubEnterpriseCalls
-import co.touchlab.faktory.versionmanager.GitRemoteVersionWriter
-import co.touchlab.faktory.versionmanager.GitTagVersionManager
-import co.touchlab.faktory.versionmanager.GithubReleaseVersionWriter
 import co.touchlab.faktory.versionmanager.ManualVersionManager
-import co.touchlab.faktory.versionmanager.NoOpVersionWriter
 import co.touchlab.faktory.versionmanager.TimestampVersionManager
 import co.touchlab.faktory.versionmanager.VersionManager
-import co.touchlab.faktory.versionmanager.VersionWriter
 import localdevmanager.LocalDevManager
 import org.gradle.api.Project
 import org.gradle.api.provider.ListProperty
@@ -53,10 +46,6 @@ interface KmmBridgeExtension {
     val buildType: Property<NativeBuildType>
 
     val versionManager: Property<VersionManager>
-
-    val versionWriter: Property<VersionWriter>
-
-    val versionPrefix: Property<String>
 
     fun Project.s3PublicArtifacts(
         region: String,
@@ -92,34 +81,6 @@ interface KmmBridgeExtension {
 
     fun timestampVersions() {
         versionManager.setAndFinalize(TimestampVersionManager)
-    }
-
-    private fun Property<VersionWriter>.setIfNull(versionWriter: VersionWriter){
-        if(!isPresent){
-            set(versionWriter)
-        }
-    }
-
-    fun gitTagVersions() {
-        versionManager.setAndFinalize(GitTagVersionManager)
-        versionWriter.setIfNull(GitRemoteVersionWriter())
-    }
-
-    fun githubReleaseVersions() {
-        versionManager.setAndFinalize(GitTagVersionManager)
-        versionWriter.setIfNull(GithubReleaseVersionWriter(GithubCalls))
-    }
-
-    fun githubEnterpriseReleaseVersions() {
-        versionManager.setAndFinalize(GitTagVersionManager)
-        versionWriter.setIfNull(GithubReleaseVersionWriter(GithubEnterpriseCalls))
-    }
-
-    /**
-     * This is advanced. You *really* need to know what you're doing.
-     */
-    fun noGitOperations(){
-        versionWriter.set(NoOpVersionWriter)
     }
 
     fun manualVersions() {

@@ -60,10 +60,8 @@ internal fun Project.findStringProperty(name: String): String? {
     return null
 }
 
-
 internal const val TASK_GROUP_NAME = "kmmbridge"
 internal const val EXTENSION_NAME = "kmmbridge"
-internal const val TEMP_PUBLISH_TAG_PREFIX = "kmmbridge-tmp-publishing-"
 
 internal fun Project.findXCFrameworkAssembleTask(buildType: NativeBuildType? = null): TaskProvider<Task> {
     val extension = extensions.getByType<KmmBridgeExtension>()
