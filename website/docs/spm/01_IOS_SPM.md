@@ -23,38 +23,7 @@ In the example above, the Kotlin module is one folder down. The `spm()` setup de
 
 ![spmfolder](https://tl-navigator-images.s3.us-east-1.amazonaws.com/docimages/2022-10-06_06-43-spmfolder.png)
 
-SPM uses Git for versioning, so you'll probably want to use either Git tag or GitHub release version managers, and at least at launch, likely want to use GitHub artifacts.
-
-Here is the suggested config for SPM:
-
-```kotlin
-kmmbridge {
-    mavenPublishArtifacts()
-    githubReleaseVersions()
-    versionPrefix.set("0.1")
-    spm()
-}
-```
-
-### Commit manually
-
-There is an option to disable git operations and commit the generated `Package.swift` by yourself.
-Typical usage would be when using `manualVersions()` or `timestampVersions()` to avoid all automatic git interaction.
-Using this flow is somewhat dangerous, as the publication state is inconsistent at the end of the kmmBridgePublish task.
-The user is responsible for manually committing the updated package file, or else the new version will not be available to downstream consumers.
-When using `gitTagVersions()` if you don't commit and tag the newest version, the next publishing might fail because the version is not incremented correctly.
-
-To do so, call `noGitOperations()` in your `kmmbridge` block.
-
-```kotlin
-kmmbridge {
-    spm()
-    noGitOperations()
-    // Other config...
-}
-```
-
-Once this is all set up, run a build so you have at least one version available.
+SPM uses Git for versioning. Your publication process will need to add tags to your repo as builds are published so that SPM can find those builds. Our [Default GitHub Flow](../DEFAULT_GITHUB_FLOW) handles versioning automatically.
 
 ### Using a custom package file
 
@@ -75,46 +44,13 @@ This works by replacing a block of code that begins with the comment `// BEGIN K
 The custom package file mode is new and experimental. The local dev flow using the `spmDevBuild` gradle task is disabled when `useCustomPackageFile` is true.
 :::
 
-### Setting up SPM without using the Cocoapods plugin
-
-You can use KMMBridge with only SPM, without Cocoapods plugin, but there are some differences in setting things up.
-
-If you want to set the framework to be static or dynamic, you will need to access binaries of each target.
-You can also set the framework name in the parameter of the `framework` function.
-
-```kotlin
-kotlin {
-    iosX64 { // can be set for any of your tagets
-        binaries {
-            framework("FRAMEWORK_NAME") {
-                isStatic = true // or false for dynamic framework
-            }
-        }
-    }
-}
-```
-
-Or you can set it for all the targets at once, just be careful not to have other kotlin native targets that you don't want to set this for (you can use filter if needed):
-
-```kotlin
-targets.withType<KotlinNativeTarget> {
-    binaries {
-        framework("FRAMEWORK_NAME") {
-            isStatic = true // or false for dynamic framework
-        }
-    }
-}
-```
-
-You can check out [build.gradle in this test](https://github.com/touchlab/KmmBridgeIntegrationTest-SPMWithoutCommit/blob/main/shared/build.gradle.kts) as an example.
-
 ## Artifact Authentication
 
 For artifacts that are kept in private storage, you may need to add authentication information so your `~/.netrc` file or your Mac's Keychain Access. See [the section here](../DEFAULT_GITHUB_FLOW.md#private-repos) for a description of how to set up private file access.
 
 :::caution
 
-When you access repos in GitHub with Xcode, you need to authenticate to GitHub. That isn't enough to access private GitHub release artifacts. You *also* need to add `~/.netrc` or Mac Keychain Access authentication info. 
+When publishing to GitHub Packages, be aware of a few issues. First, GitHub Packages requires authentication for accessing files in **all** repos, public or private. You need to add `~/.netrc` or Mac Keychain Access authentication info for any user accessing these repos. Also, if your repo is private, you'll need to authenticate to GitHub in Xcode to add it (see below), but you still also need to set up `~/.netrc` or Mac Keychain Access for SPM to grab the binary.
 
 :::
 

@@ -27,11 +27,14 @@ In the sample above, the pacakge `allshared` is inside `KevsKmmTest`. When you d
 When you run `spmDevBuild`, it will build all architectures, which you probably don't need for testing on a simulator. To restrict architectures when building, you can pass in a Gradle param.
 
 ```shell
-./gradlew spmDevBuild -PspmBuildTargets=ios_x64
+./gradlew spmDevBuild -PspmBuildTargets=ios_simulator_arm64
 ```
 
-For Intel Macs, use `ios_x64`. For arm Macs, use `ios_simulator_arm64`. You can pass in multiple architectures by separating them with commas.
+:::note
 
+`ios_simulator_arm64` is for mac Arm machines (M1, M2, etc). For Intel Macs, use `ios_x64`.
+
+:::
 
 When you are done making and testing local changes, select the folder you dragged in, and remove it by right-clicking it and selecting "Delete". Make sure to select "Remove References" on the popup. Xcode should then reload the remote version you had previously.
 

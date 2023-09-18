@@ -77,7 +77,9 @@ const config = {
           editUrl:
               `https://github.com/${touchlabConfig.docusaurusConfig.organizationName}/${touchlabConfig.docusaurusConfig.projectName}/tree/main/website/`,
           showLastUpdateTime: true,
-          showLastUpdateAuthor: true
+          showLastUpdateAuthor: true,
+          includeCurrentVersion: true,
+          lastVersion: 'current'
         },
         blog: {
           showReadingTime: true,
@@ -113,10 +115,14 @@ const config = {
           },
           items: [
             {
-              type: 'doc',
-              docId: 'index',
-              position: 'left',
+              type: 'docsVersion',
+              to: '/docs',
               label: 'Docs',
+            },
+            {
+              type: 'docsVersion',
+              to: '/docs/0.3.x',
+              label: 'v0.3.x',
             },
             {
               href: 'https://touchlab.co/',
