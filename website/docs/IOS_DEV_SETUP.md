@@ -11,7 +11,7 @@ For developers editing Kotlin, you will want to test locally-built Kotlin code d
 
 ## Private Artifacts
 
-If you are hosting artifacts somewhere private, you'll need to add auth info for that to work. See [the section here](DEFAULT_GITHUB_FLOW.md#private-repos).
+If you are hosting artifacts somewhere private, you'll need to add auth info for that to work. See [the section here](DEFAULT_GITHUB_FLOW.md#ios-dev-machine-config).
 
 *You must do this before attempting to integrate dependency managers!!!*
 

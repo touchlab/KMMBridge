@@ -30,7 +30,7 @@ Artifact Managers handle uploading the binary and generate the url that will be 
 
 ### [Maven Repository Artifacts](../artifacts/MAVEN_REPO_ARTIFACTS)
 
-This is the simplest to configure and currently the recommended best way to publish your binaries. If you are using GitHub, you can publish to Github Packages easily with our integration tools. For a complete introduction and overview of how to configure your project with this manager, see [Default GitHub Flow](../DEFAULT_GITHUB_FLOW.md).
+This is the simplest to configure and currently the recommended best way to publish your binaries. If you are using GitHub, you can publish to Github Packages easily with our integration tools. For a complete introduction and overview of how to configure your project with this manager, see [Default GitHub WorkFlow](../DEFAULT_GITHUB_FLOW.md).
 
 ### [S3 Public Artifacts](../artifacts/S3_PUBLIC_ARTIFACTS.md)
 

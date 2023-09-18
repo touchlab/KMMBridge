@@ -20,7 +20,7 @@ Each repo type has it's own unique setup, but essentially we need:
 2. A username that can publish to the repo
 3. A password/token for that user
 
-See specific guidance for Github Packages, JetBrains Space, and Artifactory.
+See specific guidance for [Github Packages](#github-packages), [JetBrains Space](SPACE_ARTIFACTS.md), and [Artifactory](ARTIFACTORY_ARTIFACTS.md).
 
 The standard Gradle publishing config looks like the following.
 
