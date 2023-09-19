@@ -105,7 +105,7 @@ Note: this config is only for SPM publishing. To understand how to integrate an 
 
 ### 3 Add the GitHub Actions workflow call
 
-At the top of your project, if it does not already exist, add the folders `.github/workflows`. Add a file called `kmmbridgepnblish.yml` there, and copy the following into it.
+At the top of your project, if it does not already exist, add the folders `.github/workflows`. Add a file called `kmmbridgepublish.yml` there, and copy the following into it.
 
 ```yaml
 name: KMMBridge Publish Release
