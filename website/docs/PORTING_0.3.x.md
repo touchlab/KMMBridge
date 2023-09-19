@@ -27,7 +27,7 @@ An explicit setting of `versionPrefix` in the plugin config should be removed. B
 
 ### VersionWriter and VersionManager
 
-The original KMMBridge had `VersionManager` and `VersionWriter`. These interfaces were responsible for finding and incrementing versions, and for "writing" them. Since KMMBridge is no longer managing versions, these are redundant. As mentioned above, KMMBridge was managing a lot of git commands internally, and all of that is driven by versions. Moving that to CI makes KMMBridge much simpler, and is much easier to reason about and customize.
+The original KMMBridge had `VersionManager` and `VersionWriter`. These interfaces were responsible for finding and incrementing versions, and for "writing" them. Since KMMBridge is no longer managing versions, these are redundant. As mentioned above, KMMBridge was managing a lot of git commands internally, and all of that was driven by version management. Moving that to CI makes KMMBridge much simpler, and is much easier to reason about and customize.
 
 As a result, the following functions no longer exist in the KMMBridge config block:
 
@@ -35,8 +35,20 @@ As a result, the following functions no longer exist in the KMMBridge config blo
 * `githubReleaseVersions()`
 * `githubEnterpriseReleaseVersions()`
 * `noGitOperations()`
+* `timestampVersions()`
 
-`VersionManager` still exists, but it's role has been reduced, and it may be removed entirely at some point.
+`VersionManager` still exists, but it's role has been reduced. KMMBridge will take the `version` property from Gradle and use that for it's version in publishing. If you would like some other method of calculating a version string, implement `VersionManager` and set it with the following:
+
+```kotlin
+object MyVersionManager : VersionManager {
+    override fun getVersion(project: Project): String = "0.1.${System.currentTimeMillis()}"
+}
+
+kmmbridge {
+    // Etc
+    versionManager.set(MyVersionManager)
+}
+```
 
 ## Migrating
 
