@@ -24,7 +24,7 @@ link="https://form.typeform.com/to/MJTpmm#hubspot_utk=xxxxx&hubspot_page_name=xx
 
 If you are using GitHub for source control, and are OK with using GitHub Actions to build and GitHub releases for published artifacts, we have a simple setup flow you can use. It is the easiest default to start from.
 
-See [DEFAULT_GITHUB_FLOW](DEFAULT_GITHUB_FLOW.md) for setup instructions.
+See [DEFAULT_GITHUB_WORKFLOW](DEFAULT_GITHUB_FLOW.md) for setup instructions.
 
 ## KMMBridge Kick Start
 

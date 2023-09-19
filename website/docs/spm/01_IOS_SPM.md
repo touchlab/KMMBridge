@@ -106,11 +106,9 @@ targets.withType<KotlinNativeTarget> {
 }
 ```
 
-You can check out [build.gradle in this test](https://github.com/touchlab/KmmBridgeIntegrationTest-SPMWithoutCommit/blob/main/shared/build.gradle.kts) as an example.
-
 ## Artifact Authentication
 
-For artifacts that are kept in private storage, you may need to add authentication information so your `~/.netrc` file or your Mac's Keychain Access. See [the section here](../DEFAULT_GITHUB_FLOW.md#private-repos) for a description of how to set up private file access.
+For artifacts that are kept in private storage, you may need to add authentication information so your `~/.netrc` file or your Mac's Keychain Access. See [the section here](../DEFAULT_GITHUB_FLOW.md#ios-dev-machine-config) for a description of how to set up private file access.
 
 :::caution
 

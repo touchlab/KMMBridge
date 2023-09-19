@@ -3,7 +3,7 @@ sidebar_position: 3
 title: Default GitHub Workflow
 ---
 
-# Default GitHub Flow
+# Default GitHub Workflow
 
 If you are hosting your repos in GitHub and can use GitHub Actions for CI, the Default GitHub Flow is the simplest way to start publishing Kotlin builds for iOS.
 
@@ -100,6 +100,8 @@ Note: this config is only for SPM publishing. To understand how to integrate an 
 
 `cocoapods("[some git repo].git")` is only needed if you plan to publish for CocoaPods. You will need the spec repo mentioned above, properly configured for deployment. See  [COCOAPODS_GITHUB_PODSPEC](cocoapods/03_COCOAPODS_GITHUB_PODSPEC.md) for details on getting the podspec repo configured.
 
+> Be sure to save the deploy key created for later use.
+
 `versionPrefix` is optional. By default, KMMBridge takes the version from Gradle and uses that as a prefix to generate the iOS published versions. Versioning strategy differs depending on how you intend to work and publish. See [Version Managers](general/CONFIGURATION_OVERVIEW#version-managers) for more detail.
 
 
@@ -132,7 +134,7 @@ jobs:
       PODSPEC_SSH_KEY: ${{ secrets.PODSPEC_SSH_KEY }}
 ```
 
-You need to pass the ssh key configured earlier.
+You need to pass the ssh key configured earlier. See [Create Deploy Keys](cocoapods/COCOAPODS_GITHUB_PODSPEC/#create-deploy-keys)
 
 There are actually 2 versions of the workflow script. The other file, `faktorybuild.yml`, performs all operations in the same branch it's run on. `faktorybuildbranches.yml` creates a temporary branch to run builds. This is generally better, as the build process involves git operations which can overwrite files and possibly cause conflicts.
 
@@ -152,11 +154,7 @@ When that run is complete, you should see a green result. If not, please reach o
 
 ## iOS Dev Machine Config
 
-If you're using the github packages for artifact hosting via `addGithubPackagesRepository()`, accessing the artifacts requires authentication even for public repos. You'll need to tell the local machine how to access the private file. You can do this either by editing the `~/.netrc` file, or by adding the info to your local keychain.
-
-:::note
-These steps are needed for any private artifact hosting, but won't be necessary if your artifacts are hosted somewhere publicly accessible.
-:::
+If you're using the github packages for artifact hosting via `addGithubPackagesRepository()`, accessing the artifacts requires authentication. You can do this either by editing the `~/.netrc` file, or by adding the info to your local keychain.
 
 First, get a personal access token from GitHub. Make sure it has at least `repo` and `write:packages` permissions. You can add an expiration, but if you do, you'll need to remember to create a new one later...
 
