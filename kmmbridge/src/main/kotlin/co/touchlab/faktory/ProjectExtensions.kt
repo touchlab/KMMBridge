@@ -40,8 +40,9 @@ internal val KotlinMultiplatformExtension.cocoapods
     get() = cocoapodsOrNull
         ?: error("You must apply the org.jetbrains.kotlin.native.cocoapods plugin to use cocoapods() configuration")
 
+// This previously defaulted to 'false', but now you can disable it if needed, but otherwise ignore
 internal val Project.enablePublishing: Boolean
-    get() = project.findStringProperty("ENABLE_PUBLISHING")?.toBoolean() ?: false
+    get() = project.findStringProperty("ENABLE_PUBLISHING")?.toBoolean() ?: true
 
 internal val Project.spmBuildTargets: String?
     get() = project.findStringProperty("spmBuildTargets")

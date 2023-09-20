@@ -54,6 +54,10 @@ permissions:
 ```
 That block can be at the top-level or inside the publish task. [See here](https://github.com/touchlab/KMMBridgeSampleKotlin/blob/main/.github/workflows/main.yml) for an example.
 
-### Error: Task 'kmmBridgePublish' not found in root project 'MyProject'.
+### Getting warnings on project load
 
-KMMBridge won't configure its publication tasks unless it knows you want it to. You must set the `ENABLE_PUBLISHING` gradle property to true (usually only in CI or when troubleshooting), and you must have publication fully configured, including setting an `artifactManager` and `dependencyManager`.
+KMMBridge assumes you are running in a minimally configured environment, but if not, you may get warnings on project load. This can happen with brand new projects, or when doing local development on a project that has special CI configuration. You can disable a lot of KMMBridge startup config that isn't needed if you aren't publishing by adding the following to `gradle.properties`:
+
+```
+ENABLE_PUBLISHING=false
+```

@@ -6,13 +6,24 @@ sidebar_position: 1
 
 ## Workflow Configuration
 
-For local development, KMMBridge configures XCFrameworks and, if you're using SPM, the SPM local dev flow. Publishing a build is really intended to happen from CI. To publish from your local machine or a custom CI flow, you'll need to be aware of some parameters that KMMBridge expects.
+For local development, KMMBridge configures XCFrameworks and, if you're using SPM, the SPM local dev flow. Publishing a build is really intended to happen from CI, using a predefined script. It can be manually or locally configured, but there are parameters you should be aware of.
 
 Generally speaking, you should refer to [the GitHub workflow](https://github.com/touchlab/KMMBridgeGithubWorkflow/blob/main/.github/workflows/faktorybuildbranches.yml) for an up-to-date example with everything you'll need.
 
 These are some of the parameters you should be aware of:
 
-`ENABLE_PUBLISHING` - Gradle parameter. For local dev, by default we avoid certain operations that are only necessary if you are publishing. Pass in
+
+`GITHUB_PUBLISH_TOKEN` - Gradle parameter. Used on CI with the default workflow to configure auth for validating packages.
+
+`GITHUB_REPO` - Gradle parameter. Used on CI with the default workflow to configure auth for validating packages.
+
+`ENABLE_PUBLISHING` - Gradle parameter. KMMBridge does some extra setup that isn't necessary if you aren't publishing. This setup may cause warnings, so disabling that part of the Gradle setup may be useful. Add the following to `gradle.properties`
+
+```
+ENABLE_PUBLISHING=false
+```
+
+In CI, you can override that value with the following.
 
 ```shell
 ./gradelew -PENABLE_PUBLISHING=true [your tasks]
@@ -20,9 +31,7 @@ These are some of the parameters you should be aware of:
 
 [See KMMBridgeGithubWorkflow for an example](https://github.com/touchlab/KMMBridgeGithubWorkflow/blob/b99bb8222c2c38980d18cedd175a0d0c5f88e2dc/.github/workflows/faktorybuildbranches.yml#L94)
 
-`GITHUB_PUBLISH_TOKEN` - Gradle parameter. Used on CI with the default workflow to configure auth for validating packages.
-
-`GITHUB_REPO` - Gradle parameter. Used on CI with the default workflow to configure auth for validating packages.
+**Note:** Earlier versions of KMMBridge required this parameter, as we were doing git operations locally. The majority of those operations now live outside of the plugin. We do one call to get the repo folder root, and fall back with a warning if there is no git repo. Just FYI.
 
 ## Artifact Managers
 

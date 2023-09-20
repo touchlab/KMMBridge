@@ -127,8 +127,13 @@ class KMMBridgePlugin : Plugin<Project> {
         }
 
         val (zipTask, zipFile) = configureZipTask(extension)
-        val dependencyManagers = extension.dependencyManagers.get()
 
+        // Zip task depends on the XCFramework assemble task
+        zipTask.configure {
+            dependsOn(findXCFrameworkAssembleTask())
+        }
+
+        // Upload task depends on the zip task
         val uploadTask = tasks.register("uploadXCFramework") {
             group = TASK_GROUP_NAME
 
@@ -148,6 +153,7 @@ class KMMBridgePlugin : Plugin<Project> {
             })
         }
 
+        // Publish task depends on the upload task
         val publishRemoteTask = tasks.register("kmmBridgePublish") {
             group = TASK_GROUP_NAME
             dependsOn(uploadTask)
@@ -160,14 +166,13 @@ class KMMBridgePlugin : Plugin<Project> {
             })
         }
 
+        // MavenPublishArtifactManager is somewhat complex because we have to hook into maven publishing
+        // If you are exploring the task dependencies, be aware of that code
         artifactManager.configure(this, version, uploadTask, publishRemoteTask)
 
+        val dependencyManagers = extension.dependencyManagers.get()
         for (dependencyManager in dependencyManagers) {
             dependencyManager.configure(this, uploadTask, publishRemoteTask)
-        }
-
-        zipTask.configure {
-            dependsOn(findXCFrameworkAssembleTask())
         }
     }
 }
