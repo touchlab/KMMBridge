@@ -140,7 +140,7 @@ private fun Project.generatePodspec(outputFile: File) = with(kotlin.cocoapods) {
             |    spec.source                   = { 
             |                                      :http => '${url}',
             |                                      :type => 'zip',
-            |                                      :headers => ['Accept: application/octet-stream']
+            |                                      :headers => ["'Accept: application/octet-stream'"]
             |                                    }
             |    spec.authors                  = ${authors.orEmpty().surroundWithSingleQuotesIfNeeded()}
             |    spec.license                  = ${license.orEmpty().surroundWithSingleQuotesIfNeeded()}
