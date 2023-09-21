@@ -20,7 +20,7 @@ Each repo type has it's own unique setup, but essentially we need:
 2. A username that can publish to the repo
 3. A password/token for that user
 
-See specific guidance for Github Packages, JetBrains Space, and Artifactory.
+See specific guidance for [Github Packages](#github-packages), [JetBrains Space](SPACE_ARTIFACTS.md), and [Artifactory](ARTIFACTORY_ARTIFACTS.md).
 
 The standard Gradle publishing config looks like the following.
 
@@ -86,7 +86,7 @@ For different repos you'll need to change the machine to point at the server whe
 
 The Maven publishing adds a special artifact to the "standard" Gradle publishing config, specically for KMMBridge. We're publishing the Xcode Framework XCFramework zip file as it's own Gradle/Maven artifact. If you run `./gradlew publish`, it'll attempt to publish KMMBridge along with any other configured publish targets.
 
-If you do intend to publish everything, you'll likely want to disable the automatically incrementing verison support that KMMBridge provides, and use the standard Gradle publishing version management.
+If you do intend to publish everything, you'll likely want to disable the automatically incrementing version support that KMMBridge provides, and use the standard Gradle publishing version management.
 
 If you want to use the version from Gradle, use the following configuration:
 

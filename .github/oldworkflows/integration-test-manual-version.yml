@@ -27,7 +27,7 @@ jobs:
       - uses: actions/setup-java@v3
         with:
           distribution: "adopt"
-          java-version: "11"
+          java-version: "17"
       
       - name: "Checkout sample"
         uses: actions/checkout@v3
@@ -86,7 +86,7 @@ jobs:
           cd build/${{ env.TEST_URL }}
           ./gradlew kmmBridgePublish -PENABLE_PUBLISHING=true -PGITHUB_PUBLISH_TOKEN=${{ secrets.INTEGRATION_TEST_GITHUB_TOKEN }} -PGITHUB_REPO=touchlab/${{ env.TEST_URL }} -PGITHUB_PUBLISH_USER=${{ env.GITHUB_PUBLISH_USER }} -Pversion=${{ env.VERSION }} --no-daemon --stacktrace
         env:
-          GRADLE_OPTS: -Dkotlin.incremental=false -Dorg.gradle.jvmargs="-Xmx3g -XX:MaxPermSize=2048m -XX:+HeapDumpOnOutOfMemoryError -Dfile.encoding=UTF-8 -XX:MaxMetaspaceSize=512m"
+          GRADLE_OPTS: -Dkotlin.incremental=false -Dorg.gradle.jvmargs="-Xmx3g -XX:+HeapDumpOnOutOfMemoryError -Dfile.encoding=UTF-8 -XX:MaxMetaspaceSize=512m"
 
       - name: Publish shared again
         id: publish2
@@ -95,7 +95,7 @@ jobs:
           cd build/${{ env.TEST_URL }}
           ./gradlew kmmBridgePublish -PENABLE_PUBLISHING=true -PGITHUB_PUBLISH_TOKEN=${{ secrets.INTEGRATION_TEST_GITHUB_TOKEN }} -PGITHUB_REPO=touchlab/${{ env.TEST_URL }} -PGITHUB_PUBLISH_USER=${{ env.GITHUB_PUBLISH_USER }} -Pversion=${{ env.VERSION }} --no-daemon --stacktrace
         env:
-          GRADLE_OPTS: -Dkotlin.incremental=false -Dorg.gradle.jvmargs="-Xmx3g -XX:MaxPermSize=2048m -XX:+HeapDumpOnOutOfMemoryError -Dfile.encoding=UTF-8 -XX:MaxMetaspaceSize=512m"
+          GRADLE_OPTS: -Dkotlin.incremental=false -Dorg.gradle.jvmargs="-Xmx3g -XX:+HeapDumpOnOutOfMemoryError -Dfile.encoding=UTF-8 -XX:MaxMetaspaceSize=512m"
 
       - name: Check repeated fails
         if: steps.publish1.outcome != 'success' || steps.publish2.outcome == 'success'

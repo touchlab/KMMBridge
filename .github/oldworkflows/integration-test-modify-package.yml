@@ -27,7 +27,7 @@ jobs:
       - uses: actions/setup-java@v3
         with:
           distribution: "adopt"
-          java-version: "11"
+          java-version: "17"
 
       - name: "Checkout sample"
         uses: actions/checkout@v3
@@ -78,7 +78,7 @@ jobs:
           cd build/${{ env.TEST_URL }}
           ./gradlew kmmBridgePublish -PENABLE_PUBLISHING=true -PGITHUB_PUBLISH_TOKEN=${{ secrets.INTEGRATION_TEST_GITHUB_TOKEN }} -PGITHUB_REPO=touchlab/${{ env.TEST_URL }} -PGITHUB_PUBLISH_USER=${{ env.GITHUB_PUBLISH_USER }} --no-daemon --stacktrace
         env:
-          GRADLE_OPTS: -Dkotlin.incremental=false -Dorg.gradle.jvmargs="-Xmx3g -XX:MaxPermSize=2048m -XX:+HeapDumpOnOutOfMemoryError -Dfile.encoding=UTF-8 -XX:MaxMetaspaceSize=512m"
+          GRADLE_OPTS: -Dkotlin.incremental=false -Dorg.gradle.jvmargs="-Xmx3g -XX:+HeapDumpOnOutOfMemoryError -Dfile.encoding=UTF-8 -XX:MaxMetaspaceSize=512m"
 
       - name: Check that Package.swift modification survived
         run: |
