@@ -16,7 +16,7 @@ plugins {
     kotlin("jvm")
     id("java-gradle-plugin")
     id("com.vanniktech.maven.publish.base")
-    id("com.gradle.plugin-publish") version "1.0.0"
+    id("com.gradle.plugin-publish") version "1.2.1"
 }
 
 repositories {
@@ -25,22 +25,17 @@ repositories {
 }
 
 gradlePlugin {
+    website = "https://github.com/touchlab/KMMBridge"
+    vcsUrl = "https://github.com/touchlab/KMMBridge.git"
+    description = "KMMBridge is a set of Gradle tooling that facilitates publishing and consuming pre-built KMM (Kotlin Multiplatform Mobile) Xcode Framework binaries."
     plugins {
         register("faktory-kmmbridge-plugin") {
             id = "co.touchlab.faktory.kmmbridge"
             implementationClass = "co.touchlab.faktory.KMMBridgePlugin"
             displayName = "KMMBridge for Teams"
+            tags = listOf("kmm", "kotlin", "multiplatform", "mobile", "ios", "xcode", "framework", "binary", "publish", "consume")
         }
     }
-}
-
-pluginBundle {
-    website = "https://github.com/touchlab/KMMBridge"
-    vcsUrl = "https://github.com/touchlab/KMMBridge.git"
-
-    description = "KMMBridge is a set of Gradle tooling that facilitates publishing and consuming pre-built KMM (Kotlin Multiplatform Mobile) Xcode Framework binaries."
-
-    tags = listOf("kmm", "kotlin", "multiplatform", "mobile", "ios", "xcode", "framework", "binary", "publish", "consume")
 }
 
 dependencies {
@@ -60,8 +55,8 @@ dependencies {
 }
 
 java {
-    sourceCompatibility = JavaVersion.VERSION_1_8
-    targetCompatibility = JavaVersion.VERSION_1_8
+    sourceCompatibility = JavaVersion.VERSION_17
+    targetCompatibility = JavaVersion.VERSION_17
 }
 
 val GROUP: String by project
