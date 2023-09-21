@@ -23,6 +23,7 @@ import co.touchlab.faktory.dependencymanager.SpmDependencyManager
 import co.touchlab.faktory.versionmanager.ManualVersionManager
 import co.touchlab.faktory.versionmanager.VersionManager
 import co.touchlab.faktory.localdevmanager.LocalDevManager
+import co.touchlab.faktory.versionmanager.TimestampVersionManager
 import org.gradle.api.Project
 import org.gradle.api.provider.ListProperty
 import org.gradle.api.provider.Property
@@ -73,6 +74,11 @@ interface KmmBridgeExtension {
     @Suppress("unused")
     fun Project.mavenPublishArtifacts(repository: String? = null, publication: String? = null) {
         artifactManager.setAndFinalize(MavenPublishArtifactManager(this, publication, repository))
+    }
+
+    @Suppress("unused")
+    fun timestampVersions() {
+        versionManager.setAndFinalize(TimestampVersionManager)
     }
 
     @Suppress("unused")

@@ -27,7 +27,7 @@ jobs:
           path: './gradle.properties'
           property: 'VERSION_NAME'
 
-      - name: Publish Snapshot
+      - name: Publish Plugin
 #        if: ${{ contains(steps.read_version.outputs.value, 'SNAPSHOT') == true }}
         run: ./gradlew publish --no-daemon --stacktrace --no-build-cache
         env:
