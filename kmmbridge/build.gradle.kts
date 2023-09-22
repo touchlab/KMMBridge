@@ -55,9 +55,8 @@ dependencies {
     testImplementation(kotlin("test"))
 }
 
-java {
-    sourceCompatibility = JavaVersion.VERSION_17
-    targetCompatibility = JavaVersion.VERSION_17
+java.toolchain {
+    languageVersion.set(JavaLanguageVersion.of(8))
 }
 
 val GROUP: String by project
