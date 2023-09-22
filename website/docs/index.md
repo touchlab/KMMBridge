@@ -44,6 +44,16 @@ The first version of KMMBridge that was released last year had a significant amo
 
 :::
 
+:::caution
+
+If you were using the original version of KMMBridge, the updated version has a different plugin id.
+
+```kotlin
+id("co.touchlab.kmmbridge")
+```
+
+:::
+
 ## Basic Flow
 
 ### Build
@@ -102,7 +112,7 @@ Then add the plugin to the module that is actually building the Xcode Framework.
 ```kotlin
 plugins {
     kotlin("multiplatform")
-    id("co.touchlab.faktory.kmmbridge") version "{{VERSION_NAME}}"
+    id("co.touchlab.kmmbridge") version "{{VERSION_NAME}}"
 }
 ```
 

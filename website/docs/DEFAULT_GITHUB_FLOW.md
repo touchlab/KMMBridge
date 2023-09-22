@@ -3,9 +3,13 @@ sidebar_position: 3
 title: Default GitHub Workflow
 ---
 
-# Default GitHub Flow
+# GitHub Actions Workflow
 
-If you are hosting your repos in GitHub and can use GitHub Actions for CI, the Default GitHub Flow is the simplest way to start publishing Kotlin builds for iOS.
+If you are hosting your repos in GitHub and can use GitHub Actions for CI, we publish a set of GitHub Actions Workflows and Actions to make using KMMBridge easier. If you need custom integrations, these tools are a great reference to see how everything works together.
+
+The main workflow is here:
+
+<github org="touchlab" repo="KMMBridgeGithubWorkflow"/>
 
 :::note
 
@@ -97,7 +101,7 @@ Find the `build.gradle.kts` file where you configure the multiplatform module yo
 ```kotlin
 plugins {
     kotlin("multiplatform")
-    id("co.touchlab.faktory.kmmbridge") version "{{VERSION_NAME}}"
+    id("co.touchlab.kmmbridge") version "{{VERSION_NAME}}"
     `maven-publish`
 }
 ```

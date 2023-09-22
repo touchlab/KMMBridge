@@ -112,7 +112,7 @@ import co.touchlab.faktory.addGithubPackagesRepository
 plugins {
     kotlin("multiplatform")
     `maven-publish`
-    id("co.touchlab.faktory.kmmbridge") version "{{VERSION_NAME}}"
+    id("co.touchlab.faktory.kmmbridge") version "{{VERSION_NAME_3X}}"
 }
 
 group = "co.touchlab.somegroup"

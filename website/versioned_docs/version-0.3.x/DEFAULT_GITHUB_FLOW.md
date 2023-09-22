@@ -65,7 +65,7 @@ Find the `build.gradle.kts` file where you configure the multiplatform module yo
 ```kotlin
 plugins {
     kotlin("multiplatform")
-    id("co.touchlab.faktory.kmmbridge") version "{{VERSION_NAME}}"
+    id("co.touchlab.faktory.kmmbridge") version "{{VERSION_NAME_3X}}"
     `maven-publish`
 }
 ```
