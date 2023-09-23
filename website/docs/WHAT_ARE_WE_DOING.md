@@ -151,3 +151,15 @@ If you use our GitHub Workflow, you'll notice that we mark the repo with a tempo
 Both SPM and CocoaPods allow you to use private storage for your builds. Access configuration differs between the two, but is generally well documented.
 
 If you are using GitHub, our default configurations make managing authentication through GitHub straightforward.
+
+## Next Steps
+
+That's the overview of what the publishing process is like. Next steps depend on your goals:
+
+### Get Started
+
+If you want to get started and like to try some "hands-on" code, check out [KMMBridge Quick Start Updates](https://touchlab.co/kmmbridge-quickstart-updates). There's a template project and a lot more detail on setting and publishing Kotlin for native mobile teams.
+
+### Deep(er) Dive
+
+To continue down the documentation path, check out the next doc: [Default GitHub Workflow](DEFAULT_GITHUB_FLOW.md), which discusses the details of our reference build workflow, and possible configuration options.
