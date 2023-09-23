@@ -30,17 +30,23 @@ link="https://form.typeform.com/to/MJTpmm#hubspot_utk=xxxxx&hubspot_page_name=xx
 
 This is a post series that explains the basics, and provides a template GitHub project that you can start using right away. If you want to test out sharing KMP libraries with your team, this is the fastest way to get going.
 
+## [What Are We Doing?](WHAT_ARE_WE_DOING.md)
+
+It is a bit difficult to describe how to set up and deploy KMMBridge without going through the details of exactly what needs to happen to publish Xcode Framework binaries. This section walks through the parts you need to understand to figure out what KMMBridge is doing and why certains pieces work they way they do.
+
 ## [Default GitHub Workflow](DEFAULT_GITHUB_FLOW.md)
 
-KMMBridge is designed to publish binary builds. That involves setting up repos, access, git versioning, etc. There's a lot to set up if you do it from scratch. We support a configuration that uses GitHub as the repo, GitHub Actions to build, and GitHub Packages as the publication target. The setup is fairly opinionated, but easy to use if you're OK with that stack.
+KMMBridge is designed to live in CI and your build pipeline. There is information that needs to be passed into KMMBridge, outside configuration and access needs to be granted, git operations that need to happen. There's a lot happening outside of KMMBridge itself, and the details of that configureation depend on your build environment, code and artifact hosting, etc.
 
-For most teams, if you're using GitHub, this is a good place to start.
+Having off-the-shelf config for every possible scenario would be a challenge, and in real world production environments, we've found that there's always a lot of customization anyway.
 
-If you need to customize your builds, the Default GitHub Workflow is a great reference for how you should set up your build.
+We do provide a relatively off-the-shelf experience for repos in GitHub, using GitHub Actions and GitHub Packages. The [KMMBridge Quick Start Updates](https://touchlab.co/kmmbridge-quickstart-updates) post and template project use this setup.
+
+The [Default GitHub Workflow](DEFAULT_GITHUB_FLOW.md) will walk through the parts of the default GitHub flow. If you need to customize a KMMBridge build, this is where you should look.
 
 :::info
 
-The first version of KMMBridge that was released last year had a significant amount of logic included that could arguably live in CI and other configuration. This current version has removed a lot of that logic, so that KMMBridge can focus on it's core features. If you are porting your existing KMMBridge project, see [Porting from KMMBridge 0.3.x](PORTING_0.3.x) for an overview of what's changed and how to approach porting your build.
+The first version of KMMBridge, 0.3.x, attempted to put a lot of the CI logic inside the Gradle plugin itself, but this added to the complexity and reduced flexibility. Version 0.5+ is more streamlined. If you are porting your existing KMMBridge project, see [Porting from KMMBridge 0.3.x](PORTING_0.3.x) for an overview of what's changed and how to approach porting your build.
 
 :::
 
@@ -53,36 +59,6 @@ id("co.touchlab.kmmbridge")
 ```
 
 :::
-
-## Basic Flow
-
-### Build
-
-Your shared Kotlin code exists in some git repo, and after you've made and tested some changes, you want to publish an Xcode Framework build. Assuming your KMMBridge configuration is set up and you're running on some form of CI, you run a publish operation, and then your new Xcode Framework is available!
-
-### Deploy
-
-When that build runs, KMMBridge will create a zip file with release-build XCFramework instances for each configured architecture in your module. That zip file will be pushed to whatever backend(s) you configure.
-
-By default, KMMBridge provides a maven repo adapter that lets you publish to many maven repositories using a custom build target. Working, tested maven repos include GitHub Packages, Artifactory, JetBrains space. Any "standard" maven repo should work.
-
-KMMBridge also provides a basic AWS S3 target which will push to an S3 bucket. Custom implementations can be written as an alternative.
-
-### SPM and/or CocoaPods
-
-Almost all iOS teams use SPM or CocoaPods for dependency management. KMMBridge lets you use one or both.
-
-SPM relies on a `Package.swift` file living in your repo root to point at the binary, and git tags for versions. While your config needs to provide the version, KMMBridge generates the `Package.swift` for the published XCFramework zip archive. We provide supporting tools to manage version incrementing and git operations for teams with fairly standard needs.
-
-CocoaPods also uses git for dependency versions, but uses a separate repo and custom process. KMMBridge can publish to both private CocoaPods repo and the "official" trunk repo for the CocoaPods main registry.
-
-You can publish to either SPK or CocoaPods, or both.
-
-### After Publishing
-
-The iOS app can then include these frameworks through SPM or CocoaPods.
-
-![kmmbridge_diagram2](https://tl-navigator-images.s3.us-east-1.amazonaws.com/docimages/2022-10-07_09-13-kmmbridge_diagram2.png)
 
 ## Types of Kotlin Repos
 
