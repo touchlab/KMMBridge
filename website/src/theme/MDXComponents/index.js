@@ -10,6 +10,7 @@ import MDXImg from '@theme/MDXComponents/Img';
 import Admonition from '@theme/Admonition';
 import Mermaid from '@theme/Mermaid';
 import Github from "@site/src/components/Github";
+import Video from "@site/src/components/Video";
 import Youtube from "@site/src/components/Youtube";
 import NewsletterDoc from "@site/src/components/NewsletterDoc";
 import GenericCTA from "@site/src/components/GenericCTA";
@@ -31,6 +32,7 @@ const MDXComponents = {
   mermaid: Mermaid,
   github: Github,
   youtube: Youtube,
+  videoEmbed:Video,
   newsletter: NewsletterDoc,
   genericCta: GenericCTA,
 };

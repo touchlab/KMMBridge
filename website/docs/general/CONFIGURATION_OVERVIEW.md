@@ -38,12 +38,16 @@ kmmbridge {
 }
 ```
 
-Version 0.3.x of KMMBridge had the concept of `VersionManager`, which managed the version for published Xcode Frameworks. The responsibility for versioning has been moved out of KMMBridge, but you can still override the default by setting a custom `VersionManager`. This would be of limited utility. The only scenario where this would make sense is if:
+### VersionManager
+
+Version 0.3.x of KMMBridge had the concept of `VersionManager`, which managed the version for published Xcode Frameworks. The responsibility for versioning has been moved out of KMMBridge, but you can still override the default by setting a custom `VersionManager`. There aren't many reasons you'd want to do this. The most likely scenario would be:
 
 * You are only publishing iOS builds
-* You don't want to set the Gradle version dynamically
+* You don't want to set the Gradle version dynamically, or you don't want to use the Gradle version property at all
 
-We have a `TimestampVersionManager` instance that simply appends the current timestamp to Gradle's version property. This assumes the Gradle version property will be the major and minor values of a semantic version (ex. `2.3`). So, a build might have `2.3.1695492019324` for its version.
+To use something other than the `version` property, see `ManualVersionManager` and write a custom implementation.
+
+If you only want to publish iOS builds and would like KMMBridge to do simple version incrementing, we have a `TimestampVersionManager` instance that simply appends the current timestamp to Gradle's version property. This assumes the Gradle version property will be the major and minor values of a semantic version (ex. `2.3`). So, a build might have `2.3.1695492019324` for its version.
 
 ```kotlin
 version = "2.3"

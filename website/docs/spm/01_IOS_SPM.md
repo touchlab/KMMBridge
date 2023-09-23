@@ -10,7 +10,7 @@ After setting up KMMBridge in your Kotlin project, you should configure SPM for 
 
 If you don't have a `Package.swift` file, or don't know how to set one up, that's OK. KMMBridge currently generates these files for you.
 
-In the `kmmbridge` block, add `spm()`. If you call it without parameters, KMMBridge assumes you want the `Package.swift` file at the root of your repo (we also assume you're using Git).
+In the `kmmbridge` block, add `spm()`. If you call it without parameters, KMMBridge assumes you want the `Package.swift` file at the root of your repo (we also assume you're using Git. We're not sure you could use SPM to deploy *without* Git).
 
 ```kotlin
 kmmbridge {
@@ -24,6 +24,8 @@ In the example above, the Kotlin module is one folder down. The `spm()` setup de
 ![spmfolder](https://tl-navigator-images.s3.us-east-1.amazonaws.com/docimages/2022-10-06_06-43-spmfolder.png)
 
 SPM uses Git for versioning. Your publication process will need to add tags to your repo as builds are published so that SPM can find those builds. Our [Default GitHub Flow](../DEFAULT_GITHUB_FLOW) handles versioning automatically.
+
+**If you are configuring KMMBridge on your own**, be aware that you need to set the Gradle `version` property correctly, or provide a different way for KMMBridge's SPM support to get a version for publishing (see [Configuration Overview - VersionManager](../general/CONFIGURATION_OVERVIEW.md#versionmanager))
 
 ### Using a custom package file
 
@@ -59,6 +61,12 @@ When publishing to GitHub Packages, be aware of a few issues. First, GitHub Pack
 Open or create an Xcode project. To add an SPM package, go to `File > Add Packages` in the Xcode menu. Add your source control account (presumably GitHub). You can usually browse for the package at that point, but depending on how many repos you have, it may be easier to copy/paste the repo URL in the top/right search bar. After finding the package, you should generally add the pacakge by version ("Up to Next Major Version" suggested).
 
 ![addpackages](https://tl-navigator-images.s3.us-east-1.amazonaws.com/docimages/2022-10-06_06-57-addpackages.png)
+
+:::warning
+
+The Xcode configuration can be confusing here. You need to authenticate to GitHub through the Xcode UI if you have a private GitHub repo. You will *still* need to set up authentication for SPM to access the actual packages with `~/.netrc`. This has been the *primary* source of issues when people set up KMMBridge!!!
+
+:::
 
 Once added, you should be able to import the Kotlin module into Swift/Objc files and build!
 
