@@ -6,12 +6,70 @@ sidebar_position: 1
 
 ## Workflow Configuration
 
+### KMMBridge Block
+
+In the Gradle build file for your module that exports Xcode Frameworks, you'll apply the KMMBridge Gradle plugin, and add a `kmmbridge` config block.
+
+```kotlin
+id("co.touchlab.kmmbridge")
+
+// Etc
+
+kmmbridge {
+    
+}
+```
+
+All of the block config ultimately ends up in the [KMMBridgeExtension](https://github.com/touchlab/KMMBridge/blob/main/kmmbridge/src/main/kotlin/KmmBridgeExtension.kt#L40). 
+
+Every config should have an [`ArtifactManager`](#artifact-managers) and at least one [`DependencyManager`](#dependency-managers).
+
+You can control the [Framework name](#naming) here as well.
+
+By default, the "build type" is Release. To change it to Debug, do the following:
+
+```kotlin
+import org.jetbrains.kotlin.gradle.plugin.mpp.NativeBuildType
+
+// Etc
+
+kmmbridge {
+    buildType.set(NativeBuildType.DEBUG)
+}
+```
+
+Version 0.3.x of KMMBridge had the concept of `VersionManager`, which managed the version for published Xcode Frameworks. The responsibility for versioning has been moved out of KMMBridge, but you can still override the default by setting a custom `VersionManager`. This would be of limited utility. The only scenario where this would make sense is if:
+
+* You are only publishing iOS builds
+* You don't want to set the Gradle version dynamically
+
+We have a `TimestampVersionManager` instance that simply appends the current timestamp to Gradle's version property. This assumes the Gradle version property will be the major and minor values of a semantic version (ex. `2.3`). So, a build might have `2.3.1695492019324` for its version.
+
+```kotlin
+version = "2.3"
+
+kmmbridge {
+    timestampVersions()
+}
+```
+
+### GitHub Packages
+
+There is a special function that handles GitHub Packages repo setup automatically.
+
+```kotlin
+addGithubPackagesRepository()
+```
+
+This function reads values provided to CI from our [GitHub Actions Workflow](../DEFAULT_GITHUB_FLOW.md), and sets up access to publish to GitHub Packages automatically.
+
+### Optional Gradle Parameters
+
 For local development, KMMBridge configures XCFrameworks and, if you're using SPM, the SPM local dev flow. Publishing a build is really intended to happen from CI, using a predefined script. It can be manually or locally configured, but there are parameters you should be aware of.
 
-Generally speaking, you should refer to [the GitHub workflow](https://github.com/touchlab/KMMBridgeGithubWorkflow/blob/main/.github/workflows/faktorybuildbranches.yml) for an up-to-date example with everything you'll need.
+Generally speaking, you should refer to the [Default GitHub Workflow](../DEFAULT_GITHUB_FLOW.md) for an up-to-date example with everything you'll need.
 
 These are some of the parameters you should be aware of:
-
 
 `GITHUB_PUBLISH_TOKEN` - Gradle parameter. Used on CI with the default workflow to configure auth for validating packages.
 
@@ -28,8 +86,6 @@ In CI, you can override that value with the following.
 ```shell
 ./gradelew -PENABLE_PUBLISHING=true [your tasks]
 ```
-
-[See KMMBridgeGithubWorkflow for an example](https://github.com/touchlab/KMMBridgeGithubWorkflow/blob/b99bb8222c2c38980d18cedd175a0d0c5f88e2dc/.github/workflows/faktorybuildbranches.yml#L94)
 
 **Note:** Earlier versions of KMMBridge required this parameter, as we were doing git operations locally. The majority of those operations now live outside of the plugin. We do one call to get the repo folder root, and fall back with a warning if there is no git repo. Just FYI.
 
@@ -51,8 +107,8 @@ The S3 artifact manager is really the starting point for teams that need a more 
 
 Dependency managers handle integration with CocoaPods and SPM. They manage generating the config files (podspec or Package.swift), and the publishing of the releases. There are currently only two implementations:
 
-* CocoapodsDependencyManager: [IOS_COCOAPODS](../cocoapods/01_IOS_COCOAPODS.md) 
 * SpmDependencyManager: [IOS_SPM](../spm/01_IOS_SPM.md)
+* CocoapodsDependencyManager: [IOS_COCOAPODS](../cocoapods/01_IOS_COCOAPODS.md)
 
 ## Naming
 
