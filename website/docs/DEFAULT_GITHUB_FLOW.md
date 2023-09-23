@@ -5,17 +5,28 @@ title: Default GitHub Workflow
 
 # GitHub Actions Workflow
 
-If you are hosting your repos in GitHub and can use GitHub Actions for CI, we publish a set of GitHub Actions Workflows and Actions to make using KMMBridge easier. If you need custom integrations, these tools are a great reference to see how everything works together.
+We publish a reference CI implementation that works with GitHub Actions and, by default, GitHub Packages. This
+implementation is the simplest way to get a new project set up if your team uses GitHUb. It is also a great reference to
+review if you are setting up KMMBridge with a different CI or artifact host.
 
 The main workflow is here:
 
 <github org="touchlab" repo="KMMBridgeGithubWorkflow"/>
 
+There are also a set of GitHub Action steps used in the workflow above that can be used in custom workflows. You can
+find these listed below.
+
 :::note
 
-This flow depends on calling our GitHub Actions workflow. Many of the features of KMMBridge assume operations that the GitHub Actions workflow is performing. SPM in particular uses git repo structure and tags to manage versions. Our GitHub actions and workflow will modify your repo by adding tags and creating build branches. If you want complete control over this, you'll need to fork and modify our processes.
+This flow depends on calling our GitHub Actions workflow. Many of the features of KMMBridge assume operations that the
+GitHub Actions workflow is performing. SPM in particular uses git repo structure and tags to manage versions. Our GitHub
+actions and workflow will modify your repo by adding tags and creating build branches. If you want complete control over
+this, you'll need to fork and modify our processes.
 
 :::
+
+You can see our GitHub Workflow in action by checking
+out [KMMBridge Quick Start Updates](https://touchlab.co/kmmbridge-quickstart-updates).
 
 ## Overview
 
@@ -23,213 +34,122 @@ This flow allows you to do the following:
 
 * Publish to public or private repos.
 * Uses Maven artifacts with GitHub Packages. Standard tools!
-* Upload Xcode Framework artifacts to GitHub Packages. No external storage or auth configuration is required. All auth is manages through GitHub.
+* Upload Xcode Framework artifacts to GitHub Packages. No external storage or auth configuration is required. All auth
+  is manages through GitHub.
 * Can use either CocoaPods, SPM, or both.
 * Publish iOS and (optionally) Android binaries.
 
-## Kotlin Repo
+## Workflow Reference
 
-You'll need to find or add the Kotlin Multiplatform module to publish. This module can be in the same project as your Android code (if any), or in a separate repo. In the Kotlin repo you'll add the Gradle config and CI to publish Xcode Frameworks.
+### Inputs
 
-## Spec Repo
+| Key                 | Type    | Required? | Default                | Description                                                                                                                                                                          |
+|---------------------|---------|-----------|------------------------|--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| module              | string  | No        | N/A                    | The module name to run the task on if you have multiple kmp modules. Leave this blank to have all KMMBridge modules build                                                            |
+| publishTask         | string  | No        | 'kmmBridgePublish'     | If you need to call something other than 'kmmBridgePublish', pass it in here.                                                                                                        |
+| netrcMachine        | string  | No        | 'maven.pkg.github.com' | The domain name of the maching for netrc config.                                                                                                                                     |
+| jvmVersion          | string  | No        | '11'                   | JVM Version to use. You may want to use '17' for current Android compatibility.                                                                                                      |
+| runsOn              | string  | No        | 'macos-12'             | GitHub Actions host name. The default will likely change as GitHub Actions changes versions.                                                                                         |
+| versionBaseProperty | string  | Yes       | N/A                    | The GitHub Workflow calculates versions automatically using a base (ex. `2.3`) and incrementing sequentially. The Workflow reads the base from a named value in `github.properties`. |
+| retainBuildBranch   | boolean | No        | false                  | The Workflow needs to add and commit values to the repo. It does this in a build branch, which is deleted at the end. If set to 'true', this branch is retained.                     |
 
-If you are going to publish for CocoaPods, you'll also need a CocoaPods spec repo. This is a separate repo that CocoaPods uses to store published version information. This config is somewhat more complex, but still reasonably straightforward to configure.
+### Secrets
 
-## Configure The Kotlin Repo
+| Key             | Required? | Default              | Description                                            |
+|-----------------|-----------|----------------------|--------------------------------------------------------|
+| gradle_params   | No        | N/A                  | Extra parameters you can send to the main Gradle call. |
+| PODSPEC_SSH_KEY | No        | N/A                  | For publishing to CocoaPod Podspec repos.              |
+| netrcUsername   | No        | 'cirunner'           | Username for netrc config.                             |
+| netrcPassword   | No        | secrets.GITHUB_TOKEN | Password for netrc config.                             |
 
-### 1 Access the Gradle plugin
+### Steps
 
-Make sure you have `mavenCental()` set up for Gradle plugins. That means adding it to the `pluginManagement` or `buildscript` blocks. In `settings.gradle.kts`:
+#### Checkout the repo with tags
 
-```kotlin
-pluginManagement {
-    repositories {
-        gradlePluginPortal()
-        mavenCentral()
-    }
-}
-```
+Checkout the repo, make sure we get all tags (needed for SPM versioning).
 
-Note: If you're using a SNAPSHOT version of the plugin, add the SNAPSHOT repo as well:
+#### Read versionBaseProperty
 
-```kotlin
-pluginManagement {
-    repositories {
-        gradlePluginPortal()
-        mavenCentral()
-        maven("https://oss.sonatype.org/content/repositories/snapshots")
-    }
-}
-```
+Uses a GitHub Action [touchlab/read-property](https://github.com/touchlab/read-property) to read a property
+from `gradle.properties`.
 
-### 2 Configure Gradle Versions
+#### Print versionBaseProperty
 
-When publishing, the plugin will use the Gradle `version` property. To support automatically incrementing dev builds, the version used needs to be passed in externally and configured as Gradle starts up. For our default flow, when running in CI, the base version is read from `gradle.properties` by GitHub Actions and the version to publish is passed into the build.
+You can see the value read in the GitHub Actions log (for debugging purposes).
 
-In summary, add `LIBRARY_VERSION` to `gradle.properties`. This will be your major/minor version base.
+#### Calculate Next Version
 
-```
-LIBRARY_VERSION=0.4
-```
+GitHub Action [touchlab/autoversion-nextversion](https://github.com/touchlab/autoversion-nextversion)
+uses `versionBase`, reads git tags from the repo, then calculates the next incremental build version to use.
 
-In Gradle, on setup, read `AUTO_VERSION` on input to get the auto-incremented version from CI. As an example, in the root `build.gradle.kts` file in our sample, here is the code to initialized `version` appropriately.
+#### Print Next Version
 
-```kotlin
-val autoVersion = project.property(
-    if (project.hasProperty("AUTO_VERSION")) {
-        "AUTO_VERSION"
-    } else {
-        "LIBRARY_VERSION"
-    }
-) as String
+Prints the output of the last call (for debugging purposes). This is the version that the workflow will attempt to
+publish.
 
-subprojects {
-    version = autoVersion
-}
-```
+#### Build Version Tag Marker
 
-:::warning
+GitHub Action [touchlab/autoversion-tagmarker](https://github.com/touchlab/autoversion-tagmarker). During setup, this
+will apply a temporary git tag and push to the repo remote. The purpose is to mark that version string as "in progress",
+but it uses a prefix for the tag so SPM clients don't try to update the version before it's ready.
 
-You can set version however you want, but to be able to automatically publish SDK builds, you'll need some way of incrementing version. Otherwise, your first publish will work, but subsequent attempts to publish will fail because those artifacts or tags already exist.
+For example, if the next version should be `2.3.14`, a marker tag of `autoversion-tmp-publishing-2.3.14` will be added.
 
-:::
+The reason for this marker tag is, for maven repos, including GitHub Packages, we need to "publish" the XCFramework zip
+bundle before we can publish to the dependencies (CocoaPods specifically). If the publishing process fails after the zip
+file is put into GitHub Packages, the artifacts will still exist. If the next publish attempt uses `2.3.14` again, it
+will fail when it attempts to push the artifacts because they already exist.
 
-### 3 Modify the Gradle Build
+We avoid that with the marker tag. If `2.3.14` fails, and another publish attempt is made, it will use `2.3.15` instead.
 
-Find the `build.gradle.kts` file where you configure the multiplatform module you'd like to publish. Add the KMMBridge Gradle plugin:
+#### Create Build Branch
 
-```kotlin
-plugins {
-    kotlin("multiplatform")
-    id("co.touchlab.kmmbridge") version "{{VERSION_NAME}}"
-    `maven-publish`
-}
-```
+GitHub Action [touchlab/autoversion-buildbranch](https://github.com/touchlab/autoversion-buildbranch). Very simple.
+Creates a build branch for the publication process.
 
-Just FYI. You'll also need the `maven-publish` plugin.
+#### Apply SSH Key
 
-Later in the same file, add the `kmmbridge` config block:
+If you are publishing to CocoaPods, and have provided a `PODSPEC_SSH_KEY` secret, it will be applied to the CI machine
+to allow publishing and access.
 
-```kotlin
-kmmbridge {
-    mavenPublishArtifacts()
-    spm()
-    cocoapods("git@github.com:touchlab/PodSpecs.git")
-}
-```
+#### Apply netrc values
 
-Finally, you'll need to add a Maven repository you can publish to, along with the necessary config. However, in our flow, assuming you're using our GitHub Actions scripts, just add this:
+For local machine access to the published artifacts. Necessary for CocoaPods publishing. Defaults configured for GitHub Packages.
 
-```kotlin
-addGithubPackagesRepository()
-```
+#### Setup Java
 
-When running on CI, that will add the GitHub Packages Maven repo, for this project, using the auth provided by GitHub automatically. No extra auth config!
+For Gradle build. Defaults to 11 currently, but will probably bump to 17 soon as current Android requires.
 
-`spm()` only needs to be added if you want to support SPM. The parameter points at the root directory of your repo. In this case, we have the KMP module in a folder under the repo, so the repo root is one level up. This is where your `Package.swift` file should be stored.
+#### Validate Gradle Wrapper/Cache build tooling
 
-:::note
+Gradle and KMP build stuff.
 
-This config is only for SPM publishing. To understand how to integrate an SPM build into Xcode, and how to locally build and test Kotlin changes, see [IOS_SPM](spm/01_IOS_SPM.md).
+#### Build Main
+
+Runs `gradlew` to do the main build and publishing work.
+
+The optional `module` parameter is used to narrow the build. `publishTask` is the Gradle task that's run. This can be multiple. See the reference app [KMMBridge Quick Start Updates](https://touchlab.co/kmmbridge-quickstart-updates). The secret `gradle_params` is also applied here, in case your build needs something custom added.
+
+Of note, the Gradle property `AUTO_VERSION` is created here and is available inside your build file. The value is the calculated version from the "Calculate Next Version" step. Inside your build script, `AUTO_VERSION` should be assigned to Gradle `version` is it is available. See the template project from [KMMBridge Quick Start Updates](https://touchlab.co/kmmbridge-quickstart-updates) for an example.
+
+:::caution
+
+If publishing is going to fail, it is almost certainly in this step. If you get past here, we're essentially just wrapping up.
 
 :::
 
-`cocoapods("[some git repo].git")` is only needed if you plan to publish for CocoaPods. You will need the spec repo mentioned above, properly configured for deployment. See  [COCOAPODS_GITHUB_PODSPEC](cocoapods/03_COCOAPODS_GITHUB_PODSPEC.md) for details on getting the podspec repo configured.
+#### Finish Release
 
+GitHub Action [touchlab/autoversion-finishrelease](https://github.com/touchlab/autoversion-finishrelease). Adds and commits `Package.swift`, adds the final version tag, and pushes everything. After this step, any SPM client can get the new version. 
 
-### 4 Add the GitHub Actions workflow call
+#### Build Version Tag Marker Cleanup
 
-At the top of your project, if it does not already exist, add the folders `.github/workflows`. Add a file called `kmmbridgepnblish.yml` there, and copy the following into it.
+GitHub Action [touchlab/autoversion-tagmarker](https://github.com/touchlab/autoversion-tagmarker). Run again, but to clean up the tag markers created previously. If there were failed builds previously with the same version prefix, this action will remove all of them.
 
-```yaml
-name: KMMBridge Publish Release
-on: workflow_dispatch
-permissions:
-  contents: write
-  packages: write
+#### Delete branch
 
-jobs:
-  call-kmmbridge-publish:
-    uses: touchlab/KMMBridgeGithubWorkflow/.github/workflows/faktorybuildautoversion.yml@autoversion
-    with:
-      versionBaseProperty: LIBRARY_VERSION
-```
-
-`versionBaseProperty` is the value in `gradle.properties` that defines the version prefix. You can change this to whatever key you use in `gradle.properties`.
-
-:::tip
-
-The workflow currently defaults to Java 11, but newer Android builds require 17. Add the following argument to support 17
-
-```yaml
-    with:
-      versionBaseProperty: LIBRARY_VERSION
-      jvmVersion: 17
-```
-
-:::
-
-Note: if you are using CocoaPods and a podspec repo, you'll need to pass in your SSH key as a secret. All together, your config will likely look like this:
-
-```yaml
-name: KMMBridge Publish Release
-on: workflow_dispatch
-
-jobs:
-  call-kmmbridge-publish:
-  permissions:
-    contents: write
-    packages: write
-  uses: touchlab/KMMBridgeGithubWorkflow/.github/workflows/faktorybuildautoversion.yml@autoversion
-  with:
-    versionBaseProperty: LIBRARY_VERSION
-  secrets:
-    PODSPEC_SSH_KEY: ${{ secrets.PODSPEC_SSH_KEY }}
-
-```
-
-### 5 Add and push your code
-
-Push your changes to GitHub, and make sure they're in the default branch.
-
-## Publish a Build!
-
-Assuming your configuration is set up correctly, you should be able to publish your first build. In the Kotlin repo's GitHub home page, go to "Actions", select "KMMBridge Publish Release", and manually run it.
-
-![runbuild](https://tl-navigator-images.s3.us-east-1.amazonaws.com/docimages/2022-10-04_21-14-runbuild.png)
-
-When that run is complete, you should see a green result. If not, please [reach out :)](https://touchlab.co/keepintouch)
-
-## iOS Dev Machine Config
-
-If you're using the github packages for artifact hosting via `addGithubPackagesRepository()`, accessing the artifacts requires authentication even for public repos. You'll need to tell the local machine how to access the private file. You can do this either by editing the `~/.netrc` file, or by adding the info to your local keychain.
-
-:::note
-
-These steps are needed for any private **and public** artifact hosting. GitHub requires the caller to be authenticated, even for public repo artifacts.
-
-:::
-
-First, get a personal access token from GitHub. Make sure it has at least `repo` and `write:packages` permissions. You can add an expiration, but if you do, you'll need to remember to create a new one later...
-
-![Screen Shot 2022-09-29 at 8.16.31 AM](https://tl-navigator-images.s3.us-east-1.amazonaws.com/docimages/2022-09-29_08-17-Screen%20Shot%202022-09-29%20at%208.16.31%20AM.png)
-
-Add the following to your `~/.netrc` file (create the file if it doesn't exist):
-
-```
-machine maven.pkg.github.com
-  login [github username]
-  password [your new personal access token]
-```
-
-The `~/.netrc` file tells curl and other networking tools how to authenticate to servers matching each `machine` entry. If you use a different back end you'll need to have a different `~/.netrc` entry.
-
-Alternatively, you can use the Mac's keychain to manage access. See [this blog post for more detail](https://medium.com/geekculture/xcode-13-3-supports-spm-binary-dependency-in-private-github-release-8d60a47d5e45).
+Deletes the build branch if `retainBuildBranch` is false.
 
 ## Next Steps
 
-You'll want to pull this new build into Xcode. For more information on how to do that, see  [IOS_COCOAPODS](cocoapods/01_IOS_COCOAPODS.md) or [IOS_SPM](spm/01_IOS_SPM.md).
-
-## See Also
-
-[TROUBLESHOOTING](TROUBLESHOOTING.md)
+There are a number of setup steps required to use this workflow. See [KMMBridge Quick Start Updates](https://touchlab.co/kmmbridge-quickstart-updates) for a walkthrough of setting up a project.
