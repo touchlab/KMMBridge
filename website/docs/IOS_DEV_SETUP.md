@@ -11,9 +11,7 @@ To use the published Xcode Framework, you'll need to integrate it into your Xcod
 
 ## [Using CocoaPods](cocoapods/01_IOS_COCOAPODS.md)
 
-## [KMMBridge Quick Start Updates](https://touchlab.co/kmmbridge-quickstart-updates)
-
-To see everything working together in one place, please see [KMMBridge Quick Start Updates](https://touchlab.co/kmmbridge-quickstart-updates). It will walk through configuring publication and Xcode access for the sample project.
+To see everything working together in one place, please see [KMMBridge Quick Start Updates](https://touchlab.co/kmmbridge-quick-start). It will walk through configuring publication and Xcode access for the sample project.
 
 ## Private Artifacts
 

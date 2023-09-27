@@ -26,7 +26,7 @@ this, you'll need to fork and modify our processes.
 :::
 
 You can see our GitHub Workflow in action by checking
-out [KMMBridge Quick Start Updates](https://touchlab.co/kmmbridge-quickstart-updates).
+out [KMMBridge Quick Start Updates](https://touchlab.co/kmmbridge-quick-start).
 
 ## Overview
 
@@ -128,9 +128,9 @@ Gradle and KMP build stuff.
 
 Runs `gradlew` to do the main build and publishing work.
 
-The optional `module` parameter is used to narrow the build. `publishTask` is the Gradle task that's run. This can be multiple. See the reference app [KMMBridge Quick Start Updates](https://touchlab.co/kmmbridge-quickstart-updates). The secret `gradle_params` is also applied here, in case your build needs something custom added.
+The optional `module` parameter is used to narrow the build. `publishTask` is the Gradle task that's run. This can be multiple. See the reference app [KMMBridge Quick Start Updates](https://touchlab.co/kmmbridge-quick-start). The secret `gradle_params` is also applied here, in case your build needs something custom added.
 
-Of note, the Gradle property `AUTO_VERSION` is created here and is available inside your build file. The value is the calculated version from the "Calculate Next Version" step. Inside your build script, `AUTO_VERSION` should be assigned to Gradle `version` is it is available. See the template project from [KMMBridge Quick Start Updates](https://touchlab.co/kmmbridge-quickstart-updates) for an example.
+Of note, the Gradle property `AUTO_VERSION` is created here and is available inside your build file. The value is the calculated version from the "Calculate Next Version" step. Inside your build script, `AUTO_VERSION` should be assigned to Gradle `version` is it is available. See the template project from [KMMBridge Quick Start Updates](https://touchlab.co/kmmbridge-quick-start) for an example.
 
 :::caution
 
@@ -152,4 +152,4 @@ Deletes the build branch if `retainBuildBranch` is false.
 
 ## Next Steps
 
-There are a number of setup steps required to use this workflow. See [KMMBridge Quick Start Updates](https://touchlab.co/kmmbridge-quickstart-updates) for a walkthrough of setting up a project.
+There are a number of setup steps required to use this workflow. See [KMMBridge Quick Start Updates](https://touchlab.co/kmmbridge-quick-start) for a walkthrough of setting up a project.

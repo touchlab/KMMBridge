@@ -23,7 +23,7 @@ id("co.touchlab.kmmbridge")
 
 ### Removed Features
 
-The removed features focus largely on version management. Versions were previously managed inside the plugin, but that was problematic [see Design Changes](design-changes).
+The removed features focus largely on version management. Versions were previously managed inside the plugin, but that was problematic [see Design Changes](#design-changes).
 
 ### versionPrefix
 

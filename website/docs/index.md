@@ -26,7 +26,7 @@ Anybody that needs to publish a Kotlin Xcode Framework.
 <genericCta message="We build solutions that get teams started smoothly with Kotlin Multiplatform Mobile and ensure their success in production. Join our community to learn how your peers are adopting KMM."
 link="https://form.typeform.com/to/MJTpmm#hubspot_utk=xxxxx&hubspot_page_name=xxxxx&hubspot_page_url=xxxxx" buttonMessage="Subscribe!"/>
 
-## [KMMBridge Quick Start Updates](https://touchlab.co/kmmbridge-quickstart-updates)
+## [KMMBridge Quick Start Updates](https://touchlab.co/kmmbridge-updates)
 
 This is a post series that explains the basics, and provides a template GitHub project that you can start using right away. If you want to test out sharing KMP libraries with your team, this is the fastest way to get going.
 
@@ -40,7 +40,7 @@ KMMBridge is designed to live in CI and your build pipeline. There is informatio
 
 Having off-the-shelf config for every possible scenario would be a challenge, and in real world production environments, we've found that there's always a lot of customization anyway.
 
-We do provide a relatively off-the-shelf experience for repos in GitHub, using GitHub Actions and GitHub Packages. The [KMMBridge Quick Start Updates](https://touchlab.co/kmmbridge-quickstart-updates) post and template project use this setup.
+We do provide a relatively off-the-shelf experience for repos in GitHub, using GitHub Actions and GitHub Packages. The [KMMBridge Quick Start Updates](https://touchlab.co/kmmbridge-quick-start) post and template project use this setup.
 
 The [Default GitHub Workflow](DEFAULT_GITHUB_FLOW.md) will walk through the parts of the default GitHub flow. If you need to customize a KMMBridge build, this is where you should look.
 
