@@ -26,7 +26,7 @@ Anybody that needs to publish a Kotlin Xcode Framework.
 <genericCta message="We build solutions that get teams started smoothly with Kotlin Multiplatform Mobile and ensure their success in production. Join our community to learn how your peers are adopting KMM."
 link="https://form.typeform.com/to/MJTpmm#hubspot_utk=xxxxx&hubspot_page_name=xxxxx&hubspot_page_url=xxxxx" buttonMessage="Subscribe!"/>
 
-## [KMMBridge Quick Start Updates](https://touchlab.co/kmmbridge-updates)
+## [KMMBridge Quick Start Updates](https://touchlab.co/kmmbridge-quick-start)
 
 This is a post series that explains the basics, and provides a template GitHub project that you can start using right away. If you want to test out sharing KMP libraries with your team, this is the fastest way to get going.
 
