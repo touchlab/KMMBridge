@@ -6,23 +6,92 @@ sidebar_position: 1
 
 ## Workflow Configuration
 
-For local development, KMMBridge configures XCFrameworks and, if you're using SPM, the SPM local dev flow. Publishing a build is really intended to happen from CI. To publish from your local machine or a custom CI flow, you'll need to be aware of some parameters that KMMBridge expects.
+### KMMBridge Block
 
-Generally speaking, you should refer to [the GitHub workflow](https://github.com/touchlab/KMMBridgeGithubWorkflow/blob/main/.github/workflows/faktorybuildbranches.yml) for an up-to-date example with everything you'll need.
+In the Gradle build file for your module that exports Xcode Frameworks, you'll apply the KMMBridge Gradle plugin, and add a `kmmbridge` config block.
+
+```kotlin
+id("co.touchlab.kmmbridge")
+
+// Etc
+
+kmmbridge {
+    
+}
+```
+
+All of the block config ultimately ends up in the [KMMBridgeExtension](https://github.com/touchlab/KMMBridge/blob/main/kmmbridge/src/main/kotlin/KmmBridgeExtension.kt#L40). 
+
+Every config should have an [`ArtifactManager`](#artifact-managers) and at least one [`DependencyManager`](#dependency-managers).
+
+You can control the [Framework name](#naming) here as well.
+
+By default, the "build type" is Release. To change it to Debug, do the following:
+
+```kotlin
+import org.jetbrains.kotlin.gradle.plugin.mpp.NativeBuildType
+
+// Etc
+
+kmmbridge {
+    buildType.set(NativeBuildType.DEBUG)
+}
+```
+
+### VersionManager
+
+Version 0.3.x of KMMBridge had the concept of `VersionManager`, which managed the version for published Xcode Frameworks. The responsibility for versioning has been moved out of KMMBridge, but you can still override the default by setting a custom `VersionManager`. There aren't many reasons you'd want to do this. The most likely scenario would be:
+
+* You are only publishing iOS builds
+* You don't want to set the Gradle version dynamically, or you don't want to use the Gradle version property at all
+
+To use something other than the `version` property, see `ManualVersionManager` and write a custom implementation.
+
+If you only want to publish iOS builds and would like KMMBridge to do simple version incrementing, we have a `TimestampVersionManager` instance that simply appends the current timestamp to Gradle's version property. This assumes the Gradle version property will be the major and minor values of a semantic version (ex. `2.3`). So, a build might have `2.3.1695492019324` for its version.
+
+```kotlin
+version = "2.3"
+
+kmmbridge {
+    timestampVersions()
+}
+```
+
+### GitHub Packages
+
+There is a special function that handles GitHub Packages repo setup automatically.
+
+```kotlin
+addGithubPackagesRepository()
+```
+
+This function reads values provided to CI from our [GitHub Actions Workflow](../DEFAULT_GITHUB_FLOW.md), and sets up access to publish to GitHub Packages automatically.
+
+### Optional Gradle Parameters
+
+For local development, KMMBridge configures XCFrameworks and, if you're using SPM, the SPM local dev flow. Publishing a build is really intended to happen from CI, using a predefined script. It can be manually or locally configured, but there are parameters you should be aware of.
+
+Generally speaking, you should refer to the [Default GitHub Workflow](../DEFAULT_GITHUB_FLOW.md) for an up-to-date example with everything you'll need.
 
 These are some of the parameters you should be aware of:
 
-`ENABLE_PUBLISHING` - Gradle parameter. For local dev, by default we avoid certain operations that are only necessary if you are publishing. Pass in
+`GITHUB_PUBLISH_TOKEN` - Gradle parameter. Used on CI with the default workflow to configure auth for validating packages.
+
+`GITHUB_REPO` - Gradle parameter. Used on CI with the default workflow to configure auth for validating packages.
+
+`ENABLE_PUBLISHING` - Gradle parameter. KMMBridge does some extra setup that isn't necessary if you aren't publishing. This setup may cause warnings, so disabling that part of the Gradle setup may be useful. Add the following to `gradle.properties`
+
+```
+ENABLE_PUBLISHING=false
+```
+
+In CI, you can override that value with the following.
 
 ```shell
 ./gradelew -PENABLE_PUBLISHING=true [your tasks]
 ```
 
-[See KMMBridgeGithubWorkflow for an example](https://github.com/touchlab/KMMBridgeGithubWorkflow/blob/b99bb8222c2c38980d18cedd175a0d0c5f88e2dc/.github/workflows/faktorybuildbranches.yml#L94)
-
-`GITHUB_PUBLISH_TOKEN` - Gradle parameter. For GitHub releases, you'll need to pass in a GitHub token. It is available in GitHub actions.
-
-`GITHUB_REPO` - Gradle parameter. For GitHub releases, the repo you want to point to.
+**Note:** Earlier versions of KMMBridge required this parameter, as we were doing git operations locally. The majority of those operations now live outside of the plugin. We do one call to get the repo folder root, and fall back with a warning if there is no git repo. Just FYI.
 
 ## Artifact Managers
 
@@ -38,112 +107,12 @@ This implementation will publish to your S3 bucket. By default it will set the a
 
 The S3 artifact manager is really the starting point for teams that need a more custom implementation (Azure, Google Cloud, private hosting, etc).
 
-:::note Github Release Artifacts
-KMMBridge previously had a separate `githubReleaseArtifacts()` option, but it is no longer supported in versions 0.3.5+. The reason is it doesn't provide good enough benefits over using the [maven artifact manager](../artifacts/MAVEN_REPO_ARTIFACTS) to publish to Github packages. If using an old version of KMMBridge you can find the documentation [here](/github_release_artifacts)
-:::
-
 ## Dependency Managers
 
 Dependency managers handle integration with CocoaPods and SPM. They manage generating the config files (podspec or Package.swift), and the publishing of the releases. There are currently only two implementations:
 
-* CocoapodsDependencyManager: [IOS_COCOAPODS](../cocoapods/01_IOS_COCOAPODS.md) 
 * SpmDependencyManager: [IOS_SPM](../spm/01_IOS_SPM.md)
-
-## Version Managers
-
-KMMBridge is designed to allow you to publish updates to your iOS Kotlin code as development progresses. That often means several minor versions in between major ones. To support this, we've added an interface called `VersionManager` that handles this for you.
-
-There are two basic options: automatically incrementing version managers, and exact Gradle version. The automatically incrementing versions exist for teams that will publish more frequent iOS builds while dev is ongoing. Each publish will automatically increment a minor version. If you plan to directly manage versions for the whole project, you can just tell KMMBridge to use the Gradle version.
-
->In the current version of KMMBridge the Android version is not automatically incremented while the iOS version is. If you need the versions to be aligned, you need to manage the versions manually (by using [ManualVersionManager](#ManualVersionManager)).
-
-### Incrementing Version Managers
-
-All incrementing version managers need a base version, which should be the first two numbers of a three number semantic versioning scheme. CocoaPods, and especially SPM, do not work well with less structured version strings.
-
-You can either set your Gradle version to something like "0.3", or explicitly set `versionPrefix` in the `kmmbridge` config block. `versionPrefix` will override whatever your Gradle version is set to.
-
-When you publish new iOS builds, you get release a history like the following:
-
-* 0.3.0
-* 0.3.1
-* 0.3.2
-* etc...
-
-We don't set a version manager by default, so you'll need to select something. The version managers provided with KMMBridge are the following:
-
-### GitTagVersionManager
-
-Versions with Git tags. Increments by one each time.
-
-```kotlin
-kmmbridge {
-  gitTagVersions()
-}
-```
-
-### GithubReleaseVersionManager
-
-Similar to GitTagVersionManager, but calls the GitHub api to create a Git release. Only usable with GitHub, but prefferred to GitTagVersionManager if you are using GitHub.
-
-```kotlin
-kmmbridge {
-  githubReleaseVersions()
-}
-```
-
-### TimestampVersionManager
-
-Use the current timestamp, which should mean increasing values (unless various server timestamps are extremenly off).
-
-```kotlin
-kmmbridge {
-  timestampVersions()
-}
-```
-
-Generally speaking, you should use GitTagVersionManager over TimestampVersionManager, but both will work fine.
-
-### ManualVersionManager
-
-No automatic versioning. This version manager will get the version from Gradle (or the Jetbrains CocoaPods config, if set separately there). You'll need to make sure to increment this version if you're publishing a new version.
-
-(Note: [KMMBridge/issues/58](https://github.com/touchlab/KMMBridge/issues/58) is pending. CocoaPods may overwrite rather than fail when publishing)
-
-```kotlin
-kmmbridge {
-  manualVersions()
-}
-```
-
-## Version Writer
-
-You usually don't need to worry about the version writer. Depending on the version manager you're using, and if you're publishing to SPM, 
-there are git operations that need to be run. If you're doing a lot of coordinated git operations in your CI workflow, you may want to control 
-or disable KMMBridge git operations.
-
-You can simply disable all git operations by calling the following in config:
-
-```kotlin
-kmmbridge { 
-  noGitOperations()
-}
-```
-
-Alternatively, you can set a custom version writer:
-
-```kotlin
-kmmbridge {
-    versionWriter.set(myWriter)
-}
-```
-
-:::caution
-
-The git operations necessary to manage versions can be complex. Managing this on your own can introduce 
-errors that are difficult to diagnose.
-
-:::
+* CocoapodsDependencyManager: [IOS_COCOAPODS](../cocoapods/01_IOS_COCOAPODS.md)
 
 ## Naming
 

@@ -6,6 +6,8 @@ You'll need an Xcode project with CocoaPods set up. That means you'll have a `Po
 
 For artifacts that are kept in private storage, you may need to add authentication information so your `~/.netrc` file or your Mac's Keychain Access. See [the section here](../DEFAULT_GITHUB_FLOW.md#ios-dev-machine-config) for a description of how to set up private file access.
 
+**Note:** If your artifacts are in GitHub Pacakges for a public repo, you still need to configure GitHub auth for access to the artifacts.
+
 ## Add Podspec Repo
 
 In your `Podfile`, add the module and the source. An example `Podfile` might look like this:

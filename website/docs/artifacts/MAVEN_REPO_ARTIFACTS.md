@@ -107,12 +107,10 @@ If you are publishing to Github Packages and you are using our [helper workflow]
 Pretty much everything you'd need to configure to publish to GitHub Packages is listed here.
 
 ```kotlin
-import co.touchlab.faktory.addGithubPackagesRepository
-
 plugins {
     kotlin("multiplatform")
     `maven-publish`
-    id("co.touchlab.faktory.kmmbridge") version "{{VERSION_NAME}}"
+    id("co.touchlab.kmmbridge") version "{{VERSION_NAME}}"
 }
 
 group = "co.touchlab.somegroup"
@@ -126,7 +124,6 @@ kotlin {
 
 kmmbridge {
     mavenPublishArtifacts() // <- Publish using a Maven repo
-    gitTagVersions()
     spm()
 }
 

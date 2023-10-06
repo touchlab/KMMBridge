@@ -6,8 +6,7 @@ sidebar_position: 8
 
 ### Error: "This fat framework already has a binary for architecture `x64` (common for target `ios_x64`) (or similar for arm)"
 
-This is basically saying you have more than one framework defined for the same architecture. This most commonly happens
-because the project has both explicit frameworks defined in the kotlin/targets area, and the CocoaPods plugin applied.
+This is basically saying you have more than one framework defined for the same architecture. This most commonly happens because the project has both explicit frameworks defined in the kotlin/targets area, and the CocoaPods plugin applied.
 
 If you see `kotlin("native.cocoapods")` or `id("org.jetbrains.kotlin.native.cocoapods")` in the plugins:
 
@@ -15,7 +14,7 @@ If you see `kotlin("native.cocoapods")` or `id("org.jetbrains.kotlin.native.coco
 plugins {
     kotlin("multiplatform")
     kotlin("native.cocoapods") // <--- This
-    id("co.touchlab.faktory.kmmbridge") version "{{VERSION_NAME}}"
+    id("co.touchlab.kmmbridge") version "{{VERSION_NAME}}"
 }
 ```
 
@@ -29,8 +28,7 @@ kotlin {
 }
 ```
 
-You have duplicate frameworks being declared. The CocoaPods plugin is adding frameworks automatically for all darwin/Apple
-targets, so explicitly declaring them is redundant.
+You have duplicate frameworks being declared. The CocoaPods plugin is adding frameworks automatically for all darwin/Apple targets, so explicitly declaring them is redundant.
 
 ### Error: "Received status code 422 from server: Unprocessable Entity" when using GitHub Packages"
 
@@ -56,6 +54,10 @@ permissions:
 ```
 That block can be at the top-level or inside the publish task. [See here](https://github.com/touchlab/KMMBridgeSampleKotlin/blob/main/.github/workflows/main.yml) for an example.
 
-### Error: Task 'kmmBridgePublish' not found in root project 'MyProject'.
+### Getting warnings on project load
 
-KMMBridge won't configure its publication tasks unless it knows you want it to. You must set the `ENABLE_PUBLISHING` gradle property to true (usually only in CI or when troubleshooting), and you must have publication fully configured, including setting an `artifactManager` and `dependencyManager`.
+KMMBridge assumes you are running in a minimally configured environment, but if not, you may get warnings on project load. This can happen with brand new projects, or when doing local development on a project that has special CI configuration. You can disable a lot of KMMBridge startup config that isn't needed if you aren't publishing by adding the following to `gradle.properties`:
+
+```
+ENABLE_PUBLISHING=false
+```

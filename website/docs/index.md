@@ -5,51 +5,70 @@ title: KMMBridge Intro
 
 # KMMBridge for Teams
 
-KMMBridge is a set of Gradle tooling that facilitates publishing and consuming pre-built KMM (Kotlin Multiplatform Mobile) Xcode Framework binaries.
+KMMBridge is a set of Gradle tooling that facilitates publishing and consuming pre-built Kotlin Multiplatform Xcode Framework binaries.
 
 The modules can be published to various back ends, public or private, and (currently) consumed by either CocoaPods or Swift Package Manager.
 
+## Feature Snapshot
+
+* Creates XCFramework zip archives from your Kotlin Xcode Framework modules
+* Publish those archives to various online storage locations
+* Configure and publish versions for Swift Package Manager (SPM) and CocoaPods that can be used by other developers
+
+In addition, KMMBridge provides a fairly basic local development SPM flow, along with it's SPM publishing functionality.
+
 ## Who is this for?
 
-Different types of teams and different types of projects use Kotlin Multiplatform in different ways. Native mobile dev teams often want to start by including a prebuilt Xcode Framework in the iOS build rather than having every member of the team building Kotlin locally. This is especially true when adding KMM to an existing app, and/or when the teams are larger than a few developers.
+Anybody that needs to publish Xcode Frameworks from Kotlin for use by iOS developers. This can be for teams trying KMP that don't want to disrupt their build setups, larger teams that need to modularize, teams publishing SDKs to internal or external clients.
 
-Building and publishing binary Xcode Frameworks from Kotlin is certainly possible, but not easily supported "out of the box". Where those binaries are published, and how they are included in the iOS build, also varies. Most teams we have talked to go through the same process getting started. They first need to build some kind of publishing architecture, which is non-trivial, and make a lot of the same mistakes along the way.
-
-For more context, see Nate Ebel’s talk from Droidcon NYC 2022: [Adopting Kotlin Multiplatform in Brownfield Applications](https://www.droidcon.com/2022/09/29/adopting-kotlin-multiplatform-in-brownfield-applications/). It's a very good overview of the startup issues teams face.
+Anybody that needs to publish a Kotlin Xcode Framework.
 
 <genericCta message="We build solutions that get teams started smoothly with Kotlin Multiplatform Mobile and ensure their success in production. Join our community to learn how your peers are adopting KMM."
 link="https://form.typeform.com/to/MJTpmm#hubspot_utk=xxxxx&hubspot_page_name=xxxxx&hubspot_page_url=xxxxx" buttonMessage="Subscribe!"/>
 
-## Simple Getting Started Setup
+## [KMMBridge Quick Start Updates](https://touchlab.co/kmmbridge-updates)
 
-If you are using GitHub for source control, and are OK with using GitHub Actions to build and GitHub releases for published artifacts, we have a simple setup flow you can use. It is the easiest default to start from.
+This is a post series that explains the basics, and provides a template GitHub project that you can start using right away. If you want to test out sharing KMP libraries with your team, this is the fastest way to get going.
 
-See [DEFAULT_GITHUB_WORKFLOW](DEFAULT_GITHUB_FLOW.md) for setup instructions.
+## [What Are We Doing?](WHAT_ARE_WE_DOING.md)
 
-## KMMBridge Kick Start
+It is a bit difficult to describe how to set up and deploy KMMBridge without going through the details of exactly what needs to happen to publish Xcode Framework binaries. This section walks through the parts you need to understand to figure out what KMMBridge is doing and why certains pieces work they way they do.
 
-The quickest way to get up and running is to use our template "Kick Start" project. See [KMMBridgeKickStart](https://github.com/touchlab/KMMBridgeKickStart)
+## [Default GitHub Workflow](DEFAULT_GITHUB_FLOW.md)
 
-## Sample Projects
+KMMBridge is designed to live in CI and your build pipeline. There is information that needs to be passed into KMMBridge, outside configuration and access needs to be granted, git operations that need to happen. There's a lot happening outside of KMMBridge itself, and the details of that configureation depend on your build environment, code and artifact hosting, etc.
 
-* [KMMBridgeSampleKotlin](https://github.com/touchlab/KMMBridgeSampleKotlin) - Shared Kotlin code
-* [KMMBridgeSampleSpm](https://github.com/touchlab/KMMBridgeSampleSpm) - Xcode example with SPM
-* [KMMBridgeSampleCocoaPods](https://github.com/touchlab/KMMBridgeSampleCocoaPods) - Xcode example with CocoaPods
-* [PublicPodspecs](https://github.com/touchlab/PublicPodspecs) - Public CocoaPods podspec repo
+Having off-the-shelf config for every possible scenario would be a challenge, and in real world production environments, we've found that there's always a lot of customization anyway.
 
-## Basic Flow
+We do provide a relatively off-the-shelf experience for repos in GitHub, using GitHub Actions and GitHub Packages. The [KMMBridge Quick Start Updates](https://touchlab.co/kmmbridge-quick-start) post and template project use this setup.
 
-The basic concept is that after making some changes to Kotlin code, you'll want to publish an updated iOS Framework that Xcode can grab and use. Most native mobile projects exist as 2 separate repos: one for Android and one for iOS. To add some shared Kotlin code, you can either add a KMM module to the Android project, or create a separte repo just for the shared Kotlin code. In either configuration, you publish the iOS Framework and integrate it into the Xcode project.
+The [Default GitHub Workflow](DEFAULT_GITHUB_FLOW.md) will walk through the parts of the default GitHub flow. If you need to customize a KMMBridge build, this is where you should look.
 
-Changes are made and tested to the shared Kotlin, then pushed to source control. When that happens, you can run CI to publish a new build. Doing that will:
+:::info
 
-* Create a new version number
-* Publish the Xcode Framework zip
-* Generate `Package.swift` file and/or a CocoaPods podspec file
+The first version of KMMBridge, 0.3.x, attempted to put a lot of the CI logic inside the Gradle plugin itself, but this added to the complexity and reduced flexibility. Version 0.5+ is more streamlined. If you are porting your existing KMMBridge project, see [Porting from KMMBridge 0.3.x](PORTING_0.3.x) for an overview of what's changed and how to approach porting your build.
 
-The iOS app can then include these frameworks through SPM or CocoaPods.
+:::
 
-![kmmbridge_diagram2](https://tl-navigator-images.s3.us-east-1.amazonaws.com/docimages/2022-10-07_09-13-kmmbridge_diagram2.png)
+:::caution
+
+If you were using the original version of KMMBridge, the updated version has a different plugin id.
+
+```kotlin
+id("co.touchlab.kmmbridge")
+```
+
+:::
+
+## Types of Kotlin Repos
+
+Teams using KMP have a variety of repo configurations. They include
+
+* Monorepo
+* Android/Kotlin with a shared KMP module (or modules)
+* Separate repo with the shared KMP that is published to both iOS and Android
+
+KMMBridge can be used in any of these repo configurations, depending on your needs.
 
 ## Configuration
 
@@ -64,24 +83,12 @@ pluginManagement {
 }
 ```
 
-Note: If you're using a SNAPSHOT version of the plugin, add the SNAPSHOT repo as well:
-
-```kotlin
-pluginManagement {
-    repositories {
-        gradlePluginPortal()
-        mavenCentral()
-        maven("https://oss.sonatype.org/content/repositories/snapshots")
-    }
-}
-```
-
 Then add the plugin to the module that is actually building the Xcode Framework. In the `build.gradle.kts` file:
 
 ```kotlin
 plugins {
     kotlin("multiplatform")
-    id("co.touchlab.faktory.kmmbridge") version "{{VERSION_NAME}}"
+    id("co.touchlab.kmmbridge") version "{{VERSION_NAME}}"
 }
 ```
 
@@ -90,10 +97,8 @@ At the top level in the same file, put the `kmmbridge` configuration:
 ```kotlin
 kmmbridge {
     mavenPublishArtifacts()
-    githubReleaseVersions()
     spm()
     cocoapods("git@github.com:touchlab/PublicPodSpecs.git")
-    versionPrefix.set("0.3")
     //etc
 }
 ```
@@ -104,12 +109,11 @@ For non-GitHub installations, other artifact locations, etc, see [CONFIGURATION_
 
 ## Local Kotlin Testing
 
-KMMBridge also provides some support for locally building and testing Kotlin-generated Frameworks directly in your Xcode project. You can "flip a switch" to run your Xcode project against Kotlin locally, to test your changes. This process differs depending on if you're using [CocoaPods](cocoapods/02_IOS_LOCAL_DEV_COCOAPODS.md) and [SPM](spm/02_IOS_LOCAL_DEV_SPM.md).
+Many teams, especially for existing apps, introduce KMP to their environment by publishing an Xcode Framework that their iOS dev team consumes like any other dependency. That makes integration easy, but creates several problems with development, testing, and simply getting the iOS team to start editing the shared code.
 
-## Project Status
+While introducing KMP this way is often the best option, we feel strongly that being able to locally build and test the shared Kotlin directly in the target apps is a critical feature.
 
-This project is new. The code was extracted from a longer running internal effort, which went through a lot of experimentation
-and code written for specific use cases. Please let us know if you run into issues or find setup confusing.
+KMMBridge provides support for locally editing the published Kotlin. More info here: [CocoaPods](cocoapods/02_IOS_LOCAL_DEV_COCOAPODS.md) and [SPM](spm/02_IOS_LOCAL_DEV_SPM.md).
 
 ### Some notes
 

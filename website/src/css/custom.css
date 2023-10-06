@@ -177,6 +177,11 @@
   --docusaurus-highlighted-code-line-bg: rgba(0, 0, 0, 0.3);
 }
 
+html[data-theme='dark'] {
+  --ifm-background-color: #262626;
+  --ifm-background-surface-color: #404040;
+}
+
 code {
   border: 1px solid rgba(0, 0, 0, 0.2) !important;
 }

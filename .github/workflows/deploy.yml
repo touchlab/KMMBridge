@@ -27,7 +27,7 @@ jobs:
           path: './gradle.properties'
           property: 'VERSION_NAME'
 
-      - name: Publish Snapshot
+      - name: Publish Plugin
 #        if: ${{ contains(steps.read_version.outputs.value, 'SNAPSHOT') == true }}
         run: ./gradlew publish --no-daemon --stacktrace --no-build-cache
         env:
@@ -52,4 +52,4 @@ jobs:
           tag: ${{ steps.read_version.outputs.value }}
 
 env:
-  GRADLE_OPTS: -Dkotlin.incremental=false -Dorg.gradle.jvmargs="-Xmx3g -XX:MaxPermSize=2048m -XX:+HeapDumpOnOutOfMemoryError -Dfile.encoding=UTF-8 -XX:MaxMetaspaceSize=512m"
+  GRADLE_OPTS: -Dkotlin.incremental=false -Dorg.gradle.jvmargs="-Xmx3g -XX:+HeapDumpOnOutOfMemoryError -Dfile.encoding=UTF-8 -XX:MaxMetaspaceSize=512m"
