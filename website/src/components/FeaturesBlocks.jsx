@@ -106,7 +106,7 @@ export default function FeaturesBlocks() {
 
                             {LinkFeatureBlock(
                                 "Evaluating KMP for Teams",
-                                "KotlinConf 2023 talk \"KMP mobile for Teams' where we discuss how teams approach and evaluate KMP.",
+                                "KotlinConf 2023 talk \"KMP mobile for Teams\" where we discuss how teams approach and evaluate KMP.",
                                 "https://www.youtube.com/watch?v=-tJvCOfJesk",
                                 NetworkConnectionCyan
                             )}
