@@ -184,3 +184,110 @@ export function Box2d() {
     )
 }
 
+function CircleBlockCyan(svgBody) {
+    return (
+        <svg className="w-16 h-16 mb-4" viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg">
+            <rect className="fill-current text-cyan-600" width="64" height="64" rx="32"/>
+            {svgBody()}
+        </svg>
+    )
+}
+
+export function Box2dCyan() {
+    return (
+        <>{CircleBlockCyan(() => {
+            return (
+                <g stroke-linecap="square" stroke-width="2" fill="none" className="stroke-current text-slate-100 nc-icon-wrapper" stroke-linejoin="miter"
+                   stroke-miterlimit="10" transform="translate(20 18)">
+                    <line data-cap="butt" x1="1" y1="6" x2="23" y2="6" stroke-linecap="butt"></line>
+                    <polygon points="23,6 17,1 7,1 1,6 1,23 23,23 "></polygon>
+                    <polygon points=" 15,13 9,13 9,6 11,1 13,1 15,6 " className="stroke-current text-blue-300"></polygon>
+                </g>
+            )
+        })}</>
+    )
+}
+
+export function Box3dCyan() {
+    return (
+        <>{CircleBlockCyan(() => {
+            return (
+                <g stroke-linecap="square" stroke-width="2" fill="none" className="stroke-current text-slate-100 nc-icon-wrapper" stroke-linejoin="miter"
+                   stroke-miterlimit="10" transform="translate(20 19)">
+                    <line data-cap="butt" x1="6.5" y1="3.25" x2="18.5" y2="9.25" stroke-linecap="butt"
+                          className="stroke-current text-slate-100"></line>
+                    <polyline data-cap="butt" points="23,7 13,12 1,6 " stroke-linecap="butt"></polyline>
+                    <line data-cap="butt" x1="13" y1="12" x2="13" y2="23" stroke-linecap="butt"></line>
+                    <polygon points="23,7 23,17 13,23 1,17 1,6 11,1 "></polygon>
+                </g>
+            )
+        })}</>
+    )
+}
+
+export function ThumbUpCyan() {
+    return (
+        <>{CircleBlockCyan(() => {
+            return (
+                <g strokeLinecap="square" strokeWidth="2" fill="none" fillRule="evenodd">
+                    <path className="stroke-current text-slate-100" d="M29 42h10.229a2 2 0 001.912-1.412l2.769-9A2 2 0 0042 29h-7v-4c0-2.373-1.251-3.494-2.764-3.86a1.006 1.006 0 00-1.236.979V26l-5 6" />
+                    <path className="stroke-current text-blue-300" d="M22 30h4v12h-4z" />
+                </g>
+            )
+        })}</>
+    )
+}
+
+export function CyborgCyan() {
+    return (
+        <>{CircleBlockCyan(() => {
+            return (
+                <g transform="translate(22 21)" strokeLinecap="square" strokeWidth="2" fill="none" fillRule="evenodd">
+                    <path className="stroke-current text-slate-100" d="M17 22v-6.3a8.97 8.97 0 003-6.569A9.1 9.1 0 0011.262 0 9 9 0 002 9v1l-2 5 2 1v4a2 2 0 002 2h4a5 5 0 005-5v-5" />
+                    <circle className="stroke-current text-blue-300" cx="13" cy="9" r="3" />
+                </g>
+            )
+        })}</>
+    )
+}
+
+export function FilterOrganizationCyan() {
+    return (
+        <>{CircleBlockCyan(() => {
+            return (
+
+                <g stroke-linecap="square" stroke-width="2" fill="none" stroke-linejoin="miter"
+                   className="nc-icon-wrapper" stroke-miterlimit="10">
+                    <g transform="translate(20 20)">
+                        <line x1="3" y1="13" x2="10" y2="13" className="stroke-current text-slate-100"></line>
+                        <line x1="3" y1="5" x2="10" y2="5" className="stroke-current text-slate-100"></line>
+                        <polyline points=" 3,1 3,21 10,21 " className="stroke-current text-slate-100"></polyline>
+                        <rect x="10" y="3" width="11" height="4" className="stroke-current text-slate-300"></rect>
+                        <rect x="10" y="19" width="11" height="4" className="stroke-current text-slate-300"></rect>
+                        <rect x="10" y="11" width="11" height="4" className="stroke-current text-slate-300"></rect>
+                    </g>
+                </g>
+
+            )
+        })}</>
+    )
+}
+
+export function NetworkConnectionCyan() {
+    return (
+        <>{CircleBlockCyan(() => {
+            return (
+                <g transform="translate(19 19)" stroke-linecap="square" stroke-width="2" fill="none" stroke-linejoin="miter"
+                   className="nc-icon-wrapper" stroke-miterlimit="10">
+                    <line data-cap="butt" x1="8.6" y1="10.2" x2="15.4" y2="6.8" stroke-linecap="butt"
+                          className="stroke-current text-slate-100"></line>
+                    <line data-cap="butt" x1="8.6" y1="13.7" x2="15.4" y2="17.1" stroke-linecap="butt"
+                          className="stroke-current text-slate-100"></line>
+                    <circle cx="5" cy="12" r="4" className="stroke-current text-slate-300"></circle>
+                    <circle cx="19" cy="5" r="4" className="stroke-current text-slate-300"></circle>
+                    <circle cx="19" cy="19" r="4" className="stroke-current text-slate-300"></circle>
+                </g>
+            )
+        })}</>
+    )
+}

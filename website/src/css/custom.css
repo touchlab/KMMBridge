@@ -35,6 +35,27 @@
   z-index: 1000;
 }
 
+.home-link {
+  color: white;
+}
+
+.home-link p {
+  @apply text-gray-400;
+}
+
+.home-link:hover {
+  @apply bg-neutral-800;
+}
+
+.home-link:hover p {
+  @apply text-cyan-400;
+}
+
+.svg-inline {
+  display: inline-block !important;
+  @apply -mt-1;
+}
+
 [data-theme='dark'] .language-swift{
   background-color: #25252a !important;
 }

@@ -112,6 +112,7 @@ const config = {
           logo: {
             alt: 'Touchlab Logo',
             src: 'img/Touchlab_Gradient.png',
+            href: 'https://touchlab.co'
           },
           items: [
             {
@@ -125,8 +126,8 @@ const config = {
               label: 'v0.3.x',
             },
             {
-              href: 'https://touchlab.co/',
-              label: 'Touchlab Site',
+              href: 'https://touchlab.co/osssupport',
+              label: 'Support',
               position: 'right',
             },
             {
