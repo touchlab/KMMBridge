@@ -126,9 +126,24 @@ const config = {
               label: 'v0.3.x',
             },
             {
-              href: 'https://touchlab.co/osssupport',
+              type: 'dropdown',
               label: 'Support',
               position: 'right',
+              items: [
+                {
+                  label: 'Github Issues',
+                  href: 'https://github.com/touchlab/KMMBridge/issues',
+                },
+                  {
+                  label: 'KotlinLang Slack',
+                  href: 'https://kotlinlang.slack.com/archives/CTJB58X7X',
+                },
+                  {
+                  label: 'Professional Support',
+                  href: 'https://touchlab.co/tlpro',
+                },
+
+              ],
             },
             {
               href: `https://github.com/${touchlabConfig.docusaurusConfig.organizationName}/${touchlabConfig.docusaurusConfig.projectName}`,
