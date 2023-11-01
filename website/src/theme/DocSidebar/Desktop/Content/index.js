@@ -24,7 +24,7 @@ function useShowAnnouncementBar() {
 }
 
 function AdBody({link, title, body, bgColor}) {
-    return (<a href={link} className="hover:no-underline">
+    return (<a href={link} className="hover:no-underline" target="_blank">
         <div
             className={`${bgColor} rounded py-4 px-4 shadow-neutral-500  mt-8 mb-4`}
             data-aos="fade-in"
