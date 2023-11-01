@@ -162,9 +162,9 @@ const config = {
                   label: 'Website',
                   href: 'https://touchlab.co/',
                 },
-                {
-                  label: 'Touchlab Github',
-                  href: `https://github.com/${touchlabConfig.docusaurusConfig.organizationName}/`,
+                  {
+                  label: 'Newsletter Signup',
+                  href: 'https://touchlab.co/oss?s=shownewsletter',
                 },
               ],
             },
