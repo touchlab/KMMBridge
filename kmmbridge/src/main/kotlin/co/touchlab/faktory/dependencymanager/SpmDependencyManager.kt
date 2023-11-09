@@ -31,9 +31,12 @@ class SpmDependencyManager(
      */
     private val _swiftPackageFolder: String?,
     private val useCustomPackageFile: Boolean,
+    private val spmConfig: SpmConfig,
 ) : DependencyManager, LocalDevManager {
     private fun Project.swiftPackageFolder(): String = _swiftPackageFolder ?: this.findRepoRoot()
     private fun Project.swiftPackageFilePath(): String = "${stripEndSlash(swiftPackageFolder())}/Package.swift"
+    private fun Project.swiftPackageToolsVersion(): String = spmConfig.swiftToolsVersion ?: "5.3"
+    private fun Project.swiftPackagePlatforms(): List<String> = spmConfig.platforms ?: listOf("iOS(.v13)")
 
     override fun configure(project: Project, uploadTask: TaskProvider<Task>, publishRemoteTask: TaskProvider<Task>) {
         if (useCustomPackageFile && !project.hasKmmbridgeVariablesSection()) {
@@ -94,7 +97,12 @@ class SpmDependencyManager(
 
     private fun Project.writePackageFile(packageName: String, url: String, checksum: String) {
         val swiftPackageFile = file(swiftPackageFilePath())
-        val packageText = makePackageFileText(packageName, url, checksum)
+        val packageText = makePackageFileText(
+            packageName,
+            project.swiftPackageToolsVersion(),
+            project.swiftPackagePlatforms(),
+            url, checksum
+        )
         swiftPackageFile.parentFile.mkdirs()
         swiftPackageFile.writeText(packageText)
     }
@@ -146,6 +154,8 @@ class SpmDependencyManager(
                     project.writePackageFile(
                         makeLocalDevPackageFileText(
                             project.swiftPackageFolder(),
+                            project.swiftPackageToolsVersion(),
+                            project.swiftPackagePlatforms(),
                             extension.frameworkName.get(),
                             project
                         )
@@ -164,14 +174,20 @@ internal fun stripEndSlash(path: String): String {
     }
 }
 
-private fun makeLocalDevPackageFileText(swiftPackageFolder: String, frameworkName: String, project: Project): String {
+private fun makeLocalDevPackageFileText(
+    swiftPackageFolder: String,
+    swiftPackageToolsVersion: String,
+    swiftPackagePlatforms: List<String>,
+    frameworkName: String,
+    project: Project,
+): String {
     val swiftFolderPath = project.file(swiftPackageFolder).toPath()
     val projectBuildFolderPath = project.buildDir.toPath()
     val xcFrameworkPath =
         "${swiftFolderPath.relativize(projectBuildFolderPath)}/XCFrameworks/${NativeBuildType.DEBUG.getName()}"
 
     return """
-// swift-tools-version:5.3
+// swift-tools-version:$swiftPackageToolsVersion
 import PackageDescription
 
 let packageName = "$frameworkName"
@@ -179,7 +195,7 @@ let packageName = "$frameworkName"
 let package = Package(
     name: packageName,
     platforms: [
-        .iOS(.v13)
+        ${swiftPackagePlatforms.joinToString(",\n        ")}
     ],
     products: [
         .library(
@@ -239,8 +255,13 @@ internal fun getModifiedPackageFileText(
     }
 }.removeSuffix("\n")
 
-private fun makePackageFileText(packageName: String, url: String, checksum: String): String = """
-// swift-tools-version:5.3
+private fun makePackageFileText(
+    packageName: String,
+    swiftPackageToolsVersion: String,
+    swiftPackagePlatforms: List<String>,
+    url: String, checksum: String,
+): String = """
+// swift-tools-version:$swiftPackageToolsVersion
 import PackageDescription
 
 $KMMBRIDGE_VARIABLES_BEGIN
@@ -252,7 +273,7 @@ $KMMBRIDGE_END
 let package = Package(
     name: packageName,
     platforms: [
-        .iOS(.v13)
+        ${swiftPackagePlatforms.joinToString(",\n        ")}
     ],
     products: [
         .library(
@@ -291,3 +312,9 @@ private val CUSTOM_PACKAGE_FILE_ERROR =
         // BEGIN KMMBRIDGE VARIABLES BLOCK (do not edit)
         // END KMMBRIDGE BLOCK
     """.trimIndent()
+
+
+data class SpmConfig(
+    var swiftToolsVersion: String? = null,
+    var platforms: List<String>? = null,
+)
