@@ -41,10 +41,8 @@ gradlePlugin {
 }
 
 dependencies {
-    implementation(kotlin("stdlib-jdk8"))
-    implementation(gradleApi())
-    implementation(kotlin("gradle-plugin"))
-    implementation(kotlin("compiler-embeddable"))
+    implementation(kotlin("stdlib"))
+    compileOnly(kotlin("gradle-plugin"))
 
     implementation("commons-codec:commons-codec:1.15")
     implementation("software.amazon.awssdk:s3:2.20.17")
@@ -55,8 +53,8 @@ dependencies {
     testImplementation(kotlin("test"))
 }
 
-java.toolchain {
-    languageVersion.set(JavaLanguageVersion.of(8))
+kotlin {
+    jvmToolchain(11)
 }
 
 val GROUP: String by project
