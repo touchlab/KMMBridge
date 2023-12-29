@@ -121,6 +121,12 @@ For published versions, the only real difference is the `Package.swift`. Our Git
 
 You don't need to create branches, but adding release commits to your main branch can get a little busy, so we generally prefer the headless tagged commit approach.
 
+:::caution Where's the `Package.swift` file?!
+
+KMMBridge generates the `Package.swift` in the build branch when publishing. It'll generate `Package.swift` in whatever branch you are in locally if you run the local build Gradle task. Otherwise, there either will not be a `Package.swift`, or you'll need to create it.
+
+:::
+
 ### CocoaPods
 
 As mentioned, CocoaPods is very different than SPM in how it manages versions. Conceptually, it is more flexible, and doesn't clutter up your repo. However, it is significantly more complex to set up, and because the versions aren't in your repo, you'll lose the connection from source to version (unless you tag or similar).
