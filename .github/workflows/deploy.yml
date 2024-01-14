@@ -43,13 +43,5 @@ jobs:
 #          GRADLE_PUBLISH_SECRET: ${{ secrets.GRADLE_PUBLISH_SECRET }}
 #          ORG_GRADLE_PROJECT_signingInMemoryKey: ${{ secrets.SIGNING_KEY }}
 
-
-
-      - name: Create Release
-        if: ${{ contains(steps.read_version.outputs.value, 'SNAPSHOT') == false }}
-        uses: touchlab/release-action@v1.10.0
-        with:
-          tag: ${{ steps.read_version.outputs.value }}
-
 env:
   GRADLE_OPTS: -Dkotlin.incremental=false -Dorg.gradle.jvmargs="-Xmx3g -XX:+HeapDumpOnOutOfMemoryError -Dfile.encoding=UTF-8 -XX:MaxMetaspaceSize=512m"

@@ -21,7 +21,6 @@ buildscript {
     dependencies {
         classpath("com.vanniktech:gradle-maven-publish-plugin:0.25.3")
         classpath("org.jetbrains.kotlin:kotlin-gradle-plugin:$KOTLIN_VERSION")
-        classpath("org.jetbrains.kotlin:kotlin-allopen:$KOTLIN_VERSION")
     }
 }
 
