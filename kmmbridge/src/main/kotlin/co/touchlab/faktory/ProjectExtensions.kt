@@ -70,9 +70,9 @@ internal const val EXTENSION_NAME = "kmmbridge"
 internal fun Project.findXCFrameworkAssembleTask(buildType: NativeBuildType? = null): TaskProvider<Task> {
     val extension = extensions.getByType<KmmBridgeExtension>()
     val name = extension.frameworkName.get()
-    val buildTypeString = (buildType ?: extension.buildType.get()).getName().capitalize()
+    val buildTypeString = (buildType ?: extension.buildType.get()).getName().capitalized()
     val taskWithoutName = "assemble${buildTypeString}XCFramework"
-    val taskWithName = "assemble${name.capitalize()}${buildTypeString}XCFramework"
+    val taskWithName = "assemble${name.capitalized()}${buildTypeString}XCFramework"
     return runCatching {
         tasks.named(taskWithName)
     }.recoverCatching {
