@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023 Touchlab.
+ * Copyright (c) 2024 Touchlab.
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
  * in compliance with the License. You may obtain a copy of the License at
  *
@@ -58,7 +58,7 @@ class KMMBridgePlugin : Plugin<Project> {
         val zipFile = zipFilePath()
         val zipTask = tasks.register<Zip>("zipXCFramework") {
             group = TASK_GROUP_NAME
-            from("$buildDir/XCFrameworks/${extension.buildType.get().getName()}")
+            from("$layoutBuildDir/XCFrameworks/${extension.buildType.get().getName()}")
             destinationDirectory.set(zipFile.parentFile)
             archiveFileName.set(zipFile.name)
         }

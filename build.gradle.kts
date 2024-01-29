@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023 Touchlab.
+ * Copyright (c) 2024 Touchlab.
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
  * in compliance with the License. You may obtain a copy of the License at
  *
@@ -10,17 +10,8 @@
  * or implied. See the License for the specific language governing permissions and limitations under
  * the License.
  */
-
-buildscript {
-    @Suppress("LocalVariableName") val KOTLIN_VERSION: String by project
-    repositories {
-        mavenLocal()
-        mavenCentral()
-        google()
-    }
-    dependencies {
-        classpath("com.vanniktech:gradle-maven-publish-plugin:0.25.3")
-        classpath("org.jetbrains.kotlin:kotlin-gradle-plugin:$KOTLIN_VERSION")
-    }
+plugins {
+    alias(libs.plugins.kotlin) apply false
+    alias(libs.plugins.maven.publish) apply false
 }
 

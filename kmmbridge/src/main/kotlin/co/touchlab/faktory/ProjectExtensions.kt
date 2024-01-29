@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023 Touchlab.
+ * Copyright (c) 2024 Touchlab.
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
  * in compliance with the License. You may obtain a copy of the License at
  *
@@ -27,12 +27,14 @@ import org.jetbrains.kotlin.gradle.plugin.cocoapods.CocoapodsExtension
 import org.jetbrains.kotlin.gradle.plugin.mpp.NativeBuildType
 import java.io.File
 
+internal val Project.layoutBuildDir get() = layout.buildDirectory.get().asFile
+
 internal val Project.kotlin: KotlinMultiplatformExtension get() = extensions.getByType()
 internal val Project.kmmBridgeExtension get() = extensions.getByType<KmmBridgeExtension>()
 internal val Project.publishingExtension get() = extensions.getByType<PublishingExtension>()
 
-internal val Project.urlFile get() = file("$buildDir/faktory/url")
-internal val Project.versionFile get() = file("$buildDir/faktory/version")
+internal val Project.urlFile get() = file("$layoutBuildDir/faktory/url")
+internal val Project.versionFile get() = file("$layoutBuildDir/faktory/version")
 
 // Cocoapods is an extension of KMP extension, so you can't just do project.extensions.getByType<CocoapodsExtension>()
 internal val KotlinMultiplatformExtension.cocoapodsOrNull get() = (this as ExtensionAware).extensions.findByType<CocoapodsExtension>()
@@ -49,7 +51,7 @@ internal val Project.spmBuildTargets: String?
 
 @Suppress("SpellCheckingInspection")
 internal fun Project.zipFilePath(): File {
-    val tempDir = file("$buildDir/faktory/zip")
+    val tempDir = file("$layoutBuildDir/faktory/zip")
     val artifactName = "frameworkarchive.zip"
     return file("$tempDir/$artifactName")
 }
@@ -68,9 +70,9 @@ internal const val EXTENSION_NAME = "kmmbridge"
 internal fun Project.findXCFrameworkAssembleTask(buildType: NativeBuildType? = null): TaskProvider<Task> {
     val extension = extensions.getByType<KmmBridgeExtension>()
     val name = extension.frameworkName.get()
-    val buildTypeString = (buildType ?: extension.buildType.get()).getName().capitalize()
+    val buildTypeString = (buildType ?: extension.buildType.get()).getName().capitalized()
     val taskWithoutName = "assemble${buildTypeString}XCFramework"
-    val taskWithName = "assemble${name.capitalize()}${buildTypeString}XCFramework"
+    val taskWithName = "assemble${name.capitalized()}${buildTypeString}XCFramework"
     return runCatching {
         tasks.named(taskWithName)
     }.recoverCatching {

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023 Touchlab.
+ * Copyright (c) 2024 Touchlab.
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
  * in compliance with the License. You may obtain a copy of the License at
  *
@@ -166,7 +166,7 @@ internal fun stripEndSlash(path: String): String {
 
 private fun makeLocalDevPackageFileText(swiftPackageFolder: String, frameworkName: String, project: Project): String {
     val swiftFolderPath = project.file(swiftPackageFolder).toPath()
-    val projectBuildFolderPath = project.buildDir.toPath()
+    val projectBuildFolderPath = project.layoutBuildDir.toPath()
     val xcFrameworkPath =
         "${swiftFolderPath.relativize(projectBuildFolderPath)}/XCFrameworks/${NativeBuildType.DEBUG.getName()}"
 

@@ -1,5 +1,6 @@
 package co.touchlab.faktory.artifactmanager
 
+import co.touchlab.faktory.capitalized
 import co.touchlab.faktory.publishingExtension
 import org.gradle.api.GradleException
 import org.gradle.api.Project
@@ -82,10 +83,10 @@ class MavenPublishArtifactManager(
 
         // Either the user has supplied a correct name, or we use the default. If neither is found, fail.
         val publicationNameCap =
-            publishingExtension.publications.getByName(publicationName ?: FRAMEWORK_PUBLICATION_NAME).name.capitalize()
+            publishingExtension.publications.getByName(publicationName ?: FRAMEWORK_PUBLICATION_NAME).name.capitalized()
 
         return publishingExtension.repositories.filterIsInstance<MavenArtifactRepository>().map { repo ->
-            val repositoryName = repo.name.capitalize()
+            val repositoryName = repo.name.capitalized()
             val publishTaskName = "publish${publicationNameCap}PublicationTo${repositoryName}Repository"
             // Verify that the "publish" task exists before collecting
             project.tasks.named(publishTaskName)
