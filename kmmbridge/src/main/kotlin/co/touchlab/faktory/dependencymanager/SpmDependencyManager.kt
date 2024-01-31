@@ -35,8 +35,8 @@ class SpmDependencyManager(
 ) : DependencyManager, LocalDevManager {
     private fun Project.swiftPackageFolder(): String = _swiftPackageFolder ?: this.findRepoRoot()
     private fun Project.swiftPackageFilePath(): String = "${stripEndSlash(swiftPackageFolder())}/Package.swift"
-    private fun Project.swiftPackageToolsVersion(): String = spmConfig.swiftToolsVersion ?: "5.3"
-    private fun Project.swiftPackagePlatforms(): List<String> = spmConfig.platforms ?: listOf("iOS(.v13)")
+    private fun Project.swiftPackageToolsVersion(): String = spmConfig.swiftToolsVersion
+    private fun Project.swiftPackagePlatforms(): String = spmConfig.getPlatformsAsFormattedText()
 
     override fun configure(project: Project, uploadTask: TaskProvider<Task>, publishRemoteTask: TaskProvider<Task>) {
         if (useCustomPackageFile && !project.hasKmmbridgeVariablesSection()) {
@@ -177,7 +177,7 @@ internal fun stripEndSlash(path: String): String {
 private fun makeLocalDevPackageFileText(
     swiftPackageFolder: String,
     swiftPackageToolsVersion: String,
-    swiftPackagePlatforms: List<String>,
+    swiftPackagePlatforms: String,
     frameworkName: String,
     project: Project,
 ): String {
@@ -195,7 +195,7 @@ let packageName = "$frameworkName"
 let package = Package(
     name: packageName,
     platforms: [
-        ${swiftPackagePlatforms.joinToString(",\n        ")}
+$swiftPackagePlatforms
     ],
     products: [
         .library(
@@ -258,7 +258,7 @@ internal fun getModifiedPackageFileText(
 private fun makePackageFileText(
     packageName: String,
     swiftPackageToolsVersion: String,
-    swiftPackagePlatforms: List<String>,
+    swiftPackagePlatforms: String,
     url: String, checksum: String,
 ): String = """
 // swift-tools-version:$swiftPackageToolsVersion
@@ -273,7 +273,7 @@ $KMMBRIDGE_END
 let package = Package(
     name: packageName,
     platforms: [
-        ${swiftPackagePlatforms.joinToString(",\n        ")}
+        ${swiftPackagePlatforms}
     ],
     products: [
         .library(
@@ -314,7 +314,57 @@ private val CUSTOM_PACKAGE_FILE_ERROR =
     """.trimIndent()
 
 
-data class SpmConfig(
-    var swiftToolsVersion: String? = null,
-    var platforms: List<String>? = null,
+
+class SpmConfig {
+    var swiftToolsVersion: String = "5.9"
+    var platforms = mutableListOf<Platform>()
+
+    fun platforms(block: List<Platform>.() -> Unit) {
+        platforms.apply(block)
+    }
+
+    fun iOS(block: PlatformVersion.() -> Unit) {
+        platforms.add(Platform(PlatformName.IOS, PlatformVersion().apply(block)))
+    }
+
+    fun macOS(block: PlatformVersion.() -> Unit) {
+        platforms.add(Platform(PlatformName.MacOS, PlatformVersion().apply(block)))
+    }
+
+    fun tvOS(block: PlatformVersion.() -> Unit) {
+        platforms.add(Platform(PlatformName.TvOS, PlatformVersion().apply(block)))
+    }
+
+    fun watchOS(block: PlatformVersion.() -> Unit) {
+        platforms.add(Platform(PlatformName.WatchOS, PlatformVersion().apply(block)))
+    }
+
+    fun getPlatformsAsFormattedText(): String {
+        val formattedPlatforms = platforms.joinToString(",\n") { platform ->
+            "        .${platform.name.value}(.v${platform.version.version})"
+        }
+        return formattedPlatforms
+    }
+
+}
+
+data class Platform(
+    val name: PlatformName,
+    val version: PlatformVersion,
 )
+
+enum class PlatformName(val value: String) {
+    IOS("iOS"),
+    MacOS("macOS"),
+    TvOS("tvOS"),
+    WatchOS("watchOS"),
+}
+
+class PlatformVersion {
+    var version: String? = null
+
+    fun v(version: String) {
+        this.version = version
+    }
+}
+
