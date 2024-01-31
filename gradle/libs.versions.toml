@@ -1,6 +1,6 @@
 [versions]
 kotlin = "1.9.22"
-mavenPublish = "0.27.0"
+mavenPublish = "0.25.3"
 
 [libraries]
 aws = { module = "software.amazon.awssdk:s3", version = "2.23.8" }
