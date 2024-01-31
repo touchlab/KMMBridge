@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023 Touchlab.
+ * Copyright (c) 2024 Touchlab.
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
  * in compliance with the License. You may obtain a copy of the License at
  *
@@ -38,7 +38,7 @@ class CocoapodsDependencyManager(
     override fun configure(project: Project, uploadTask: TaskProvider<Task>, publishRemoteTask: TaskProvider<Task>) {
 
         val podSpecFile =
-            "${project.buildDir}/faktory/podspec/${project.kmmBridgeExtension.buildType.get().name.toLowerCase()}/${project.kotlin.cocoapods.name}.podspec"
+            "${project.layoutBuildDir}/faktory/podspec/${project.kmmBridgeExtension.buildType.get().name.lowercase()}/${project.kotlin.cocoapods.name}.podspec"
 
         val generatePodspecTask = project.tasks.register("generateReleasePodspec") {
             inputs.files(project.urlFile, project.versionFile)

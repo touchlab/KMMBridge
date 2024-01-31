@@ -1,7 +1,7 @@
 @file:Suppress("PropertyName")
 
 /*
-* Copyright (c) 2023 Touchlab.
+* Copyright (c) 2024 Touchlab.
 * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
 * in compliance with the License. You may obtain a copy of the License at
 *
@@ -15,17 +15,12 @@
 
 plugins {
     `kotlin-dsl`
-    kotlin("jvm")
-    id("java-gradle-plugin")
-    id("com.vanniktech.maven.publish.base")
-    id("com.gradle.plugin-publish") version "1.2.1"
+    `java-gradle-plugin`
+    alias(libs.plugins.kotlin)
+    alias(libs.plugins.maven.publish)
 }
 
-repositories {
-    gradlePluginPortal()
-    mavenCentral()
-}
-
+@Suppress("UnstableApiUsage")
 gradlePlugin {
     website = "https://github.com/touchlab/KMMBridge"
     vcsUrl = "https://github.com/touchlab/KMMBridge.git"
@@ -43,12 +38,9 @@ gradlePlugin {
 dependencies {
     implementation(kotlin("stdlib"))
     compileOnly(kotlin("gradle-plugin"))
-
-    implementation("commons-codec:commons-codec:1.15")
-    implementation("software.amazon.awssdk:s3:2.20.17")
-
-    implementation("com.squareup.okhttp3:okhttp:4.10.0")
-    implementation("com.google.code.gson:gson:2.10.1")
+    implementation(libs.aws)
+    implementation(libs.okhttp)
+    implementation(libs.gson)
 
     testImplementation(kotlin("test"))
 }
@@ -68,5 +60,6 @@ mavenPublishing {
     val releaseSigningEnabled =
         project.properties["RELEASE_SIGNING_ENABLED"]?.toString()?.equals("false", ignoreCase = true) != true
     if (releaseSigningEnabled) signAllPublications()
+    @Suppress("UnstableApiUsage")
     pomFromGradleProperties()
 }

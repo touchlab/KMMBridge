@@ -50,7 +50,7 @@ This flow allows you to do the following:
 | netrcMachine        | string  | No        | 'maven.pkg.github.com' | The domain name of the maching for netrc config.                                                                                                                                     |
 | jvmVersion          | string  | No        | '11'                   | JVM Version to use. You may want to use '17' for current Android compatibility.                                                                                                      |
 | runsOn              | string  | No        | 'macos-12'             | GitHub Actions host name. The default will likely change as GitHub Actions changes versions.                                                                                         |
-| versionBaseProperty | string  | Yes       | N/A                    | The GitHub Workflow calculates versions automatically using a base (ex. `2.3`) and incrementing sequentially. The Workflow reads the base from a named value in `github.properties`. |
+| versionBaseProperty | string  | Yes       | N/A                    | The GitHub Workflow calculates versions automatically using a base (ex. `2.3`) and incrementing sequentially. The Workflow reads the base from a named value in `gradle.properties`. |
 | retainBuildBranch   | boolean | No        | false                  | The Workflow needs to add and commit values to the repo. It does this in a build branch, which is deleted at the end. If set to 'true', this branch is retained.                     |
 
 ### Secrets
