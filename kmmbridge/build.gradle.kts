@@ -62,4 +62,5 @@ mavenPublishing {
     if (releaseSigningEnabled) signAllPublications()
     @Suppress("UnstableApiUsage")
     pomFromGradleProperties()
+    configureBasedOnAppliedPlugins()
 }
