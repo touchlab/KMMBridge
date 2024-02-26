@@ -35,8 +35,6 @@ class SpmDependencyManager(
 ) : DependencyManager, LocalDevManager {
     private fun Project.swiftPackageFolder(): String = _swiftPackageFolder ?: this.findRepoRoot()
     private fun Project.swiftPackageFilePath(): String = "${stripEndSlash(swiftPackageFolder())}/Package.swift"
-    private fun Project.swiftPackageToolsVersion(): String = spmConfig.swiftToolsVersion
-    private fun Project.swiftPackagePlatforms(): String = spmConfig.getPlatformsAsFormattedText()
 
     override fun configure(project: Project, uploadTask: TaskProvider<Task>, publishRemoteTask: TaskProvider<Task>) {
         if (useCustomPackageFile && !project.hasKmmbridgeVariablesSection()) {
@@ -99,8 +97,8 @@ class SpmDependencyManager(
         val swiftPackageFile = file(swiftPackageFilePath())
         val packageText = makePackageFileText(
             packageName,
-            project.swiftPackageToolsVersion(),
-            project.swiftPackagePlatforms(),
+            spmConfig.swiftToolsVersion,
+            spmConfig.getPlatformsAsFormattedText(),
             url, checksum
         )
         swiftPackageFile.parentFile.mkdirs()
@@ -154,8 +152,8 @@ class SpmDependencyManager(
                     project.writePackageFile(
                         makeLocalDevPackageFileText(
                             project.swiftPackageFolder(),
-                            project.swiftPackageToolsVersion(),
-                            project.swiftPackagePlatforms(),
+                            spmConfig.swiftToolsVersion,
+                            spmConfig.getPlatformsAsFormattedText(),
                             extension.frameworkName.get(),
                             project
                         )
@@ -324,19 +322,19 @@ class SpmConfig {
     }
 
     fun iOS(block: PlatformVersion.() -> Unit) {
-        platforms.add(Platform(PlatformName.IOS, PlatformVersion().apply(block)))
+        platforms.add(Platform(PlatformName.IOS, PlatformVersion().default("17").apply(block)))
     }
 
     fun macOS(block: PlatformVersion.() -> Unit) {
-        platforms.add(Platform(PlatformName.MacOS, PlatformVersion().apply(block)))
+        platforms.add(Platform(PlatformName.MacOS, PlatformVersion().default("13").apply(block)))
     }
 
     fun tvOS(block: PlatformVersion.() -> Unit) {
-        platforms.add(Platform(PlatformName.TvOS, PlatformVersion().apply(block)))
+        platforms.add(Platform(PlatformName.TvOS, PlatformVersion().default("17.3").apply(block)))
     }
 
     fun watchOS(block: PlatformVersion.() -> Unit) {
-        platforms.add(Platform(PlatformName.WatchOS, PlatformVersion().apply(block)))
+        platforms.add(Platform(PlatformName.WatchOS, PlatformVersion().default("9").apply(block)))
     }
 
     fun getPlatformsAsFormattedText(): String {
@@ -366,5 +364,13 @@ class PlatformVersion {
     fun v(version: String) {
         this.version = version
     }
+
+    fun default(version: String): PlatformVersion {
+        if (this.version == null) {
+            this.version = version
+        }
+        return this
+    }
 }
+
 

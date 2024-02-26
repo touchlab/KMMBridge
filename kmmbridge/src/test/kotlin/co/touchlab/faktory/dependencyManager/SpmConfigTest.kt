@@ -7,6 +7,24 @@ import kotlin.test.assertEquals
 class SpmConfigTest {
 
     @Test
+    fun defaultPlatforms() {
+        val config = SpmConfig().apply {
+            platforms {
+                iOS { }
+                macOS { }
+                watchOS { }
+                tvOS { }
+            }
+        }
+
+        assertEquals("""
+        .iOS(.v17),
+        .macOS(.v13),
+        .watchOS(.v9),
+        .tvOS(.v17.3)""".trimMargin(), config.getPlatformsAsFormattedText())
+    }
+
+    @Test
     fun addMultiplePlatforms() {
         val config = SpmConfig().apply(fun SpmConfig.() {
             platforms {
