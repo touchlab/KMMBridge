@@ -10,10 +10,10 @@ class SpmConfigTest {
     fun defaultPlatforms() {
         val config = SpmConfig().apply {
             platforms {
-                iOS { }
-                macOS { }
-                watchOS { }
-                tvOS { }
+                iOS()
+                macOS()
+                watchOS()
+                tvOS()
             }
         }
 
@@ -26,22 +26,14 @@ class SpmConfigTest {
 
     @Test
     fun addMultiplePlatforms() {
-        val config = SpmConfig().apply(fun SpmConfig.() {
+        val config = SpmConfig().apply {
             platforms {
-                iOS {
-                    v("14")
-                }
-                macOS {
-                    v("13")
-                }
-                watchOS {
-                    v("7")
-                }
-                tvOS {
-                    v("14")
-                }
+                iOS("14")
+                macOS("13")
+                watchOS("7")
+                tvOS("14")
             }
-        })
+        }
 
         assertEquals("""
         .iOS(.v14),
@@ -53,52 +45,44 @@ class SpmConfigTest {
 
     @Test
     fun addWatchOSToPlatforms() {
-        val config = SpmConfig().apply(fun SpmConfig.() {
+        val config = SpmConfig().apply {
             platforms {
-                watchOS {
-                    v("7")
-                }
+                watchOS("7")
             }
-        })
+        }
 
         assertEquals(".watchOS(.v7)", config.getPlatformsAsFormattedText().trimIndent())
     }
 
     @Test
     fun addTvOSToPlatforms() {
-        val config = SpmConfig().apply(fun SpmConfig.() {
+        val config = SpmConfig().apply {
             platforms {
-                tvOS {
-                    v("14")
-                }
+                tvOS("14")
             }
-        })
+        }
 
         assertEquals(".tvOS(.v14)", config.getPlatformsAsFormattedText().trimIndent())
     }
 
     @Test
     fun addMacOSToPlatforms() {
-        val config = SpmConfig().apply(fun SpmConfig.() {
+        val config = SpmConfig().apply {
             platforms {
-                macOS {
-                    v("13")
-                }
+                macOS("13")
             }
-        })
+        }
 
         assertEquals(".macOS(.v13)", config.getPlatformsAsFormattedText().trimIndent())
     }
 
     @Test
     fun addIOSToPlatforms() {
-        val config = SpmConfig().apply(fun SpmConfig.() {
+        val config = SpmConfig().apply {
             platforms {
-                iOS {
-                    v("14")
-                }
+                iOS("14")
             }
-        })
+        }
 
         assertEquals(".iOS(.v14)", config.getPlatformsAsFormattedText().trimIndent())
     }

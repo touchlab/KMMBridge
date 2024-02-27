@@ -312,7 +312,6 @@ private val CUSTOM_PACKAGE_FILE_ERROR =
     """.trimIndent()
 
 
-
 class SpmConfig {
     var swiftToolsVersion: String = "5.9"
     var platforms = mutableListOf<Platform>()
@@ -321,20 +320,20 @@ class SpmConfig {
         platforms.apply(block)
     }
 
-    fun iOS(block: PlatformVersion.() -> Unit) {
-        platforms.add(Platform(PlatformName.IOS, PlatformVersion().default("17").apply(block)))
+    fun iOS(version: String = "17") {
+        platforms.add(Platform(PlatformName.IOS, PlatformVersion(version)))
     }
 
-    fun macOS(block: PlatformVersion.() -> Unit) {
-        platforms.add(Platform(PlatformName.MacOS, PlatformVersion().default("13").apply(block)))
+    fun macOS(version: String = "13") {
+        platforms.add(Platform(PlatformName.MacOS, PlatformVersion(version)))
     }
 
-    fun tvOS(block: PlatformVersion.() -> Unit) {
-        platforms.add(Platform(PlatformName.TvOS, PlatformVersion().default("17.3").apply(block)))
+    fun tvOS(version: String = "17.3") {
+        platforms.add(Platform(PlatformName.TvOS, PlatformVersion(version)))
     }
 
-    fun watchOS(block: PlatformVersion.() -> Unit) {
-        platforms.add(Platform(PlatformName.WatchOS, PlatformVersion().default("9").apply(block)))
+    fun watchOS(version: String = "9") {
+        platforms.add(Platform(PlatformName.WatchOS, PlatformVersion(version)))
     }
 
     fun getPlatformsAsFormattedText(): String {
@@ -358,19 +357,6 @@ enum class PlatformName(val value: String) {
     WatchOS("watchOS"),
 }
 
-class PlatformVersion {
-    var version: String? = null
-
-    fun v(version: String) {
-        this.version = version
-    }
-
-    fun default(version: String): PlatformVersion {
-        if (this.version == null) {
-            this.version = version
-        }
-        return this
-    }
-}
-
-
+data class PlatformVersion(
+    val version: String = "",
+)
