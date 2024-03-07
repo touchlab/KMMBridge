@@ -15,22 +15,18 @@ package co.touchlab.faktory.internal
 
 import co.touchlab.faktory.findStringProperty
 import org.gradle.api.Project
+import java.net.URLEncoder
 
-internal val Project.githubPublishTokenOrNull: String?
-    get() = project.property("GITHUB_PUBLISH_TOKEN") as String?
+internal val Project.gitlabPublishTokenOrNull: String?
+    get() = project.property("GITLAB_PUBLISH_TOKEN") as String?
 
-internal val Project.githubPublishUser: String?
-    get() = project.findStringProperty("GITHUB_PUBLISH_USER")
+internal val Project.gitlabPublishUser: String?
+    get() = project.findStringProperty("GITLAB_PUBLISH_USER")
 
-internal val Project.githubRepoOrNull: String?
+internal val Project.gitlabRepoOrNull: String?
     get() {
         val repo = project.findStringProperty("GITHUB_REPO") ?: return null
-        val repoWithoutGitSuffix = repo.removeSuffix(".git")
-        val regex = Regex("((.*)[/:])?(?<owner>[^:/]+)/(?<repo>[^/]+)")
-        val matchResult = regex.matchEntire(repoWithoutGitSuffix)
-        if (matchResult != null) {
-            return (matchResult.groups["owner"]!!.value + "/" + matchResult.groups["repo"]!!.value)
-        } else {
-            throw IllegalArgumentException("Incorrect Github repository path, should be \"Owner/Repo\"")
-        }
+        // The GitLab API accepts repo id or url-encoded path
+        val repoId = repo.toIntOrNull()
+        return repoId?.toString() ?: URLEncoder.encode(repo, "UTF-8")
     }
