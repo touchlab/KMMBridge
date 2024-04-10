@@ -50,8 +50,12 @@ interface KmmBridgeExtension {
     val versionManager: Property<VersionManager>
 
     @Suppress("unused")
-    fun Project.gitHubReleaseArtifacts(repository: String? = null, releasString: String? = null) {
-        artifactManager.setAndFinalize(GithubReleaseArtifactManager(repository, releasString))
+    fun Project.gitHubReleaseArtifacts(
+        repository: String? = null,
+        releasString: String? = null,
+        useExistingRelease: Boolean = false
+    ) {
+        artifactManager.setAndFinalize(GithubReleaseArtifactManager(repository, releasString, useExistingRelease))
     }
 
     @Suppress("unused")
