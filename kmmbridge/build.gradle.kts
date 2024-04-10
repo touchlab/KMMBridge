@@ -29,14 +29,14 @@ repositories {
 
 @Suppress("UnstableApiUsage")
 gradlePlugin {
-    website = "https://github.com/touchlab/KXCBridge"
-    vcsUrl = "https://github.com/touchlab/KXCBridge.git"
-    description = "KXCBridge is a set of Gradle tooling that facilitates publishing and consuming pre-built KMP Xcode Framework binaries."
+    website = "https://github.com/touchlab/KMMBridge"
+    vcsUrl = "https://github.com/touchlab/KMMBridge.git"
+    description = "KMMBridge is a set of Gradle tooling that facilitates publishing and consuming pre-built KMM (Kotlin Multiplatform Mobile) Xcode Framework binaries."
     plugins {
-        register("kcxbridge-plugin") {
-            id = "co.touchlab.kxcbridge"
+        register("faktory-kmmbridge-plugin") {
+            id = "co.touchlab.kmmbridge"
             implementationClass = "co.touchlab.faktory.KMMBridgePlugin"
-            displayName = "KXCBridge for Teams"
+            displayName = "KMMBridge for Teams"
             tags = listOf("kmm", "kotlin", "multiplatform", "mobile", "ios", "xcode", "framework", "binary", "publish", "consume")
         }
     }
