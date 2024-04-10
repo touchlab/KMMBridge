@@ -89,9 +89,9 @@ jobs:
           tagVersion: ${{ steps.versionPropertyValue.outputs.propVal }}
           branchName: "build-${{ steps.versionPropertyValue.outputs.propVal }}"
 
-      - name: Delete branch
-        if: (!inputs.retainBuildBranch) && (!cancelled())
-        uses: touchlab/action-delete-branch@v3
-        with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
-          branches: "build-${{ steps.versionPropertyValue.outputs.propVal }}"
+#      - name: Delete branch
+#        if: (!inputs.retainBuildBranch) && (!cancelled())
+#        uses: touchlab/action-delete-branch@v3
+#        with:
+#          github_token: ${{ secrets.GITHUB_TOKEN }}
+#          branches: "build-${{ steps.versionPropertyValue.outputs.propVal }}"
