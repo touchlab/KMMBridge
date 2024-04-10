@@ -28,5 +28,5 @@ dependencyResolutionManagement {
     }
 }
 
-rootProject.name = "KMMBridge"
+rootProject.name = "KXCBridge"
 include(":kmmbridge")

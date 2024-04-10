@@ -1,0 +1,97 @@
+name: KMM Bridge Github Workflow
+on:
+  workflow_call:
+    inputs:
+      module: 
+        description: The module name to run the task on if you have mutliple kmp modules
+        required: false
+        type: string
+      publishTask:
+        description: 'The publish task to call if not kmmBridgePublish'
+        default: 'kmmBridgePublish'
+        required: false
+        type: string
+      jvmVersion:
+        description: 'JVM Version to use. Will be passed to java-version parameter of setup-java'
+        default: '11'
+        required: false
+        type: string
+      runsOn:
+        description: 'Host parameter to pass to runs-on'
+        default: 'macos-latest'
+        required: false
+        type: string
+      versionProperty:
+        description: 'Version key from gradle.properties'
+        required: true
+        type: string
+      retainBuildBranch:
+        description: 'Keep the build branch after build complete'
+        default: false
+        type: boolean
+    secrets:
+      gradle_params:
+        required: false
+
+env:
+  MODULE: ${{ inputs.module != '' && format('{0}:',inputs.module) || '' }}
+
+jobs:
+  kmmbridgepublish:
+    concurrency: "kmmbridgepublish-${{ github.repository }}"
+    runs-on: ${{ inputs.runsOn }}
+    steps:
+      - name: Checkout the repo with tags
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          fetch-tags: true
+
+      - uses: touchlab/read-property@0.1
+        id: versionPropertyValue
+        with:
+          file: ./gradle.properties
+          property: ${{ inputs.versionProperty }}
+
+      - name: Print versionPropertyValue
+        id: output
+        run: echo "${{ steps.versionPropertyValue.outputs.propVal }}"
+
+      - name: Touchlab Sample Sanity Check (Ignore this for your CI)
+        uses: touchlab/sample-group-sanity-check@0.2
+
+      - uses: actions/setup-java@v2
+        with:
+          distribution: "adopt"
+          java-version: ${{ inputs.jvmVersion }}
+
+      - name: Validate Gradle Wrapper
+        uses: gradle/wrapper-validation-action@v1
+
+      - name: Cache build tooling
+        uses: actions/cache@v3
+        with:
+          path: |
+            ~/.gradle/caches
+            ~/.konan
+          key: ${{ runner.os }}-v4-${{ hashFiles('*.gradle.kts') }}
+
+      - name: Build Main
+        run: ./gradlew ${{ env.MODULE }}${{ inputs.publishTask }} -PENABLE_PUBLISHING=true -PGITHUB_PUBLISH_TOKEN=${{ secrets.GITHUB_TOKEN }} -PGITHUB_REPO=${{ github.repository }} ${{ secrets.gradle_params }} --no-daemon --stacktrace
+        env:
+          GRADLE_OPTS: -Dkotlin.incremental=false -Dorg.gradle.jvmargs="-Xmx3g -XX:+HeapDumpOnOutOfMemoryError -Dfile.encoding=UTF-8 -XX:MaxMetaspaceSize=512m"
+
+      - uses: touchlab/kxc-tagversion@main
+        id: kxc-tagversion
+        with:
+          commitMessage: "KMP SPM package release for ${{ steps.versionPropertyValue.outputs.propVal }}"
+          tagMessage: "KMP release version ${{ steps.versionPropertyValue.outputs.propVal }}"
+          tagVersion: ${{ steps.versionPropertyValue.outputs.propVal }}
+          branchName: "build-${{ steps.versionPropertyValue.outputs.propVal }}"
+
+      - name: Delete branch
+        if: (!inputs.retainBuildBranch) && (!cancelled())
+        uses: touchlab/action-delete-branch@v3
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          branches: "build-${{ steps.versionPropertyValue.outputs.propVal }}"

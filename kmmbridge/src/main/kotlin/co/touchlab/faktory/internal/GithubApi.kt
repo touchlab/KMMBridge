@@ -34,3 +34,11 @@ internal val Project.githubRepoOrNull: String?
             throw IllegalArgumentException("Incorrect Github repository path, should be \"Owner/Repo\"")
         }
     }
+
+internal val Project.githubPublishToken
+    get() = (project.property("GITHUB_PUBLISH_TOKEN")
+        ?: throw IllegalArgumentException("KMMBridge Github operations need property GITHUB_PUBLISH_TOKEN")) as String
+
+internal val Project.githubRepo
+    get() = (project.findStringProperty("GITHUB_REPO")
+        ?: throw IllegalArgumentException("KMMBridge Github operations need a repo param or property GITHUB_REPO"))
