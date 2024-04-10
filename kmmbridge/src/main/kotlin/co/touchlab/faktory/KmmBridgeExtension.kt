@@ -15,6 +15,7 @@ package co.touchlab.faktory
 
 import co.touchlab.faktory.artifactmanager.ArtifactManager
 import co.touchlab.faktory.artifactmanager.AwsS3PublicArtifactManager
+import co.touchlab.faktory.artifactmanager.GithubReleaseArtifactManager
 import co.touchlab.faktory.artifactmanager.MavenPublishArtifactManager
 import co.touchlab.faktory.dependencymanager.CocoapodsDependencyManager
 import co.touchlab.faktory.dependencymanager.DependencyManager
@@ -47,6 +48,11 @@ interface KmmBridgeExtension {
     val buildType: Property<NativeBuildType>
 
     val versionManager: Property<VersionManager>
+
+    @Suppress("unused")
+    fun Project.gitHubReleaseArtifacts(repository: String? = null, releasString: String? = null) {
+        artifactManager.setAndFinalize(GithubReleaseArtifactManager(repository, releasString))
+    }
 
     @Suppress("unused")
     fun Project.s3PublicArtifacts(
