@@ -6,12 +6,26 @@ import co.touchlab.faktory.kmmBridgeExtension
 import co.touchlab.faktory.versionFile
 import org.gradle.api.GradleException
 import org.gradle.api.Project
+import org.gradle.api.Task
+import org.gradle.api.tasks.TaskProvider
 import java.io.File
 
 class GithubReleaseArtifactManager(
     private val repository: String?, private val releaseString: String?, private val useExistingRelease: Boolean
 ) : ArtifactManager {
-    override fun deployArtifact(project: Project, zipFilePath: File, version: String): String {
+
+    override fun configure(
+        project: Project,
+        version: String,
+        uploadTask: TaskProvider<Task>,
+        kmmPublishTask: TaskProvider<Task>
+    ) {
+        super.configure(project, version, uploadTask, kmmPublishTask)
+
+        if (useExistingRelease) {
+            return
+        }
+
         val releaseVersion = releaseString ?: project.versionFile.readText()
         val repoName: String = repository ?: project.githubRepo
 
@@ -19,13 +33,20 @@ class GithubReleaseArtifactManager(
             project, repoName, releaseVersion
         )
 
-        if (existingReleaseId != null && !useExistingRelease) {
+        if (existingReleaseId != null) {
             throw GradleException("Release for '$releaseVersion' exists. Set 'useExistingRelease = true' to update existing releases.")
         }
+    }
 
-        val idReply: Int = existingReleaseId ?: GithubCalls.createRelease(
-            project, repoName, releaseVersion, null
-        )
+    override fun deployArtifact(project: Project, zipFilePath: File, version: String): String {
+        val releaseVersion = releaseString ?: project.versionFile.readText()
+        val repoName: String = repository ?: project.githubRepo
+
+        val idReply: Int = GithubCalls.findReleaseId(
+            project, repoName, releaseVersion
+        ) ?: GithubCalls.createRelease(
+                project, repoName, releaseVersion, null
+            )
 
         val fileName = artifactName(project, version)
 
