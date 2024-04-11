@@ -45,17 +45,21 @@ class GithubReleaseArtifactManager(
         val idReply: Int = GithubCalls.findReleaseId(
             project, repoName, releaseVersion
         ) ?: GithubCalls.createRelease(
-                project, repoName, releaseVersion, null
-            )
+            project, repoName, releaseVersion, null
+        )
 
-        val fileName = artifactName(project, version)
+        val fileName = artifactName(project, version, useExistingRelease)
 
         val uploadUrl = GithubCalls.uploadZipFile(project, zipFilePath, repoName, idReply, fileName)
         return "${uploadUrl}.zip"
     }
 }
 
-private fun artifactName(project: Project, versionString: String): String {
+private fun artifactName(project: Project, versionString: String, useExistingRelease: Boolean): String {
     val frameworkName = project.kmmBridgeExtension.frameworkName.get()
-    return "$frameworkName-${versionString}-${(System.currentTimeMillis() / 1000)}.xcframework.zip"
+    return if (useExistingRelease) {
+        "$frameworkName-${versionString}-${(System.currentTimeMillis() / 1000)}.xcframework.zip"
+    } else {
+        "$frameworkName.xcframework.zip"
+    }
 }
