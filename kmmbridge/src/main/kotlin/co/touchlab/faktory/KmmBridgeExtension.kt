@@ -91,7 +91,7 @@ interface KmmBridgeExtension {
     fun Project.spm(
         spmDirectory: String? = null,
         useCustomPackageFile: Boolean = false,
-        config: SpmConfig.() -> Unit
+        config: SpmConfig.() -> Unit = {}
     ) {
         val spmConfig = SpmConfig().apply(config)
         val dependencyManager = SpmDependencyManager(spmDirectory, useCustomPackageFile, spmConfig)

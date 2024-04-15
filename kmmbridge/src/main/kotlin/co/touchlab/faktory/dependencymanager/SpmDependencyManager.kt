@@ -320,7 +320,7 @@ class SpmConfig {
         platforms.apply(block)
     }
 
-    fun iOS(version: String = "17") {
+    fun iOS(version: String = "16") {
         platforms.add(Platform(PlatformName.IOS, PlatformVersion(version)))
     }
 
@@ -328,7 +328,7 @@ class SpmConfig {
         platforms.add(Platform(PlatformName.MacOS, PlatformVersion(version)))
     }
 
-    fun tvOS(version: String = "17.3") {
+    fun tvOS(version: String = "16.1") {
         platforms.add(Platform(PlatformName.TvOS, PlatformVersion(version)))
     }
 
