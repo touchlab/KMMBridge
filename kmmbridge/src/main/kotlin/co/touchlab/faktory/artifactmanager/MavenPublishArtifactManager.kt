@@ -20,10 +20,11 @@ private const val KMMBRIDGE_ARTIFACT_SUFFIX = "kmmbridge"
 class MavenPublishArtifactManager(
     val project: Project,
     private val publicationName: String?,
-    private val repositoryName: String?
-) : ArtifactManager {
+    artifactSuffix: String?,
+    private val repositoryName: String?,
+    ) : ArtifactManager {
     private val group: String = project.group.toString().replace(".", "/")
-    private val kmmbridgeArtifactId = "${project.name}-$KMMBRIDGE_ARTIFACT_SUFFIX"
+    private val kmmbridgeArtifactId = "${project.name}-${artifactSuffix ?: KMMBRIDGE_ARTIFACT_SUFFIX}"
 
     override fun configure(
         project: Project,
@@ -31,7 +32,7 @@ class MavenPublishArtifactManager(
         uploadTask: TaskProvider<Task>,
         kmmPublishTask: TaskProvider<Task>
     ) {
-        project.publishingExtension.publications.create(FRAMEWORK_PUBLICATION_NAME, MavenPublication::class.java) {
+        project.publishingExtension.publications.create(publicationName ?: FRAMEWORK_PUBLICATION_NAME, MavenPublication::class.java) {
             this.version = version
             val archiveProvider = project.tasks.named("zipXCFramework", Zip::class.java).flatMap {
                 it.archiveFile

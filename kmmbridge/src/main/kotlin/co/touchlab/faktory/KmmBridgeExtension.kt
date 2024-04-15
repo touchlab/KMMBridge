@@ -73,8 +73,8 @@ interface KmmBridgeExtension {
      * the name in here.
      */
     @Suppress("unused")
-    fun Project.mavenPublishArtifacts(repository: String? = null, publication: String? = null) {
-        artifactManager.setAndFinalize(MavenPublishArtifactManager(this, publication, repository))
+    fun Project.mavenPublishArtifacts(repository: String? = null, publication: String? = null, artifactSuffix: String? = null) {
+        artifactManager.setAndFinalize(MavenPublishArtifactManager(this, publication, artifactSuffix, repository))
     }
 
     @Suppress("unused")
