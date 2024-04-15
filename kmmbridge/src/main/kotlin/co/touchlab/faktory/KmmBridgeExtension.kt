@@ -18,6 +18,7 @@ import co.touchlab.faktory.artifactmanager.AwsS3PublicArtifactManager
 import co.touchlab.faktory.artifactmanager.MavenPublishArtifactManager
 import co.touchlab.faktory.dependencymanager.CocoapodsDependencyManager
 import co.touchlab.faktory.dependencymanager.DependencyManager
+import co.touchlab.faktory.dependencymanager.SpmConfig
 import co.touchlab.faktory.dependencymanager.SpecRepo
 import co.touchlab.faktory.dependencymanager.SpmDependencyManager
 import co.touchlab.faktory.versionmanager.ManualVersionManager
@@ -90,8 +91,10 @@ interface KmmBridgeExtension {
     fun Project.spm(
         spmDirectory: String? = null,
         useCustomPackageFile: Boolean = false,
+        config: SpmConfig.() -> Unit = {}
     ) {
-        val dependencyManager = SpmDependencyManager(spmDirectory, useCustomPackageFile)
+        val spmConfig = SpmConfig().apply(config)
+        val dependencyManager = SpmDependencyManager(spmDirectory, useCustomPackageFile, spmConfig)
         dependencyManagers.set(dependencyManagers.getOrElse(emptyList()) + dependencyManager)
         localDevManager.setAndFinalize(dependencyManager)
     }
