@@ -31,7 +31,6 @@ class SpmDependencyManager(
      */
     private val _swiftPackageFolder: String?,
     private val useCustomPackageFile: Boolean,
-    private val spmConfig: SpmConfig,
 ) : DependencyManager, LocalDevManager {
     private fun Project.swiftPackageFolder(): String = _swiftPackageFolder ?: this.findRepoRoot()
     private fun Project.swiftPackageFilePath(): String = "${stripEndSlash(swiftPackageFolder())}/Package.swift"
@@ -95,12 +94,7 @@ class SpmDependencyManager(
 
     private fun Project.writePackageFile(packageName: String, url: String, checksum: String) {
         val swiftPackageFile = file(swiftPackageFilePath())
-        val packageText = makePackageFileText(
-            packageName,
-            spmConfig.swiftToolsVersion,
-            spmConfig.getPlatformsAsFormattedText(),
-            url, checksum
-        )
+        val packageText = makePackageFileText(packageName, url, checksum)
         swiftPackageFile.parentFile.mkdirs()
         swiftPackageFile.writeText(packageText)
     }
@@ -152,8 +146,6 @@ class SpmDependencyManager(
                     project.writePackageFile(
                         makeLocalDevPackageFileText(
                             project.swiftPackageFolder(),
-                            spmConfig.swiftToolsVersion,
-                            spmConfig.getPlatformsAsFormattedText(),
                             extension.frameworkName.get(),
                             project
                         )
@@ -172,20 +164,14 @@ internal fun stripEndSlash(path: String): String {
     }
 }
 
-private fun makeLocalDevPackageFileText(
-    swiftPackageFolder: String,
-    swiftPackageToolsVersion: String,
-    swiftPackagePlatforms: String,
-    frameworkName: String,
-    project: Project,
-): String {
+private fun makeLocalDevPackageFileText(swiftPackageFolder: String, frameworkName: String, project: Project): String {
     val swiftFolderPath = project.file(swiftPackageFolder).toPath()
     val projectBuildFolderPath = project.layoutBuildDir.toPath()
     val xcFrameworkPath =
         "${swiftFolderPath.relativize(projectBuildFolderPath)}/XCFrameworks/${NativeBuildType.DEBUG.getName()}"
 
     return """
-// swift-tools-version:$swiftPackageToolsVersion
+// swift-tools-version:5.3
 import PackageDescription
 
 let packageName = "$frameworkName"
@@ -193,7 +179,7 @@ let packageName = "$frameworkName"
 let package = Package(
     name: packageName,
     platforms: [
-$swiftPackagePlatforms
+        .iOS(.v13)
     ],
     products: [
         .library(
@@ -253,13 +239,8 @@ internal fun getModifiedPackageFileText(
     }
 }.removeSuffix("\n")
 
-private fun makePackageFileText(
-    packageName: String,
-    swiftPackageToolsVersion: String,
-    swiftPackagePlatforms: String,
-    url: String, checksum: String,
-): String = """
-// swift-tools-version:$swiftPackageToolsVersion
+private fun makePackageFileText(packageName: String, url: String, checksum: String): String = """
+// swift-tools-version:5.3
 import PackageDescription
 
 $KMMBRIDGE_VARIABLES_BEGIN
@@ -271,7 +252,7 @@ $KMMBRIDGE_END
 let package = Package(
     name: packageName,
     platforms: [
-        ${swiftPackagePlatforms}
+        .iOS(.v13)
     ],
     products: [
         .library(
@@ -310,53 +291,3 @@ private val CUSTOM_PACKAGE_FILE_ERROR =
         // BEGIN KMMBRIDGE VARIABLES BLOCK (do not edit)
         // END KMMBRIDGE BLOCK
     """.trimIndent()
-
-
-class SpmConfig {
-    var swiftToolsVersion: String = "5.9"
-    var platforms = mutableListOf<Platform>()
-
-    fun platforms(block: List<Platform>.() -> Unit) {
-        platforms.apply(block)
-    }
-
-    fun iOS(version: String = "16") {
-        platforms.add(Platform(PlatformName.IOS, PlatformVersion(version)))
-    }
-
-    fun macOS(version: String = "13") {
-        platforms.add(Platform(PlatformName.MacOS, PlatformVersion(version)))
-    }
-
-    fun tvOS(version: String = "16.1") {
-        platforms.add(Platform(PlatformName.TvOS, PlatformVersion(version)))
-    }
-
-    fun watchOS(version: String = "9") {
-        platforms.add(Platform(PlatformName.WatchOS, PlatformVersion(version)))
-    }
-
-    fun getPlatformsAsFormattedText(): String {
-        val formattedPlatforms = platforms.joinToString(",\n") { platform ->
-            "        .${platform.name.value}(.v${platform.version.version})"
-        }
-        return formattedPlatforms
-    }
-
-}
-
-data class Platform(
-    val name: PlatformName,
-    val version: PlatformVersion,
-)
-
-enum class PlatformName(val value: String) {
-    IOS("iOS"),
-    MacOS("macOS"),
-    TvOS("tvOS"),
-    WatchOS("watchOS"),
-}
-
-data class PlatformVersion(
-    val version: String = "",
-)
