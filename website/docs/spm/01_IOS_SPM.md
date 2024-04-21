@@ -42,9 +42,10 @@ You can use the `targetPlatforms` lambda to add a targets and versions. Currentl
 ```kotlin
 kmmbridge {
     ...
-    spm(targetPlatforms = {
+    spm {
         iOS { v("14") }
-    })
+        macOS { v("12") }
+    }
 }
 ```
 

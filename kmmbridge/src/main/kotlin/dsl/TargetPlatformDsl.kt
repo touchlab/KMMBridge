@@ -32,6 +32,67 @@ public class TargetPlatformDsl {
         iOS { ConfigureUtil.configure(version, this) }
     }
 
+    /**
+     * Adds all macOS targets as a [TargetPlatform] using the provided [version]
+     *
+     * @param version builder for an instance of [PlatformVersion]
+     */
+    public fun macOS(version: PlatformVersionDsl.() -> Unit) {
+        targetsInternal(
+            listOf(
+                TargetName.macosArm64,
+                TargetName.macosX64,
+            ),
+            version
+        )
+    }
+
+    public fun macOS(version: Closure<PlatformVersionDsl>) {
+        macOS { ConfigureUtil.configure(version, this) }
+    }
+
+    /**
+     * Adds all tvOS targets as a [TargetPlatform] using the provided [version]
+     *
+     * @param version builder for an instance of [PlatformVersion]
+     */
+    public fun tvOS(version: PlatformVersionDsl.() -> Unit) {
+        targetsInternal(
+            listOf(
+                TargetName.tvosX64,
+                TargetName.tvosArm64,
+                TargetName.tvosSimulatorArm64,
+            ),
+            version
+        )
+    }
+
+    public fun tvOS(version: Closure<PlatformVersionDsl>) {
+        tvOS { ConfigureUtil.configure(version, this) }
+    }
+
+    /**
+     * Adds all watchOS targets as a [TargetPlatform] using the provided [version]
+     *
+     * @param version builder for an instance of [PlatformVersion]
+     */
+    public fun watchOS(version: PlatformVersionDsl.() -> Unit) {
+        targetsInternal(
+            listOf(
+                TargetName.watchosX64,
+                TargetName.watchosArm32,
+                TargetName.watchosArm64,
+                TargetName.watchosDeviceArm64,
+                TargetName.watchosSimulatorArm64,
+            ),
+            version
+        )
+    }
+
+    public fun watchOS(version: Closure<PlatformVersionDsl>) {
+        watchOS { ConfigureUtil.configure(version, this) }
+    }
+
     private fun targetsInternal(names: List<TargetName>, configure: PlatformVersionDsl.() -> Unit) {
         val platformVersion: PlatformVersion = PlatformVersionDsl().apply(configure).version ?: return
 
