@@ -15,9 +15,16 @@
 
 plugins {
     `kotlin-dsl`
-    `java-gradle-plugin`
-    alias(libs.plugins.kotlin)
-    alias(libs.plugins.maven.publish)
+    kotlin("jvm")
+    id("org.jetbrains.kotlin.plugin.allopen")
+    id("java-gradle-plugin")
+    id("com.vanniktech.maven.publish.base")
+    id("com.gradle.plugin-publish") version "1.0.0"
+}
+
+repositories {
+    gradlePluginPortal()
+    mavenCentral()
 }
 
 @Suppress("UnstableApiUsage")
@@ -62,4 +69,5 @@ mavenPublishing {
     if (releaseSigningEnabled) signAllPublications()
     @Suppress("UnstableApiUsage")
     pomFromGradleProperties()
+    configureBasedOnAppliedPlugins()
 }

@@ -14,8 +14,13 @@
 import co.touchlab.faktory.internal.githubPublishTokenOrNull
 import co.touchlab.faktory.internal.githubPublishUser
 import co.touchlab.faktory.internal.githubRepoOrNull
+import co.touchlab.faktory.internal.gitlabPublishTokenOrNull
+import co.touchlab.faktory.internal.gitlabPublishUser
+import co.touchlab.faktory.internal.gitlabRepoOrNull
 import co.touchlab.faktory.publishingExtension
 import org.gradle.api.Project
+import org.gradle.api.credentials.HttpHeaderCredentials
+import org.gradle.authentication.http.HttpHeaderAuthentication
 import java.net.URI
 
 /**
@@ -40,6 +45,39 @@ fun Project.addGithubPackagesRepository() {
                 username = githubPublishUser
                 password = githubPublishToken
             }
+        }
+    }
+}
+
+/**
+ * Helper function to support GitLab Packages publishing.
+ * Pass in a valid GitLab token name with GITLAB_PUBLISH_USER. Defaults user to "Job-Token".
+ * Pass in a valid GitLab token with GITLAB_PUBLISH_TOKEN. Defaults token to CI_JOB_TOKEN.
+ *
+ * Generally, just add the following in the Gradle build file.
+ *
+ * addGitlabPackagesRepository()
+ */
+@Suppress("unused")
+fun Project.addGitlabPackagesRepository() {
+    publishingExtension.apply {
+        try {
+            val gitLabPublishUser = project.gitlabPublishUser ?: "Job-Token"
+            val gitLabPublishToken = project.gitlabPublishTokenOrNull ?: System.getenv("CI_JOB_TOKEN") ?: return
+            val gitLabRepo = project.gitlabRepoOrNull ?: return
+            repositories.maven {
+                name = "GitLabPackages"
+                url = uri("https://gitlab.com/api/v4/projects/$gitLabRepo/packages/maven")
+                credentials(HttpHeaderCredentials::class.java) {
+                    name = gitLabPublishUser
+                    value = gitLabPublishToken
+                }
+                authentication {
+                    create("header", HttpHeaderAuthentication::class.java)
+                }
+            }
+        } catch (e: Exception) {
+            logger.warn("Could not configure GitLabPackagesRepository!")
         }
     }
 }

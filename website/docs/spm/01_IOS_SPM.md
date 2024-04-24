@@ -27,6 +27,28 @@ SPM uses Git for versioning. Your publication process will need to add tags to y
 
 **If you are configuring KMMBridge on your own**, be aware that you need to set the Gradle `version` property correctly, or provide a different way for KMMBridge's SPM support to get a version for publishing (see [Configuration Overview - VersionManager](../general/CONFIGURATION_OVERVIEW.md#versionmanager))
 
+### Specifying swift tools version
+You can use the `swiftToolsVersion` parameter to set the swift tools version that will be written to the Package.swift header. If no value is provided, version 5.3 will be used by default:
+
+```kotlin
+kmmbridge {
+    ...
+    spm(swiftToolVersion = "5.8")
+}
+```
+
+### Specifying target platforms and versions
+You can use the `targetPlatforms` lambda to add a targets and versions. Currently, only iOS target is supported:
+```kotlin
+kmmbridge {
+    ...
+    spm {
+        iOS { v("14") }
+        macOS { v("12") }
+    }
+}
+```
+
 ### Using a custom package file
 
 By default, KMMBridge fully manages your Package.swift file. This might not be what you want, if your published library needs to include more than just your Kotlin framework. If you need to customize your package file, pass the `useCustomPackageFile` flag when configuring SPM in KMMBridge:

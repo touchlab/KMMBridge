@@ -143,3 +143,11 @@ permissions:
 ```
 
 See the [Github Actions documentation](https://docs.github.com/en/actions/using-jobs/assigning-permissions-to-jobs) for more details on permission settings.
+
+## GitLab Packages
+
+You can publish with GitLab Packages. To specify the GitLab Packages maven repo, call the following:
+
+```kotlin
+addGitlabPackagesRepository()
+```

@@ -18,9 +18,10 @@ import co.touchlab.faktory.artifactmanager.AwsS3PublicArtifactManager
 import co.touchlab.faktory.artifactmanager.MavenPublishArtifactManager
 import co.touchlab.faktory.dependencymanager.CocoapodsDependencyManager
 import co.touchlab.faktory.dependencymanager.DependencyManager
-import co.touchlab.faktory.dependencymanager.SpmConfig
 import co.touchlab.faktory.dependencymanager.SpecRepo
 import co.touchlab.faktory.dependencymanager.SpmDependencyManager
+import co.touchlab.faktory.domain.SwiftToolVersion
+import co.touchlab.faktory.dsl.TargetPlatformDsl
 import co.touchlab.faktory.versionmanager.ManualVersionManager
 import co.touchlab.faktory.versionmanager.VersionManager
 import co.touchlab.faktory.localdevmanager.LocalDevManager
@@ -73,8 +74,8 @@ interface KmmBridgeExtension {
      * the name in here.
      */
     @Suppress("unused")
-    fun Project.mavenPublishArtifacts(repository: String? = null, publication: String? = null) {
-        artifactManager.setAndFinalize(MavenPublishArtifactManager(this, publication, repository))
+    fun Project.mavenPublishArtifacts(repository: String? = null, publication: String? = null, artifactSuffix: String? = null) {
+        artifactManager.setAndFinalize(MavenPublishArtifactManager(this, publication, artifactSuffix, repository))
     }
 
     @Suppress("unused")
@@ -87,14 +88,21 @@ interface KmmBridgeExtension {
         versionManager.setAndFinalize(ManualVersionManager)
     }
 
+    /**
+     * Enable Swift Package Manager publication
+     *
+     * @param spmDirectory Folder where the Package.swift file lives
+     * @param useCustomPackageFile Allow to use custom Package.swift file
+     * @param swiftToolVersion Specifies swift-tools-version in Package.swift. Default: [SwiftToolVersion.Default]
+     */
     @Suppress("unused")
     fun Project.spm(
         spmDirectory: String? = null,
         useCustomPackageFile: Boolean = false,
-        config: SpmConfig.() -> Unit = {},
+        swiftToolVersion: String = SwiftToolVersion.Default,
+        targetPlatforms: TargetPlatformDsl.() -> Unit = { iOS { v("13") } },
     ) {
-        val spmConfig = SpmConfig().apply(config)
-        val dependencyManager = SpmDependencyManager(spmDirectory, useCustomPackageFile, spmConfig)
+        val dependencyManager = SpmDependencyManager(spmDirectory, useCustomPackageFile, swiftToolVersion, targetPlatforms)
         dependencyManagers.set(dependencyManagers.getOrElse(emptyList()) + dependencyManager)
         localDevManager.setAndFinalize(dependencyManager)
     }
