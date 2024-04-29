@@ -81,8 +81,8 @@ jobs:
         env:
           GRADLE_OPTS: -Dkotlin.incremental=false -Dorg.gradle.jvmargs="-Xmx3g -XX:+HeapDumpOnOutOfMemoryError -Dfile.encoding=UTF-8 -XX:MaxMetaspaceSize=512m"
 
-      - uses: touchlab/kxc-tagversion@main
-        id: kxc-tagversion
+      - uses: touchlab/ga-update-release-tag@main
+        id: update-release-tag
         with:
           commitMessage: "KMP SPM package release for ${{ steps.versionPropertyValue.outputs.propVal }}"
           tagMessage: "KMP release version ${{ steps.versionPropertyValue.outputs.propVal }}"
