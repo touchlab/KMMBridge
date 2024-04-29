@@ -34,7 +34,6 @@ internal val Project.kmmBridgeExtension get() = extensions.getByType<KmmBridgeEx
 internal val Project.publishingExtension get() = extensions.getByType<PublishingExtension>()
 
 internal val Project.urlFile get() = file("$layoutBuildDir/faktory/url")
-internal val Project.versionFile get() = file("$layoutBuildDir/faktory/version")
 
 // Cocoapods is an extension of KMP extension, so you can't just do project.extensions.getByType<CocoapodsExtension>()
 internal val KotlinMultiplatformExtension.cocoapodsOrNull get() = (this as ExtensionAware).extensions.findByType<CocoapodsExtension>()

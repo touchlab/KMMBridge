@@ -41,7 +41,7 @@ class CocoapodsDependencyManager(
             "${project.layoutBuildDir}/faktory/podspec/${project.kmmBridgeExtension.buildType.get().name.lowercase()}/${project.kotlin.cocoapods.name}.podspec"
 
         val generatePodspecTask = project.tasks.register("generateReleasePodspec") {
-            inputs.files(project.urlFile, project.versionFile)
+            inputs.files(project.urlFile)
             outputs.file(podSpecFile)
             dependsOn(uploadTask)
             @Suppress("ObjectLiteralToLambda")
@@ -128,7 +128,7 @@ private fun Project.generatePodspec(outputFile: File) = with(kotlin.cocoapods) {
     val customSpec = extraSpecAttributes.map { "|    spec.${it.key} = ${it.value}" }.joinToString("\n")
 
     val url = urlFile.readText()
-    val version = versionFile.readText()
+    val version = version.toString()
 
     // 'Accept: application/octet-stream' needed for GitHub release file downloads
     outputFile.writeText(

@@ -23,7 +23,6 @@ import co.touchlab.faktory.kmmBridgeExtension
 import co.touchlab.faktory.kotlin
 import co.touchlab.faktory.layoutBuildDir
 import co.touchlab.faktory.urlFile
-import co.touchlab.faktory.versionFile
 import co.touchlab.faktory.zipFilePath
 import domain.konanTarget
 import domain.swiftPackagePlatformName
@@ -71,7 +70,7 @@ class SpmDependencyManager(
         val updatePackageSwiftTask = project.tasks.register("updatePackageSwift") {
             group = TASK_GROUP_NAME
             val zipFile = project.zipFilePath()
-            inputs.files(zipFile, project.urlFile, project.versionFile)
+            inputs.files(zipFile, project.urlFile)
             outputs.files(project.swiftPackageFilePath())
 
             @Suppress("ObjectLiteralToLambda")

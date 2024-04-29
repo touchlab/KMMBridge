@@ -3,7 +3,6 @@ package co.touchlab.faktory.artifactmanager
 import co.touchlab.faktory.internal.GithubCalls
 import co.touchlab.faktory.internal.githubRepo
 import co.touchlab.faktory.kmmBridgeExtension
-import co.touchlab.faktory.versionFile
 import org.gradle.api.GradleException
 import org.gradle.api.Project
 import java.io.File
@@ -12,7 +11,7 @@ class GithubReleaseArtifactManager(
     private val repository: String?, private val releaseString: String?, private val useExistingRelease: Boolean
 ) : ArtifactManager {
     override fun deployArtifact(project: Project, zipFilePath: File, version: String): String {
-        val releaseVersion = releaseString ?: project.versionFile.readText()
+        val releaseVersion = releaseString ?: project.version.toString()
         val repoName: String = repository ?: project.githubRepo
 
         val existingReleaseId = GithubCalls.findReleaseId(

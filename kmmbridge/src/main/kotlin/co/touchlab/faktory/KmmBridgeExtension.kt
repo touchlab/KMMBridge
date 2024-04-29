@@ -23,10 +23,7 @@ import co.touchlab.faktory.dependencymanager.SpecRepo
 import co.touchlab.faktory.dependencymanager.SpmDependencyManager
 import co.touchlab.faktory.domain.SwiftToolVersion
 import co.touchlab.faktory.dsl.TargetPlatformDsl
-import co.touchlab.faktory.versionmanager.ManualVersionManager
-import co.touchlab.faktory.versionmanager.VersionManager
 import co.touchlab.faktory.localdevmanager.LocalDevManager
-import co.touchlab.faktory.versionmanager.TimestampVersionManager
 import org.gradle.api.Project
 import org.gradle.api.provider.ListProperty
 import org.gradle.api.provider.Property
@@ -46,8 +43,6 @@ interface KmmBridgeExtension {
     val localDevManager: Property<LocalDevManager>
 
     val buildType: Property<NativeBuildType>
-
-    val versionManager: Property<VersionManager>
 
     @Suppress("unused")
     fun Project.gitHubReleaseArtifacts(
@@ -86,16 +81,6 @@ interface KmmBridgeExtension {
     @Suppress("unused")
     fun Project.mavenPublishArtifacts(repository: String? = null, publication: String? = null, artifactSuffix: String? = null) {
         artifactManager.setAndFinalize(MavenPublishArtifactManager(this, publication, artifactSuffix, repository))
-    }
-
-    @Suppress("unused")
-    fun timestampVersions() {
-        versionManager.setAndFinalize(TimestampVersionManager)
-    }
-
-    @Suppress("unused")
-    fun manualVersions() {
-        versionManager.setAndFinalize(ManualVersionManager)
     }
 
     /**

@@ -13,8 +13,6 @@
 
 package co.touchlab.faktory
 
-import co.touchlab.faktory.versionmanager.ManualVersionManager
-import co.touchlab.faktory.versionmanager.VersionException
 import org.gradle.api.Action
 import org.gradle.api.Plugin
 import org.gradle.api.Project
@@ -42,7 +40,6 @@ class KMMBridgePlugin : Plugin<Project> {
         val extension = extensions.create<KmmBridgeExtension>(EXTENSION_NAME)
 
         extension.dependencyManagers.convention(emptyList())
-        extension.versionManager.convention(ManualVersionManager)
         extension.buildType.convention(NativeBuildType.RELEASE)
 
         afterEvaluate {
@@ -110,21 +107,6 @@ class KMMBridgePlugin : Plugin<Project> {
             project.logger.warn("You must apply an artifact manager! Call `artifactManager.set(...)` or a configuration function like `mavenPublishArtifacts()` in your `kmmbridge` block.")
             return
         }
-        val versionManager = extension.versionManager.orNull ?: run {
-            project.logger.warn("You must apply an version manager! Call `versionManager.set(...)` or a configuration function like `githubReleaseVersions()` in your `kmmbridge` block.")
-            return
-        }
-
-        val version = try {
-            versionManager.getVersion(project)
-        } catch (e: VersionException) {
-            if (e.localDevOk) {
-                project.logger.info("(KMMBridge) ${e.message}")
-            } else {
-                project.logger.warn("(KMMBridge) ${e.message}")
-            }
-            return
-        }
 
         val (zipTask, zipFile) = configureZipTask(extension)
 
@@ -139,15 +121,14 @@ class KMMBridgePlugin : Plugin<Project> {
 
             dependsOn(zipTask)
             inputs.file(zipFile)
-            outputs.files(urlFile, versionFile)
+            outputs.files(urlFile)
             outputs.upToDateWhen { false } // We want to always upload when this task is called
 
             @Suppress("ObjectLiteralToLambda")
             doLast(object : Action<Task> {
                 override fun execute(t: Task) {
-                    versionFile.writeText(version)
                     logger.info("Uploading XCFramework version $version")
-                    val deployUrl = artifactManager.deployArtifact(project, zipFile, version)
+                    val deployUrl = artifactManager.deployArtifact(project, zipFile, version.toString())
                     urlFile.writeText(deployUrl)
                 }
             })
@@ -168,7 +149,7 @@ class KMMBridgePlugin : Plugin<Project> {
 
         // MavenPublishArtifactManager is somewhat complex because we have to hook into maven publishing
         // If you are exploring the task dependencies, be aware of that code
-        artifactManager.configure(this, version, uploadTask, publishRemoteTask)
+        artifactManager.configure(this, version.toString(), uploadTask, publishRemoteTask)
 
         val dependencyManagers = extension.dependencyManagers.get()
         for (dependencyManager in dependencyManagers) {
