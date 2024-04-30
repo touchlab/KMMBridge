@@ -24,7 +24,7 @@ Anybody that needs to publish Xcode Frameworks from Kotlin for use by iOS develo
 Anybody that needs to publish a Kotlin Xcode Framework.
 
 <genericCta message="We build solutions that get teams started smoothly with Kotlin Multiplatform Mobile and ensure their success in production. Join our community to learn how your peers are adopting KMM."
-link="https://form.typeform.com/to/MJTpmm#hubspot_utk=xxxxx&hubspot_page_name=xxxxx&hubspot_page_url=xxxxx" buttonMessage="Subscribe!"/>
+link="https://touchlab.co/?s=shownewsletter" buttonMessage="Subscribe!"/>
 
 ## [KMMBridge Quick Start Updates](https://touchlab.co/kmmbridge-quick-start)
 

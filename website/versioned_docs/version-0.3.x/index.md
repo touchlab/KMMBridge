@@ -18,7 +18,7 @@ Building and publishing binary Xcode Frameworks from Kotlin is certainly possibl
 For more context, see Nate Ebel’s talk from Droidcon NYC 2022: [Adopting Kotlin Multiplatform in Brownfield Applications](https://www.droidcon.com/2022/09/29/adopting-kotlin-multiplatform-in-brownfield-applications/). It's a very good overview of the startup issues teams face.
 
 <genericCta message="We build solutions that get teams started smoothly with Kotlin Multiplatform Mobile and ensure their success in production. Join our community to learn how your peers are adopting KMM."
-link="https://form.typeform.com/to/MJTpmm#hubspot_utk=xxxxx&hubspot_page_name=xxxxx&hubspot_page_url=xxxxx" buttonMessage="Subscribe!"/>
+link="https://touchlab.co/?s=shownewsletter" buttonMessage="Subscribe!"/>
 
 ## Simple Getting Started Setup
 

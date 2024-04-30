@@ -23,7 +23,7 @@ function NewsletterDoc() {
 
             <div className="relative flex flex-col xl:flex-row justify-between items-center">
                 <h4 className="h4 text-white xl:mb-0 text-center">Touchlab KMP Insiders Newsletter</h4>
-                <a className="btn text-cyan-600 bg-cyan-100 hover:bg-white shadow text-xl" href="https://form.typeform.com/to/MJTpmm#hubspot_utk=xxxxx&hubspot_page_name=xxxxx&hubspot_page_url=xxxxx">Subscribe</a>
+                <a className="btn text-cyan-600 bg-cyan-100 hover:bg-white shadow text-xl" href="https://touchlab.co/?s=shownewsletter">Subscribe</a>
             </div>
 
           </div>
