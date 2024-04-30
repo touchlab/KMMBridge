@@ -27,26 +27,6 @@ SPM uses Git for versioning. Your publication process will need to add tags to y
 
 **If you are configuring KMMBridge on your own**, be aware that you need to set the Gradle `version` property correctly, or provide a different way for KMMBridge's SPM support to get a version for publishing (see [Configuration Overview - VersionManager](../general/CONFIGURATION_OVERVIEW.md#versionmanager))
 
-### Specifying platform versions
-
-You can specify platform versions in the spm config:
-
-```kotlin
-kmmbridge {
-    spm {
-        iOS("17.1")
-        tvOS("10")
-    }
-}
-```
-
-Platforms that you can specify:
-
-* iOS - default "16"
-* macOS - default "13"
-* tvOS - default "16.1"
-* watchOS - default "9"
-
 ### Specifying swift tools version
 You can use the `swiftToolsVersion` parameter to set the swift tools version that will be written to the Package.swift header. If no value is provided, version 5.3 will be used by default:
 
@@ -62,9 +42,10 @@ You can use the `targetPlatforms` lambda to add a targets and versions. Currentl
 ```kotlin
 kmmbridge {
     ...
-    spm(targetPlatforms = {
+    spm {
         iOS { v("14") }
-    })
+        macOS { v("12") }
+    }
 }
 ```
 
