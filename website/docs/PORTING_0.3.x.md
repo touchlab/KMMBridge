@@ -69,7 +69,7 @@ For teams that wanted to control all versioning, we allowed that through plugins
 We've had a year of feedback and time to think through this approach. Here are the issues:
 
 * On a very basic level, it's just confusing. You have a version in your Gradle project, but the iOS build "version" is that with a suffix. There are various mechanisms to auto-calculate the next version (arguably too many options). The scheme took a lot of explaining.
-* For teams that want a new, separate repo to publish builds, the default behavior of KMMBridge was broken for the Android builds. Our versioning mechanisms only afftect iOS, which is external to Gradle versioning. For Android to publish, you need to properly set the Gradle version.
+* For teams that want a new, separate repo to publish builds, the default behavior of KMMBridge was broken for the Android builds. Our versioning mechanisms only affect iOS, which is external to Gradle versioning. For Android to publish, you need to properly set the Gradle version.
 * SPM depends on git project structure and various conventions to function properly. Notably, git tags. To properly work with SPM, KMMBridge needed to read and manage git tags. This meant that KMMBridge was reading, and updating, git. That also requires pushing changes. Even early on, the team was conflicted about this state of affairs. This new version completely gets out of git management and lets CI handle it, which works perfectly fine, and makes much more sense.
 
 Essentially, KMMBridge was doing too much. The changes make KMMBridge much simpler, and understanding what KMMBridge is doing should be a lot easier when looking at the GitHub Actions samples and shared workflows.
