@@ -17,16 +17,19 @@ import co.touchlab.faktory.findStringProperty
 import org.gradle.api.Project
 import java.net.URLEncoder
 
-internal val Project.gitlabPublishTokenOrNull: String?
+internal val Project.gitLabPublishTokenOrNull: String?
     get() = project.property("GITLAB_PUBLISH_TOKEN") as String?
 
-internal val Project.gitlabPublishUser: String?
+internal val Project.gitLabPublishUser: String?
     get() = project.findStringProperty("GITLAB_PUBLISH_USER")
 
-internal val Project.gitlabRepoOrNull: String?
+internal val Project.gitLabRepoOrNull: String?
     get() {
         val repo = project.findStringProperty("GITHUB_REPO") ?: return null
         // The GitLab API accepts repo id or url-encoded path
         val repoId = repo.toIntOrNull()
         return repoId?.toString() ?: URLEncoder.encode(repo, "UTF-8")
     }
+
+internal val Project.gitLabDomain: String?
+    get() = project.findStringProperty("GITLAB_DOMAIN")
