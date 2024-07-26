@@ -20,8 +20,7 @@ import co.touchlab.faktory.dependencymanager.CocoapodsDependencyManager
 import co.touchlab.faktory.dependencymanager.DependencyManager
 import co.touchlab.faktory.dependencymanager.SpecRepo
 import co.touchlab.faktory.dependencymanager.SpmDependencyManager
-import co.touchlab.faktory.domain.SwiftToolVersion
-import co.touchlab.faktory.dsl.TargetPlatformDsl
+import co.touchlab.faktory.dsl.SpmConfigDsl
 import co.touchlab.faktory.versionmanager.ManualVersionManager
 import co.touchlab.faktory.versionmanager.VersionManager
 import co.touchlab.faktory.localdevmanager.LocalDevManager
@@ -93,16 +92,14 @@ interface KmmBridgeExtension {
      *
      * @param spmDirectory Folder where the Package.swift file lives
      * @param useCustomPackageFile Allow to use custom Package.swift file
-     * @param swiftToolVersion Specifies swift-tools-version in Package.swift. Default: [SwiftToolVersion.Default]
      */
     @Suppress("unused")
     fun Project.spm(
         spmDirectory: String? = null,
         useCustomPackageFile: Boolean = false,
-        swiftToolVersion: String = SwiftToolVersion.Default,
-        targetPlatforms: TargetPlatformDsl.() -> Unit = { iOS { v("13") } },
+        config: SpmConfigDsl.() -> Unit = {},
     ) {
-        val dependencyManager = SpmDependencyManager(spmDirectory, useCustomPackageFile, swiftToolVersion, targetPlatforms)
+        val dependencyManager = SpmDependencyManager(spmDirectory, useCustomPackageFile, config)
         dependencyManagers.set(dependencyManagers.getOrElse(emptyList()) + dependencyManager)
         localDevManager.setAndFinalize(dependencyManager)
     }
