@@ -88,16 +88,18 @@ interface KmmBridgeExtension {
      *
      * @param spmDirectory Folder where the Package.swift file lives
      * @param useCustomPackageFile Allow to use custom Package.swift file
+     * @param perModuleVariablesBlock Allow the same Package.swift file to host multiple kotlin frameworks
      * @param swiftToolVersion Specifies swift-tools-version in Package.swift. Default: [SwiftToolVersion.Default]
      */
     @Suppress("unused")
     fun Project.spm(
         spmDirectory: String? = null,
         useCustomPackageFile: Boolean = false,
+        perModuleVariablesBlock: Boolean = false,
         swiftToolVersion: String = SwiftToolVersion.Default,
         targetPlatforms: TargetPlatformDsl.() -> Unit = { iOS { v("13") } },
     ) {
-        val dependencyManager = SpmDependencyManager(spmDirectory, useCustomPackageFile, swiftToolVersion, targetPlatforms)
+        val dependencyManager = SpmDependencyManager(spmDirectory, useCustomPackageFile, perModuleVariablesBlock, swiftToolVersion, targetPlatforms)
         dependencyManagers.set(dependencyManagers.getOrElse(emptyList()) + dependencyManager)
         localDevManager.setAndFinalize(dependencyManager)
     }
