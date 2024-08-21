@@ -68,6 +68,38 @@ This works by replacing a block of code that begins with the comment `// BEGIN K
 The custom package file mode is new and experimental. The local dev flow using the `spmDevBuild` gradle task is disabled when `useCustomPackageFile` is true.
 :::
 
+### Exporting multiple frameworks
+
+By default, KMMBridge manages the Package.swift file considering that you have only Kotlin Module being exposed as a Swift Framework. If that's not your case, and you have more modules compiling Frameworks, you can use the `perModuleVariablesBlock` flag together with the `useCustomPackageFile`.
+
+```kotlin
+kmmbridge {
+    ...
+    spm(useCustomPackageFile = true, perModuleVariablesBlock = true)
+}
+```
+
+When set, it will modify the configuration block from KMMBridge to include the Framework name, so it can support multiple frameworks:
+
+```swift
+// swift-tools-version:5.3
+import PackageDescription
+
+// BEGIN KMMBRIDGE VARIABLES BLOCK FOR 'TestPackage' (do not edit)
+let remoteTestPackageUrl = "https://www.example.com/"
+let remoteTestPackageChecksum = "fedcba9876543210"
+let testPackagePackageName = "TestPackage"
+// END KMMBRIDGE BLOCK FOR 'TestPackage'
+
+// BEGIN KMMBRIDGE VARIABLES BLOCK FOR 'TestPackage2' (do not edit)
+let remoteTest2PackageUrl = "https://www.example.com/"
+let remoteTestPackage2Checksum = "01234567890abcdeg"
+let testPackage2PackageName = "TestPackage2"
+// END KMMBRIDGE BLOCK FOR 'TestPackage2'
+
+let package = Package(...)
+```
+
 ## Artifact Authentication
 
 For artifacts that are kept in private storage, you may need to add authentication information so your `~/.netrc` file or your Mac's Keychain Access. See [the section here](../DEFAULT_GITHUB_FLOW.md#private-repos) for a description of how to set up private file access.
