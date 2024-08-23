@@ -134,6 +134,8 @@ class KMMBridgePlugin : Plugin<Project> {
             })
         }
 
+        val dependencyManagers = extension.dependencyManagers.get()
+
         // Publish task depends on the upload task
         val publishRemoteTask = tasks.register("kmmBridgePublish") {
             group = TASK_GROUP_NAME
@@ -142,7 +144,7 @@ class KMMBridgePlugin : Plugin<Project> {
             @Suppress("ObjectLiteralToLambda")
             doLast(object : Action<Task> {
                 override fun execute(t: Task) {
-                    // currently just a dependency anchor
+                    artifactManager.finishArtifact(project, version.toString(), dependencyManagers)
                 }
             })
         }
@@ -151,7 +153,7 @@ class KMMBridgePlugin : Plugin<Project> {
         // If you are exploring the task dependencies, be aware of that code
         artifactManager.configure(this, version.toString(), uploadTask, publishRemoteTask)
 
-        val dependencyManagers = extension.dependencyManagers.get()
+
         for (dependencyManager in dependencyManagers) {
             dependencyManager.configure(this, uploadTask, publishRemoteTask)
         }

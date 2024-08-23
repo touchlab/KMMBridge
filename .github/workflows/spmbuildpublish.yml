@@ -80,18 +80,3 @@ jobs:
         run: ./gradlew ${{ env.MODULE }}${{ inputs.publishTask }} -PENABLE_PUBLISHING=true -PGITHUB_PUBLISH_TOKEN=${{ secrets.GITHUB_TOKEN }} -PGITHUB_REPO=${{ github.repository }} ${{ secrets.gradle_params }} --no-daemon --stacktrace
         env:
           GRADLE_OPTS: -Dkotlin.incremental=false -Dorg.gradle.jvmargs="-Xmx3g -XX:+HeapDumpOnOutOfMemoryError -Dfile.encoding=UTF-8 -XX:MaxMetaspaceSize=512m"
-
-      - uses: touchlab/ga-update-release-tag@main
-        id: update-release-tag
-        with:
-          commitMessage: "KMP SPM package release for ${{ steps.versionPropertyValue.outputs.propVal }}"
-          tagMessage: "KMP release version ${{ steps.versionPropertyValue.outputs.propVal }}"
-          tagVersion: ${{ steps.versionPropertyValue.outputs.propVal }}
-          branchName: "build-${{ steps.versionPropertyValue.outputs.propVal }}"
-
-#      - name: Delete branch
-#        if: (!inputs.retainBuildBranch) && (!cancelled())
-#        uses: touchlab/action-delete-branch@v3
-#        with:
-#          github_token: ${{ secrets.GITHUB_TOKEN }}
-#          branches: "build-${{ steps.versionPropertyValue.outputs.propVal }}"

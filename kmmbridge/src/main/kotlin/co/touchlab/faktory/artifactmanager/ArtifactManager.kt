@@ -13,6 +13,7 @@
 
 package co.touchlab.faktory.artifactmanager
 
+import co.touchlab.faktory.dependencymanager.DependencyManager
 import org.gradle.api.Project
 import org.gradle.api.Task
 import org.gradle.api.tasks.TaskProvider
@@ -22,10 +23,21 @@ interface ArtifactManager {
     /**
      * Do configuration specific to this `ArtifactManager`.
      */
-    fun configure(project: Project, version: String, uploadTask: TaskProvider<Task>, kmmPublishTask: TaskProvider<Task>) {}
+    fun configure(
+        project: Project,
+        version: String,
+        uploadTask: TaskProvider<Task>,
+        kmmPublishTask: TaskProvider<Task>
+    ) {
+    }
 
     /**
      * Send the thing, and return a link to the thing...
      */
     fun deployArtifact(project: Project, zipFilePath: File, version: String): String
+
+    /**
+     * Run after file written. This is essentially for GitHub releases.
+     */
+    fun finishArtifact(project: Project, version: String, dependencyManagers:List<DependencyManager>) {}
 }
