@@ -86,7 +86,7 @@ class GithubReleaseArtifactManager(
                     "fetch",
                     "--tags"
                 )
-            }
+            }.assertNormalExitValue()
 
             // Create a local branch. We don't need to delete is as we just need the commit ref.
             project.exec {
@@ -96,7 +96,7 @@ class GithubReleaseArtifactManager(
                     "-b",
                     tempBranch
                 )
-            }
+            }.assertNormalExitValue()
 
             // Force-update the tag created by the GitHub release
             project.exec {
@@ -108,7 +108,7 @@ class GithubReleaseArtifactManager(
                     "-m",
                     "KMP release version $version"
                 )
-            }
+            }.assertNormalExitValue()
 
             // Force-push the tag reference. This will push the tag and commit.
             project.exec {
@@ -119,7 +119,7 @@ class GithubReleaseArtifactManager(
                     "-f",
                     "refs/tags/${version}",
                 )
-            }
+            }.assertNormalExitValue()
         }
     }
 }
