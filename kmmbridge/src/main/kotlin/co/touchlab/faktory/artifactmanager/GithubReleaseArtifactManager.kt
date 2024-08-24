@@ -42,7 +42,7 @@ class GithubReleaseArtifactManager(
         val needsSpmReleaseTagUpdate = dependencyManagers.any { it is SpmDependencyManager }
         if (needsSpmReleaseTagUpdate) {
             val os = ByteArrayOutputStream()
-            project.logger.info("Running git diff")
+            project.logger.warn("Running git diff")
             project.exec {
                 commandLine(
                     "git",
@@ -80,7 +80,7 @@ class GithubReleaseArtifactManager(
             val tempBranch = UUID.randomUUID().toString()
 
             // Get the tag created by the GitHub release
-            project.logger.info("Running git fetch")
+            project.logger.warn("Running git fetch")
             project.exec {
                 commandLine(
                     "git",
@@ -90,7 +90,7 @@ class GithubReleaseArtifactManager(
             }.assertNormalExitValue()
 
             // Create a local branch. We don't need to delete is as we just need the commit ref.
-            project.logger.info("Running git checkout new branch")
+            project.logger.warn("Running git checkout new branch")
             project.exec {
                 commandLine(
                     "git",
@@ -101,7 +101,7 @@ class GithubReleaseArtifactManager(
             }.assertNormalExitValue()
 
             // Force-update the tag created by the GitHub release
-            project.logger.info("Running git tag")
+            project.logger.warn("Running git tag")
             project.exec {
                 commandLine(
                     "git",
@@ -114,7 +114,7 @@ class GithubReleaseArtifactManager(
             }.assertNormalExitValue()
 
             // Force-push the tag reference. This will push the tag and commit.
-            project.logger.info("Running git push")
+            project.logger.warn("Running git push")
             project.exec {
                 commandLine(
                     "git",
