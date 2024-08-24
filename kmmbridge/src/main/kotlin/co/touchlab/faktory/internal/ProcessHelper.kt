@@ -23,9 +23,10 @@ internal fun procRun(vararg params: String, dir: File?, processLines: (String, I
     val processBuilder = ProcessBuilder(*params)
         .redirectErrorStream(true)
     if (dir != null) {
+        println("*** Running proc in ${dir.path}")
         processBuilder.directory(dir)
     }
-    println("*** Running proc in ${processBuilder.directory().path}")
+
     val process = processBuilder
         .start()
 
