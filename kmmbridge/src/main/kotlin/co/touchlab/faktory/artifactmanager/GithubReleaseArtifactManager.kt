@@ -100,6 +100,25 @@ class GithubReleaseArtifactManager(
                 )
             }.assertNormalExitValue()
 
+            // Add and commit
+            project.logger.warn("Running git checkout new branch")
+            project.exec {
+                commandLine(
+                    "git",
+                    "add",
+                    "."
+                )
+            }.assertNormalExitValue()
+
+            project.exec {
+                commandLine(
+                    "git",
+                    "commit",
+                    "-m",
+                    "KMP SPM package release for $version"
+                )
+            }.assertNormalExitValue()
+
             // Force-update the tag created by the GitHub release
             project.logger.warn("Running git tag")
             project.exec {
