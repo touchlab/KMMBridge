@@ -19,13 +19,13 @@ import kotlin.test.assertFails
 
 class VersionNumberHelperTest {
     @Test
-    fun prepVersionString(){
+    fun prepVersionString() {
         assertEquals(prepVersionString("1.0"), "1.0.")
         assertEquals(prepVersionString("1.0."), "1.0.")
     }
 
     @Test
-    fun prepVersionStringBadFormats(){
+    fun prepVersionStringBadFormats() {
         assertFails { prepVersionString("") }
         assertFails { prepVersionString(" ") }
         assertFails { prepVersionString(".") }
@@ -41,7 +41,7 @@ class VersionNumberHelperTest {
     }
 
     @Test
-    fun testSomeVersions(){
+    fun testSomeVersions() {
         assertEquals(0, maxVersion("0.1.", emptySequence()))
         assertEquals(1, maxVersion("0.1.", sequenceOf("0.1.0", "0.1.1")))
         assertEquals(199, maxVersion("0.1.", sequenceOf("0.1.0", "0.1.199")))

@@ -1,6 +1,6 @@
 package co.touchlab.faktory
 
-import java.util.Locale
+import java.util.*
 
 fun String.capitalized(): String {
     return this.replaceFirstChar {

@@ -22,7 +22,7 @@ class MavenPublishArtifactManager(
     private val publicationName: String?,
     artifactSuffix: String?,
     private val repositoryName: String?,
-    ) : ArtifactManager {
+) : ArtifactManager {
     private val group: String = project.group.toString().replace(".", "/")
     private val kmmbridgeArtifactId = "${project.name}-${artifactSuffix ?: KMMBRIDGE_ARTIFACT_SUFFIX}"
 
@@ -32,7 +32,10 @@ class MavenPublishArtifactManager(
         uploadTask: TaskProvider<Task>,
         kmmPublishTask: TaskProvider<Task>
     ) {
-        project.publishingExtension.publications.create(publicationName ?: FRAMEWORK_PUBLICATION_NAME, MavenPublication::class.java) {
+        project.publishingExtension.publications.create(
+            publicationName ?: FRAMEWORK_PUBLICATION_NAME,
+            MavenPublication::class.java
+        ) {
             this.version = version
             val archiveProvider = project.tasks.named("zipXCFramework", Zip::class.java).flatMap {
                 it.archiveFile
@@ -54,8 +57,7 @@ class MavenPublishArtifactManager(
                     dependsOn(kmmPublishTask)
                 }
             }
-        }
-        catch(_: UnknownTaskException) {
+        } catch (_: UnknownTaskException) {
             project.logger.warn("Gradle publish task not found")
         }
     }
@@ -98,18 +100,20 @@ class MavenPublishArtifactManager(
         repositoryName?.let {
             publishingExtension.repositories.findByName(it) as MavenArtifactRepository
         } ?: publishingExtension.repositories.filterIsInstance<MavenArtifactRepository>().firstOrNull()
-        ?: throw GradleException("Artifact repository not found, please, specify maven repository\n" +
-                "publishing {\n" +
-                "    repositories {\n" +
-                "        maven {\n" +
-                "            url = uri(\"https://someservice/path/to/repo\")\n" +
-                "            credentials {\n" +
-                "                username = publishUsername\n" +
-                "                password = publishPassword\n" +
-                "            }\n" +
-                "        }\n" +
-                "    }\n" +
-                "}")
+        ?: throw GradleException(
+            "Artifact repository not found, please, specify maven repository\n" +
+                    "publishing {\n" +
+                    "    repositories {\n" +
+                    "        maven {\n" +
+                    "            url = uri(\"https://someservice/path/to/repo\")\n" +
+                    "            credentials {\n" +
+                    "                username = publishUsername\n" +
+                    "                password = publishPassword\n" +
+                    "            }\n" +
+                    "        }\n" +
+                    "    }\n" +
+                    "}"
+        )
 
     private fun artifactPath(url: String, version: String) =
         "$url/$group/$kmmbridgeArtifactId/$version/$kmmbridgeArtifactId-$version.zip"

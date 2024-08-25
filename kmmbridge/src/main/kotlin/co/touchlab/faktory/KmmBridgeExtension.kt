@@ -79,7 +79,11 @@ interface KmmBridgeExtension {
      * the name in here.
      */
     @Suppress("unused")
-    fun Project.mavenPublishArtifacts(repository: String? = null, publication: String? = null, artifactSuffix: String? = null) {
+    fun Project.mavenPublishArtifacts(
+        repository: String? = null,
+        publication: String? = null,
+        artifactSuffix: String? = null
+    ) {
         artifactManager.setAndFinalize(MavenPublishArtifactManager(this, publication, artifactSuffix, repository))
     }
 
@@ -99,7 +103,13 @@ interface KmmBridgeExtension {
         swiftToolVersion: String = SwiftToolVersion.Default,
         targetPlatforms: TargetPlatformDsl.() -> Unit = { iOS { v("13") } },
     ) {
-        val dependencyManager = SpmDependencyManager(spmDirectory, useCustomPackageFile, perModuleVariablesBlock, swiftToolVersion, targetPlatforms)
+        val dependencyManager = SpmDependencyManager(
+            spmDirectory,
+            useCustomPackageFile,
+            perModuleVariablesBlock,
+            swiftToolVersion,
+            targetPlatforms
+        )
         dependencyManagers.set(dependencyManagers.getOrElse(emptyList()) + dependencyManager)
         localDevManager.setAndFinalize(dependencyManager)
     }

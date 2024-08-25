@@ -45,7 +45,7 @@ class KMMBridgePlugin : Plugin<Project> {
         afterEvaluate {
             configureXcFramework()
             configureLocalDev()
-            if(enablePublishing) {
+            if (enablePublishing) {
                 configureArtifactManagerAndDeploy()
             }
         }
@@ -68,7 +68,8 @@ class KMMBridgePlugin : Plugin<Project> {
         val extension = kmmBridgeExtension
         var xcFrameworkConfig: XCFrameworkConfig? = null
 
-        val spmBuildTargets: Set<String> = project.spmBuildTargets?.split(",")?.map { it.trim() }?.filter { it.isNotEmpty() }?.toSet() ?: emptySet()
+        val spmBuildTargets: Set<String> =
+            project.spmBuildTargets?.split(",")?.map { it.trim() }?.filter { it.isNotEmpty() }?.toSet() ?: emptySet()
 
         kotlin.targets
             .withType<KotlinNativeTarget>()
@@ -84,8 +85,9 @@ class KMMBridgePlugin : Plugin<Project> {
                         throw IllegalStateException("Only one framework name currently allowed. Found $currentName and $theName")
                     }
                 }
-                val shouldAddTarget = spmBuildTargets.isEmpty() || spmBuildTargets.contains(framework.target.konanTarget.name)
-                if(shouldAddTarget) {
+                val shouldAddTarget =
+                    spmBuildTargets.isEmpty() || spmBuildTargets.contains(framework.target.konanTarget.name)
+                if (shouldAddTarget) {
                     if (xcFrameworkConfig == null) {
                         xcFrameworkConfig = XCFramework(theName)
                     }

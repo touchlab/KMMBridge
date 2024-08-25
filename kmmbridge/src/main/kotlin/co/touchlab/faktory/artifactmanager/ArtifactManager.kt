@@ -39,5 +39,5 @@ interface ArtifactManager {
     /**
      * Run after file written. This is essentially for GitHub releases.
      */
-    fun finishArtifact(project: Project, version: String, dependencyManagers:List<DependencyManager>) {}
+    fun finishArtifact(project: Project, version: String, dependencyManagers: List<DependencyManager>) {}
 }

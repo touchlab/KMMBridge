@@ -37,7 +37,7 @@ import org.jetbrains.kotlin.gradle.plugin.mpp.NativeBuildType
 import java.io.ByteArrayOutputStream
 import java.io.File
 import java.nio.charset.Charset
-import java.util.Locale
+import java.util.*
 
 class SpmDependencyManager(
     /**
@@ -139,7 +139,8 @@ class SpmDependencyManager(
         platforms: String
     ) {
         val swiftPackageFile = file(swiftPackageFilePath())
-        val packageText = makePackageFileText(packageName, url, checksum, perModuleVariablesBlock, swiftToolVersion, platforms)
+        val packageText =
+            makePackageFileText(packageName, url, checksum, perModuleVariablesBlock, swiftToolVersion, platforms)
         swiftPackageFile.parentFile.mkdirs()
         swiftPackageFile.writeText(packageText)
     }
@@ -189,7 +190,7 @@ class SpmDependencyManager(
             doLast(object : Action<Task> {
                 override fun execute(t: Task) {
                     val swiftToolVersion = SwiftToolVersion.of(_swiftToolVersion)
-                                           ?: throw IllegalArgumentException("Parameter swiftToolVersion should be not blank!")
+                        ?: throw IllegalArgumentException("Parameter swiftToolVersion should be not blank!")
 
                     val targetPlatforms = TargetPlatformDsl().apply(_targetPlatforms)
                         .targetPlatforms
@@ -213,17 +214,18 @@ class SpmDependencyManager(
         }
     }
 
-    private fun platforms(project: Project, targetPlatforms: List<TargetPlatform>): String = targetPlatforms.flatMap { platform ->
-        project.kotlin.targets
-            .withType<KotlinNativeTarget>()
-            .asSequence()
-            .filter { it.konanTarget.family.isAppleFamily }
-            .filter { appleTarget -> platform.targets.firstOrNull { it.konanTarget == appleTarget.konanTarget } != null }
-            .mapNotNull { it.konanTarget.family.swiftPackagePlatformName }
-            .distinct()
-            .map { platformName -> ".$platformName(.v${platform.version.name})" }
-            .toList()
-    }.joinToString(separator = ",\n")
+    private fun platforms(project: Project, targetPlatforms: List<TargetPlatform>): String =
+        targetPlatforms.flatMap { platform ->
+            project.kotlin.targets
+                .withType<KotlinNativeTarget>()
+                .asSequence()
+                .filter { it.konanTarget.family.isAppleFamily }
+                .filter { appleTarget -> platform.targets.firstOrNull { it.konanTarget == appleTarget.konanTarget } != null }
+                .mapNotNull { it.konanTarget.family.swiftPackagePlatformName }
+                .distinct()
+                .map { platformName -> ".$platformName(.v${platform.version.name})" }
+                .toList()
+        }.joinToString(separator = ",\n")
 }
 
 internal fun stripEndSlash(path: String): String {

@@ -13,9 +13,13 @@
 
 package co.touchlab.faktory.dependencymanager
 
-import co.touchlab.faktory.*
+import co.touchlab.faktory.TASK_GROUP_NAME
+import co.touchlab.faktory.cocoapods
 import co.touchlab.faktory.internal.procRunFailLog
+import co.touchlab.faktory.kmmBridgeExtension
 import co.touchlab.faktory.kotlin
+import co.touchlab.faktory.layoutBuildDir
+import co.touchlab.faktory.urlFile
 import org.gradle.api.Action
 import org.gradle.api.Project
 import org.gradle.api.Task
@@ -58,7 +62,7 @@ class CocoapodsDependencyManager(
             dependsOn(generatePodspecTask)
 
             @Suppress("ObjectLiteralToLambda")
-            doLast(object : Action<Task>{
+            doLast(object : Action<Task> {
                 override fun execute(t: Task) {
                     val extras = mutableListOf<String>()
 
@@ -73,8 +77,16 @@ class CocoapodsDependencyManager(
                     when (val specRepo = specRepoDeferred()) {
                         is SpecRepo.Trunk ->
                             project.procRunFailLog("pod", "trunk", "push", podSpecFile, *extras.toTypedArray())
+
                         is SpecRepo.Private ->
-                            project.procRunFailLog("pod", "repo", "push", specRepo.url, podSpecFile, *extras.toTypedArray())
+                            project.procRunFailLog(
+                                "pod",
+                                "repo",
+                                "push",
+                                specRepo.url,
+                                podSpecFile,
+                                *extras.toTypedArray()
+                            )
                     }
                 }
             })

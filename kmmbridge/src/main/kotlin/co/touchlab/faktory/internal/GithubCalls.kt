@@ -45,7 +45,7 @@ object GithubCalls {
         return gson.fromJson(okHttpClient.newCall(createRequest).execute().body!!.string(), IdReply::class.java).id
     }
 
-    fun uploadZipFile(project: Project, zipFilePath: File, repo:String, releaseId: Int, fileName: String):String{
+    fun uploadZipFile(project: Project, zipFilePath: File, repo: String, releaseId: Int, fileName: String): String {
         val gson = Gson()
         val token = project.githubPublishToken
         val body: RequestBody = zipFilePath.asRequestBody("application/zip".toMediaTypeOrNull())
@@ -67,9 +67,11 @@ object GithubCalls {
         return gson.fromJson(uploadResponseString, UploadReply::class.java).url
     }
 
-    fun findReleaseId(project: Project,
-                      repoName: String,
-                      artifactReleaseTag: String): Int?{
+    fun findReleaseId(
+        project: Project,
+        repoName: String,
+        artifactReleaseTag: String
+    ): Int? {
         val token = project.githubPublishToken
         val request: Request =
             Request.Builder().url("https://api.github.com/repos/${repoName}/releases/tags/${artifactReleaseTag}").get()
