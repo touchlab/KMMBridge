@@ -43,7 +43,12 @@ class GithubReleaseArtifactManager(
 
             val gitCommonDir = project.procRunFailLog("git", "rev-parse", "--git-common-dir").first().trim()
             project.logger.warn("gitCommonDir: $gitCommonDir")
-            val repoHomeDir = File(gitCommonDir.substring(0, ".git".length))
+            val trimmedPath = gitCommonDir.substring(0, gitCommonDir.length - ".git".length)
+            val repoHomeDir = if (trimmedPath.isEmpty()) {
+                null
+            } else {
+                File(trimmedPath)
+            }
 
             project.logger.warn("Running git diff")
             val diffResult = project.procRunFailLog("git", "diff", "--name-only", dir = repoHomeDir)
