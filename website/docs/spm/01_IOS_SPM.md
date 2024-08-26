@@ -82,8 +82,15 @@ kmmbridge {
 When set, it will modify the configuration block from KMMBridge to include the Framework name, so it can support multiple frameworks:
 
 ```swift
-// swift-tools-version:5.3
-import PackageDescription
+///// Before
+
+// BEGIN KMMBRIDGE VARIABLES BLOCK (do not edit)
+let remoteKotlinUrl = "https://www.example.com/"
+let remoteKotlinChecksum = "01234567890abcdef"
+let packageName = "TestPackage"
+// END KMMBRIDGE BLOCK
+
+///// After
 
 // BEGIN KMMBRIDGE VARIABLES BLOCK FOR 'TestPackage' (do not edit)
 let remoteTestPackageUrl = "https://www.example.com/"
@@ -96,8 +103,6 @@ let remoteTest2PackageUrl = "https://www.example.com/"
 let remoteTestPackage2Checksum = "01234567890abcdeg"
 let testPackage2PackageName = "TestPackage2"
 // END KMMBRIDGE BLOCK FOR 'TestPackage2'
-
-let package = Package(...)
 ```
 
 ## Artifact Authentication
