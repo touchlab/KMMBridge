@@ -138,17 +138,25 @@ class PackageFileUpdateTest {
                 ],
                 products: [
                     .library(
-                        name: packageName,
-                        targets: [packageName]
+                        name: testPackagePackageName,
+                        targets: [testPackagePackageName]
+                    ),
+                    .library(
+                        name: testPackage2PackageName,
+                        targets: [testPackage2PackageName]
                     ),
                 ],
                 targets: [
                     .binaryTarget(
-                        name: packageName,
-                        url: remoteKotlinUrl,
-                        checksum: remoteKotlinChecksum
+                        name: testPackagePackageName,
+                        url: remoteTestPackageUrl,
+                        checksum: remoteTestPackageChecksum
+                    ),
+                    .binaryTarget(
+                        name: testPackage2PackageName,
+                        url: remoteTest2PackageUrl,
+                        checksum: remoteTestPackage2Checksum
                     )
-                    ,
                 ]
             )
         """.trimIndent()
@@ -176,17 +184,25 @@ class PackageFileUpdateTest {
                 ],
                 products: [
                     .library(
-                        name: packageName,
-                        targets: [packageName]
+                        name: testPackagePackageName,
+                        targets: [testPackagePackageName]
+                    ),
+                    .library(
+                        name: testPackage2PackageName,
+                        targets: [testPackage2PackageName]
                     ),
                 ],
                 targets: [
                     .binaryTarget(
-                        name: packageName,
-                        url: remoteKotlinUrl,
-                        checksum: remoteKotlinChecksum
+                        name: testPackagePackageName,
+                        url: remoteTestPackageUrl,
+                        checksum: remoteTestPackageChecksum
+                    ),
+                    .binaryTarget(
+                        name: testPackage2PackageName,
+                        url: remoteTest2PackageUrl,
+                        checksum: remoteTestPackage2Checksum
                     )
-                    ,
                 ]
             )
         """.trimIndent()
