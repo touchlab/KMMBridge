@@ -195,6 +195,12 @@ const config = {
           darkTheme: darkCodeTheme,
           additionalLanguages: ['kotlin', 'java', 'ruby', 'swift', 'toml'],
         },
+        announcementBar: {
+          id: 'kmmbridge_old_bar',
+          content:
+              'These docs are for older versions of KMMBridge. Please go to <a target="_blank" href="https://touchlab.co/kmmbridge/">https://touchlab.co/kmmbridge/</a> for the updated KMMBridge info.',
+          isCloseable: true,
+        },
       }),
 };
 
