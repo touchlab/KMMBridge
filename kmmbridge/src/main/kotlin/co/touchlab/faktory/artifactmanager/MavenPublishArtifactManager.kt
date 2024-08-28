@@ -22,6 +22,7 @@ class MavenPublishArtifactManager(
     private val publicationName: String?,
     artifactSuffix: String?,
     private val repositoryName: String?,
+    private val isMavenCentral: Boolean = false,
     ) : ArtifactManager {
     private val group: String = project.group.toString().replace(".", "/")
     private val kmmbridgeArtifactId = "${project.name}-${artifactSuffix ?: KMMBRIDGE_ARTIFACT_SUFFIX}"
@@ -73,8 +74,11 @@ class MavenPublishArtifactManager(
         // There may be more than one repo, but it's also possible we get none. This will allow us to continue and trying
         // to use the dependency should fail.
         // If there are multiple repos, the repo name needs to be specified.
-        val mavenArtifactRepositoryUrl =
+        val mavenArtifactRepositoryUrl = if (!isMavenCentral) {
             findArtifactRepository(publishingExtension).url.toString()
+        } else {
+            "https://repo.maven.apache.org/maven2/"
+        }
 
         return artifactPath(mavenArtifactRepositoryUrl, version)
     }
