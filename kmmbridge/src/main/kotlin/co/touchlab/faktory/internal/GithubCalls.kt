@@ -42,7 +42,9 @@ object GithubCalls {
             .post(gson.toJson(createReleaseBody).toRequestBody("application/json".toMediaTypeOrNull()))
             .addHeader("Accept", "application/vnd.github+json").addHeader("Authorization", "Bearer $token").build()
 
-        return gson.fromJson(okHttpClient.newCall(createRequest).execute().body!!.string(), IdReply::class.java).id
+        val response = okHttpClient.newCall(createRequest).execute()
+        project.logger.info("response.isSuccessful ${response.isSuccessful}, response.code: ${response.code}, response.message: ${response.message}")
+        return gson.fromJson(response.body!!.string(), IdReply::class.java).id
     }
 
     fun uploadZipFile(project: Project, zipFilePath: File, repo: String, releaseId: Int, fileName: String): String {
