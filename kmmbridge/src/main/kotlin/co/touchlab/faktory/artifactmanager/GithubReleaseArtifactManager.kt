@@ -18,6 +18,8 @@ class GithubReleaseArtifactManager(
             project, repoName, releaseVersion
         )
 
+        project.logger.info("existingReleaseId: $existingReleaseId")
+
         if (existingReleaseId != null && !useExistingRelease) {
             throw GradleException("Release for '$releaseVersion' exists. Set 'useExistingRelease = true' to update existing releases.")
         }
@@ -25,6 +27,8 @@ class GithubReleaseArtifactManager(
         val idReply: Int = existingReleaseId ?: GithubCalls.createRelease(
             project, repoName, releaseVersion, null
         )
+
+        project.logger.info("GitHub Release created with id: $idReply")
 
         val fileName = artifactName(project, version, useExistingRelease)
 

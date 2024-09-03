@@ -20,6 +20,7 @@ import okhttp3.Request
 import okhttp3.RequestBody
 import okhttp3.RequestBody.Companion.asRequestBody
 import okhttp3.RequestBody.Companion.toRequestBody
+import org.gradle.api.GradleException
 import org.gradle.api.Project
 import java.io.File
 import java.net.URLEncoder
@@ -42,7 +43,16 @@ object GithubCalls {
             .post(gson.toJson(createReleaseBody).toRequestBody("application/json".toMediaTypeOrNull()))
             .addHeader("Accept", "application/vnd.github+json").addHeader("Authorization", "Bearer $token").build()
 
-        return gson.fromJson(okHttpClient.newCall(createRequest).execute().body!!.string(), IdReply::class.java).id
+        val response = okHttpClient.newCall(createRequest).execute()
+        if (!response.isSuccessful) {
+            if (response.code == 403) {
+                throw GradleException("Failed to create GitHub Release. Check Workflow permissions. Write permissions required.")
+            } else {
+                throw GradleException("Failed to create GitHub Release. Response code ${response.code}")
+            }
+        }
+
+        return gson.fromJson(response.body!!.string(), IdReply::class.java).id
     }
 
     fun uploadZipFile(project: Project, zipFilePath: File, repo: String, releaseId: Int, fileName: String): String {
