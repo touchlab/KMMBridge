@@ -28,10 +28,6 @@ class GithubReleaseArtifactManager(
             project, repoName, releaseVersion, null
         )
 
-        if(idReply == 0){
-
-        }
-
         project.logger.info("GitHub Release created with id: $idReply")
 
         val fileName = artifactName(project, version, useExistingRelease)

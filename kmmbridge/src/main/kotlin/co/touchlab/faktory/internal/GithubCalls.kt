@@ -20,6 +20,7 @@ import okhttp3.Request
 import okhttp3.RequestBody
 import okhttp3.RequestBody.Companion.asRequestBody
 import okhttp3.RequestBody.Companion.toRequestBody
+import org.gradle.api.GradleException
 import org.gradle.api.Project
 import java.io.File
 import java.net.URLEncoder
@@ -43,7 +44,14 @@ object GithubCalls {
             .addHeader("Accept", "application/vnd.github+json").addHeader("Authorization", "Bearer $token").build()
 
         val response = okHttpClient.newCall(createRequest).execute()
-        project.logger.info("response.isSuccessful ${response.isSuccessful}, response.code: ${response.code}, response.message: ${response.message}")
+        if (!response.isSuccessful) {
+            if (response.code == 403) {
+                throw GradleException("Failed to create GitHub Release. Check Workflow permissions. Write permissions required.")
+            } else {
+                throw GradleException("Failed to create GitHub Release. Response code ${response.code}")
+            }
+        }
+
         return gson.fromJson(response.body!!.string(), IdReply::class.java).id
     }
 
