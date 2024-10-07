@@ -13,6 +13,8 @@
 
 package co.touchlab.faktory
 
+import co.touchlab.domain.SwiftToolVersion
+import co.touchlab.dsl.TargetPlatformDsl
 import co.touchlab.faktory.artifactmanager.ArtifactManager
 import co.touchlab.faktory.artifactmanager.AwsS3PublicArtifactManager
 import co.touchlab.faktory.artifactmanager.GithubReleaseArtifactManager
@@ -21,8 +23,6 @@ import co.touchlab.faktory.dependencymanager.CocoapodsDependencyManager
 import co.touchlab.faktory.dependencymanager.DependencyManager
 import co.touchlab.faktory.dependencymanager.SpecRepo
 import co.touchlab.faktory.dependencymanager.SpmDependencyManager
-import co.touchlab.faktory.domain.SwiftToolVersion
-import co.touchlab.faktory.dsl.TargetPlatformDsl
 import co.touchlab.faktory.localdevmanager.LocalDevManager
 import org.gradle.api.Project
 import org.gradle.api.provider.ListProperty
@@ -96,8 +96,8 @@ interface KmmBridgeExtension {
         spmDirectory: String? = null,
         useCustomPackageFile: Boolean = false,
         perModuleVariablesBlock: Boolean = false,
-        swiftToolVersion: String = SwiftToolVersion.Default,
-        targetPlatforms: TargetPlatformDsl.() -> Unit = { iOS { v("13") } },
+        swiftToolVersion: String = SwiftToolVersion.DEFAULT,
+        targetPlatforms: TargetPlatformDsl.() -> Unit = { iOS("13") },
     ) {
         val dependencyManager = SpmDependencyManager(
             spmDirectory,

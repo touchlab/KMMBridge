@@ -13,26 +13,15 @@
 
 package co.touchlab.faktory.dependencymanager
 
-import co.touchlab.faktory.TASK_GROUP_NAME
-import co.touchlab.faktory.domain.SwiftToolVersion
-import co.touchlab.faktory.domain.TargetPlatform
-import co.touchlab.faktory.dsl.TargetPlatformDsl
-import co.touchlab.faktory.findXCFrameworkAssembleTask
+import co.touchlab.domain.SwiftToolVersion
+import co.touchlab.dsl.TargetPlatformDsl
+import co.touchlab.faktory.*
 import co.touchlab.faktory.internal.procRunWarnLog
-import co.touchlab.faktory.kmmBridgeExtension
-import co.touchlab.faktory.kotlin
-import co.touchlab.faktory.layoutBuildDir
 import co.touchlab.faktory.localdevmanager.LocalDevManager
-import co.touchlab.faktory.urlFile
-import co.touchlab.faktory.zipFilePath
-import domain.konanTarget
-import domain.swiftPackagePlatformName
 import org.gradle.api.Action
 import org.gradle.api.Project
 import org.gradle.api.Task
 import org.gradle.api.tasks.TaskProvider
-import org.gradle.kotlin.dsl.withType
-import org.jetbrains.kotlin.gradle.plugin.mpp.KotlinNativeTarget
 import org.jetbrains.kotlin.gradle.plugin.mpp.NativeBuildType
 import java.io.ByteArrayOutputStream
 import java.io.File
@@ -51,6 +40,7 @@ class SpmDependencyManager(
 ) : DependencyManager, LocalDevManager {
     private fun Project.swiftPackageFolder(): String = _swiftPackageFolder ?: this.findRepoRoot()
     private fun Project.swiftPackageFilePath(): String = "${stripEndSlash(swiftPackageFolder())}/Package.swift"
+    private val targetPlatformDsl = TargetPlatformDsl().apply(_targetPlatforms)
 
     override fun configure(project: Project, uploadTask: TaskProvider<Task>, publishRemoteTask: TaskProvider<Task>) {
         val extension = project.kmmBridgeExtension
@@ -62,14 +52,6 @@ class SpmDependencyManager(
 
         val swiftToolVersion = SwiftToolVersion.of(_swiftToolVersion)
             ?: throw IllegalArgumentException("Parameter swiftToolVersion should be not blank!")
-
-        val targetPlatforms = TargetPlatformDsl().apply(_targetPlatforms)
-            .targetPlatforms
-            .ifEmpty {
-                throw IllegalArgumentException("At least one target platform should be specified!")
-            }
-
-        val platforms = platforms(project, targetPlatforms)
 
         val updatePackageSwiftTask = project.tasks.register("updatePackageSwift") {
             group = TASK_GROUP_NAME
@@ -94,7 +76,7 @@ class SpmDependencyManager(
                             url,
                             checksum,
                             swiftToolVersion,
-                            platforms
+                            targetPlatformDsl.getPlatformsAsFormattedText()
                         )
                     }
 
@@ -192,40 +174,19 @@ class SpmDependencyManager(
                     val swiftToolVersion = SwiftToolVersion.of(_swiftToolVersion)
                         ?: throw IllegalArgumentException("Parameter swiftToolVersion should be not blank!")
 
-                    val targetPlatforms = TargetPlatformDsl().apply(_targetPlatforms)
-                        .targetPlatforms
-                        .ifEmpty {
-                            throw IllegalArgumentException("At least one target platform should be specified!")
-                        }
-
-                    val platforms = platforms(project, targetPlatforms)
-
                     project.writePackageFile(
                         makeLocalDevPackageFileText(
                             project.swiftPackageFolder(),
                             extension.frameworkName.get(),
                             project,
                             swiftToolVersion,
-                            platforms
+                            targetPlatformDsl.getPlatformsAsFormattedText()
                         )
                     )
                 }
             })
         }
     }
-
-    private fun platforms(project: Project, targetPlatforms: List<TargetPlatform>): String =
-        targetPlatforms.flatMap { platform ->
-            project.kotlin.targets
-                .withType<KotlinNativeTarget>()
-                .asSequence()
-                .filter { it.konanTarget.family.isAppleFamily }
-                .filter { appleTarget -> platform.targets.firstOrNull { it.konanTarget == appleTarget.konanTarget } != null }
-                .mapNotNull { it.konanTarget.family.swiftPackagePlatformName }
-                .distinct()
-                .map { platformName -> ".$platformName(.v${platform.version.name})" }
-                .toList()
-        }.joinToString(separator = ",\n")
 }
 
 internal fun stripEndSlash(path: String): String {
@@ -256,7 +217,7 @@ let packageName = "$frameworkName"
 let package = Package(
     name: packageName,
     platforms: [
-        $platforms
+$platforms
     ],
     products: [
         .library(
