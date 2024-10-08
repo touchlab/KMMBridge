@@ -12,6 +12,17 @@ enum class PlatformName(val value: String) {
     WatchOS("watchOS"),
 }
 
-data class PlatformVersion(
-    val version: String = "",
-)
+class PlatformVersion {
+    var version: String? = null
+
+    fun v(version: String) {
+        this.version = version
+    }
+
+    fun default(version: String): PlatformVersion {
+        if (this.version == null) {
+            this.version = version
+        }
+        return this
+    }
+}

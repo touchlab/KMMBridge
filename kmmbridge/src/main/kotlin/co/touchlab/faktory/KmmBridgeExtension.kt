@@ -97,7 +97,7 @@ interface KmmBridgeExtension {
         useCustomPackageFile: Boolean = false,
         perModuleVariablesBlock: Boolean = false,
         swiftToolVersion: String = SwiftToolVersion.DEFAULT,
-        targetPlatforms: TargetPlatformDsl.() -> Unit = { iOS("13") },
+        targetPlatforms: TargetPlatformDsl.() -> Unit = { iOS { } },
     ) {
         val dependencyManager = SpmDependencyManager(
             spmDirectory,
