@@ -31,13 +31,25 @@ repositories {
 gradlePlugin {
     website = "https://github.com/touchlab/KMMBridge"
     vcsUrl = "https://github.com/touchlab/KMMBridge.git"
-    description = "KMMBridge is a set of Gradle tooling that facilitates publishing and consuming pre-built KMM (Kotlin Multiplatform Mobile) Xcode Framework binaries."
+    description =
+        "KMMBridge is a set of Gradle tooling that facilitates publishing and consuming pre-built KMM (Kotlin Multiplatform Mobile) Xcode Framework binaries."
     plugins {
         register("faktory-kmmbridge-plugin") {
             id = "co.touchlab.kmmbridge"
             implementationClass = "co.touchlab.faktory.KMMBridgePlugin"
             displayName = "KMMBridge for Teams"
-            tags = listOf("kmm", "kotlin", "multiplatform", "mobile", "ios", "xcode", "framework", "binary", "publish", "consume")
+            tags = listOf(
+                "kmm",
+                "kotlin",
+                "multiplatform",
+                "mobile",
+                "ios",
+                "xcode",
+                "framework",
+                "binary",
+                "publish",
+                "consume"
+            )
         }
     }
 }

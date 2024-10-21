@@ -42,6 +42,7 @@ class KMMBridgePlugin : Plugin<Project> {
         extension.dependencyManagers.convention(emptyList())
         extension.buildType.convention(NativeBuildType.RELEASE)
 
+
         afterEvaluate {
             configureXcFramework()
             configureLocalDev()
@@ -98,7 +99,7 @@ class KMMBridgePlugin : Plugin<Project> {
 
     private fun Project.configureLocalDev() {
         val extension = kmmBridgeExtension
-        extension.localDevManager.orNull?.configureLocalDev(this)
+        extension.localDevManager.orNull?.configureLocalDev(providers, this)
     }
 
     private fun Project.configureArtifactManagerAndDeploy() {
@@ -157,7 +158,7 @@ class KMMBridgePlugin : Plugin<Project> {
 
 
         for (dependencyManager in dependencyManagers) {
-            dependencyManager.configure(this, uploadTask, publishRemoteTask)
+            dependencyManager.configure(providers, this, uploadTask, publishRemoteTask)
         }
     }
 }

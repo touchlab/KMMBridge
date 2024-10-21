@@ -14,7 +14,8 @@
 package co.touchlab.faktory.localdevmanager
 
 import org.gradle.api.Project
+import org.gradle.api.provider.ProviderFactory
 
 interface LocalDevManager {
-    fun configureLocalDev(project: Project)
+    fun configureLocalDev(providers: ProviderFactory, project: Project)
 }

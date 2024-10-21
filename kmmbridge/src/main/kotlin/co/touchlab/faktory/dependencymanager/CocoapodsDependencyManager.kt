@@ -23,6 +23,7 @@ import co.touchlab.faktory.urlFile
 import org.gradle.api.Action
 import org.gradle.api.Project
 import org.gradle.api.Task
+import org.gradle.api.provider.ProviderFactory
 import org.gradle.api.tasks.TaskProvider
 import org.jetbrains.kotlin.gradle.plugin.cocoapods.KotlinCocoapodsPlugin
 import org.jetbrains.kotlin.gradle.plugin.mpp.Framework
@@ -39,7 +40,12 @@ class CocoapodsDependencyManager(
     private val allowWarnings: Boolean,
     private val verboseErrors: Boolean
 ) : DependencyManager {
-    override fun configure(project: Project, uploadTask: TaskProvider<Task>, publishRemoteTask: TaskProvider<Task>) {
+    override fun configure(
+        providers: ProviderFactory,
+        project: Project,
+        uploadTask: TaskProvider<Task>,
+        publishRemoteTask: TaskProvider<Task>
+    ) {
 
         val podSpecFile =
             "${project.layoutBuildDir}/faktory/podspec/${project.kmmBridgeExtension.buildType.get().name.lowercase()}/${project.kotlin.cocoapods.name}.podspec"

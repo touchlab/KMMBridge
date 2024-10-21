@@ -15,6 +15,7 @@ package co.touchlab.faktory.dependencymanager
 
 import org.gradle.api.Project
 import org.gradle.api.Task
+import org.gradle.api.provider.ProviderFactory
 import org.gradle.api.tasks.TaskProvider
 
 interface DependencyManager {
@@ -22,7 +23,13 @@ interface DependencyManager {
      * Do configuration specific to this `DependencyManager`. Generally this involves creating tasks that depend on
      * [uploadTask] and are dependencies of [publishRemoteTask].
      */
-    fun configure(project: Project, uploadTask: TaskProvider<Task>, publishRemoteTask: TaskProvider<Task>) {}
+    fun configure(
+        providers: ProviderFactory,
+        project: Project,
+        uploadTask: TaskProvider<Task>,
+        publishRemoteTask: TaskProvider<Task>
+    ) {
+    }
 
     /**
      * True if this type of dependency needs git tags to function properly (currently SPM true, Cocoapods false)

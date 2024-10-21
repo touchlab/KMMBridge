@@ -18,7 +18,6 @@ import co.touchlab.faktory.domain.SwiftToolVersion
 import co.touchlab.faktory.domain.TargetPlatform
 import co.touchlab.faktory.dsl.TargetPlatformDsl
 import co.touchlab.faktory.findXCFrameworkAssembleTask
-import co.touchlab.faktory.internal.procRunWarnLog
 import co.touchlab.faktory.kmmBridgeExtension
 import co.touchlab.faktory.kotlin
 import co.touchlab.faktory.layoutBuildDir
@@ -30,6 +29,7 @@ import domain.swiftPackagePlatformName
 import org.gradle.api.Action
 import org.gradle.api.Project
 import org.gradle.api.Task
+import org.gradle.api.provider.ProviderFactory
 import org.gradle.api.tasks.TaskProvider
 import org.gradle.kotlin.dsl.withType
 import org.jetbrains.kotlin.gradle.plugin.mpp.KotlinNativeTarget
@@ -49,10 +49,18 @@ class SpmDependencyManager(
     private val _swiftToolVersion: String,
     private val _targetPlatforms: TargetPlatformDsl.() -> Unit,
 ) : DependencyManager, LocalDevManager {
-    private fun Project.swiftPackageFolder(): String = _swiftPackageFolder ?: this.findRepoRoot()
-    private fun Project.swiftPackageFilePath(): String = "${stripEndSlash(swiftPackageFolder())}/Package.swift"
+    private fun ProviderFactory.swiftPackageFolder(projectDir: File): String =
+        _swiftPackageFolder ?: this.findRepoRoot(projectDir)
 
-    override fun configure(project: Project, uploadTask: TaskProvider<Task>, publishRemoteTask: TaskProvider<Task>) {
+    private fun ProviderFactory.swiftPackageFilePath(projectDir: File): String =
+        "${stripEndSlash(swiftPackageFolder(projectDir))}/Package.swift"
+
+    override fun configure(
+        providers: ProviderFactory,
+        project: Project,
+        uploadTask: TaskProvider<Task>,
+        publishRemoteTask: TaskProvider<Task>
+    ) {
         val extension = project.kmmBridgeExtension
         val packageName = extension.frameworkName.get()
 
@@ -75,7 +83,7 @@ class SpmDependencyManager(
             group = TASK_GROUP_NAME
             val zipFile = project.zipFilePath()
             inputs.files(zipFile, project.urlFile)
-            outputs.files(project.swiftPackageFilePath())
+            outputs.files(providers.swiftPackageFilePath(project.projectDir))
 
             @Suppress("ObjectLiteralToLambda")
             doLast(object : Action<Task> {
@@ -108,7 +116,7 @@ class SpmDependencyManager(
     }
 
     private fun Project.hasKmmbridgeVariablesSection(packageName: String): Boolean {
-        val swiftPackageFile = file(swiftPackageFilePath())
+        val swiftPackageFile = file(providers.swiftPackageFilePath(projectDir))
         val (startTag) = kmmBridgeVariablesForPackage(packageName, perModuleVariablesBlock)
 
         return swiftPackageFile.readText().contains(startTag)
@@ -119,7 +127,7 @@ class SpmDependencyManager(
         url: String,
         checksum: String,
     ) {
-        val packageFile = file(swiftPackageFilePath())
+        val packageFile = file(providers.swiftPackageFilePath(projectDir))
         packageFile.writeText(
             getModifiedPackageFileText(
                 packageFile.readText(),
@@ -138,7 +146,7 @@ class SpmDependencyManager(
         swiftToolVersion: SwiftToolVersion,
         platforms: String
     ) {
-        val swiftPackageFile = file(swiftPackageFilePath())
+        val swiftPackageFile = file(providers.swiftPackageFilePath(projectDir))
         val packageText =
             makePackageFileText(packageName, url, checksum, perModuleVariablesBlock, swiftToolVersion, platforms)
         swiftPackageFile.parentFile.mkdirs()
@@ -174,11 +182,11 @@ class SpmDependencyManager(
     }
 
     private fun Project.writePackageFile(data: String) {
-        file(swiftPackageFilePath()).writeText(data)
+        file(providers.swiftPackageFilePath(projectDir)).writeText(data)
     }
 
     override val needsGitTags: Boolean = true
-    override fun configureLocalDev(project: Project) {
+    override fun configureLocalDev(providers: ProviderFactory, project: Project) {
         if (useCustomPackageFile) return // No local dev when using a custom package file
 
         val extension = project.kmmBridgeExtension
@@ -202,7 +210,7 @@ class SpmDependencyManager(
 
                     project.writePackageFile(
                         makeLocalDevPackageFileText(
-                            project.swiftPackageFolder(),
+                            providers.swiftPackageFolder(project.projectDir),
                             extension.frameworkName.get(),
                             project,
                             swiftToolVersion,
@@ -405,8 +413,11 @@ private fun packageNameVariableName(packageName: String, perModuleVariablesBlock
  * For new projects that aren't in git repos, it's *probably* OK to just return the current folder
  * until this is resolved, or let the user enter it manually.
  */
-private fun Project.findRepoRoot(): String {
-    val results = procRunWarnLog("git", "rev-parse", "--show-toplevel")
+private fun ProviderFactory.findRepoRoot(projectDir: File): String {
+    val results = exec {
+        commandLine("git", "rev-parse", "--show-toplevel")
+    }.standardOutput.asText.get().lines()
+
     return if (results.isEmpty()) {
         "."
     } else {

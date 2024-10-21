@@ -23,7 +23,7 @@ class MavenPublishArtifactManager(
     artifactSuffix: String?,
     private val repositoryName: String?,
     private val isMavenCentral: Boolean = false,
-    ) : ArtifactManager {
+) : ArtifactManager {
     private val group: String = project.group.toString().replace(".", "/")
     private val kmmbridgeArtifactId = "${project.name}-${artifactSuffix ?: KMMBRIDGE_ARTIFACT_SUFFIX}"
 
