@@ -30,7 +30,7 @@ object GithubCalls {
         OkHttpClient.Builder().callTimeout(Duration.ofMinutes(5)).connectTimeout(Duration.ofMinutes(2))
             .writeTimeout(Duration.ofMinutes(5)).readTimeout(Duration.ofMinutes(2)).build()
 
-    fun createRelease(githubPublishToken:String, repo: String, tag: String, commitId: String?): Int {
+    fun createRelease(githubPublishToken: String, repo: String, tag: String, commitId: String?): Int {
         val gson = Gson()
         val createReleaseBody = if (commitId == null) {
             CreateReleaseBody(tag)
@@ -39,7 +39,8 @@ object GithubCalls {
         }
         val createRequest = Request.Builder().url("https://api.github.com/repos/${repo}/releases")
             .post(gson.toJson(createReleaseBody).toRequestBody("application/json".toMediaTypeOrNull()))
-            .addHeader("Accept", "application/vnd.github+json").addHeader("Authorization", "Bearer $githubPublishToken").build()
+            .addHeader("Accept", "application/vnd.github+json").addHeader("Authorization", "Bearer $githubPublishToken")
+            .build()
 
         val response = okHttpClient.newCall(createRequest).execute()
         if (!response.isSuccessful) {
@@ -53,7 +54,13 @@ object GithubCalls {
         return gson.fromJson(response.body!!.string(), IdReply::class.java).id
     }
 
-    fun uploadZipFile(githubPublishToken:String, zipFilePath: File, repo: String, releaseId: Int, fileName: String): String {
+    fun uploadZipFile(
+        githubPublishToken: String,
+        zipFilePath: File,
+        repo: String,
+        releaseId: Int,
+        fileName: String
+    ): String {
         val gson = Gson()
         val body: RequestBody = zipFilePath.asRequestBody("application/zip".toMediaTypeOrNull())
 
@@ -63,8 +70,10 @@ object GithubCalls {
                     fileName, "UTF-8"
                 )
             }"
-        ).post(body).addHeader("Accept", "application/vnd.github+json").addHeader("Authorization",
-            "Bearer $githubPublishToken")
+        ).post(body).addHeader("Accept", "application/vnd.github+json").addHeader(
+            "Authorization",
+            "Bearer $githubPublishToken"
+        )
             .addHeader("Content-Type", "application/zip").build()
 
         val response = okHttpClient.newCall(uploadRequest).execute()
@@ -76,14 +85,16 @@ object GithubCalls {
     }
 
     fun findReleaseId(
-        githubPublishToken:String,
+        githubPublishToken: String,
         repoName: String,
         artifactReleaseTag: String
     ): Int? {
         val request: Request =
             Request.Builder().url("https://api.github.com/repos/${repoName}/releases/tags/${artifactReleaseTag}").get()
-                .addHeader("Accept", "application/vnd.github+json").addHeader("Authorization",
-                    "Bearer $githubPublishToken").build()
+                .addHeader("Accept", "application/vnd.github+json").addHeader(
+                    "Authorization",
+                    "Bearer $githubPublishToken"
+                ).build()
 
         val responseString = okHttpClient.newCall(request).execute().body!!.string()
         return if (!responseString.contains("Not Found")) {

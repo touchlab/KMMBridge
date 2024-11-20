@@ -90,7 +90,11 @@ class KMMBridgePlugin : Plugin<Project> {
     }
 
     private fun Project.configureLocalDev(pluginConfigState: PluginConfigState) {
-        pluginConfigState.kmmBridgeExtension.localDevManager.orNull?.configureLocalDev(pluginConfigState, providers, this)
+        pluginConfigState.kmmBridgeExtension.localDevManager.orNull?.configureLocalDev(
+            pluginConfigState,
+            providers,
+            this
+        )
     }
 
     private fun Project.configureArtifactManagerAndDeploy(pluginConfigState: PluginConfigState) {

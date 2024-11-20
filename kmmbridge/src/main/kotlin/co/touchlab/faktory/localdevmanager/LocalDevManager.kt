@@ -18,5 +18,9 @@ import org.gradle.api.Project
 import org.gradle.api.provider.ProviderFactory
 
 abstract class LocalDevManager {
-    internal abstract fun configureLocalDev(pluginConfigState: PluginConfigState, providers: ProviderFactory, project: Project)
+    internal abstract fun configureLocalDev(
+        pluginConfigState: PluginConfigState,
+        providers: ProviderFactory,
+        project: Project
+    )
 }

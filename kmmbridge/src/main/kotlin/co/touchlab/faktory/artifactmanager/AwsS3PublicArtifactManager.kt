@@ -36,7 +36,7 @@ class AwsS3PublicArtifactManager(
     private val altBaseUrl: String?,
 ) : ArtifactManager() {
 
-    lateinit var fileName:String
+    lateinit var fileName: String
 
     override fun configure(
         project: Project,

@@ -24,8 +24,8 @@ class MavenPublishArtifactManager(
     private val isMavenCentral: Boolean = false,
 ) : ArtifactManager() {
     lateinit var group: String
-    lateinit var kmmbridgeArtifactId :String
-    lateinit var mavenArtifactRepositoryUrl :String
+    lateinit var kmmbridgeArtifactId: String
+    lateinit var mavenArtifactRepositoryUrl: String
 
     override fun configure(
         project: Project,

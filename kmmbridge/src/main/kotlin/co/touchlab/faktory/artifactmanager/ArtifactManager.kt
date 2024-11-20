@@ -36,7 +36,7 @@ abstract class ArtifactManager {
      */
     abstract fun Task.deployArtifact(zipFilePath: File, version: String): String
 
-    internal fun deployArtifact(task: Task, zipFilePath: File, version: String): String{
+    internal fun deployArtifact(task: Task, zipFilePath: File, version: String): String {
         return task.deployArtifact(zipFilePath, version)
     }
 
