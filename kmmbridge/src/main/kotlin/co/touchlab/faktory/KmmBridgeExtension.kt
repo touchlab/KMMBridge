@@ -87,7 +87,6 @@ interface KmmBridgeExtension {
     ) {
         artifactManager.setAndFinalize(
             MavenPublishArtifactManager(
-                this,
                 publication,
                 artifactSuffix,
                 repository,

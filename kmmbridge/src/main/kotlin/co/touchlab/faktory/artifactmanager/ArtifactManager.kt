@@ -19,11 +19,11 @@ import org.gradle.api.Task
 import org.gradle.api.tasks.TaskProvider
 import java.io.File
 
-interface ArtifactManager {
+abstract class ArtifactManager {
     /**
      * Do configuration specific to this `ArtifactManager`.
      */
-    fun configure(
+    open fun configure(
         project: Project,
         version: String,
         uploadTask: TaskProvider<Task>,
@@ -34,10 +34,18 @@ interface ArtifactManager {
     /**
      * Send the thing, and return a link to the thing...
      */
-    fun deployArtifact(project: Project, zipFilePath: File, version: String): String
+    abstract fun Task.deployArtifact(zipFilePath: File, version: String): String
+
+    internal fun deployArtifact(task: Task, zipFilePath: File, version: String): String{
+        return task.deployArtifact(zipFilePath, version)
+    }
 
     /**
      * Run after file written. This is essentially for GitHub releases.
      */
-    fun finishArtifact(project: Project, version: String, dependencyManagers: List<DependencyManager>) {}
+    open fun Task.finishArtifact(version: String, dependencyManagers: List<DependencyManager>) {}
+
+    internal fun finishArtifact(task: Task, version: String, dependencyManagers: List<DependencyManager>) {
+        task.finishArtifact(version, dependencyManagers)
+    }
 }

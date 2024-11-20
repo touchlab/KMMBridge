@@ -13,9 +13,10 @@
 
 package co.touchlab.faktory.localdevmanager
 
+import co.touchlab.faktory.internal.PluginConfigState
 import org.gradle.api.Project
 import org.gradle.api.provider.ProviderFactory
 
-interface LocalDevManager {
-    fun configureLocalDev(providers: ProviderFactory, project: Project)
+abstract class LocalDevManager {
+    internal abstract fun configureLocalDev(pluginConfigState: PluginConfigState, providers: ProviderFactory, project: Project)
 }

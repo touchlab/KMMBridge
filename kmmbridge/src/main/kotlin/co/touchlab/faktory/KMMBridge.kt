@@ -13,6 +13,7 @@
 
 package co.touchlab.faktory
 
+import co.touchlab.faktory.internal.PluginConfigState
 import org.gradle.api.Action
 import org.gradle.api.Plugin
 import org.gradle.api.Project
@@ -42,31 +43,22 @@ class KMMBridgePlugin : Plugin<Project> {
         extension.dependencyManagers.convention(emptyList())
         extension.buildType.convention(NativeBuildType.RELEASE)
 
-
         afterEvaluate {
-            configureXcFramework()
-            configureLocalDev()
+            val pluginConfigState = PluginConfigState(
+                extensions.getByType<KmmBridgeExtension>(),
+                project.projectDir,
+                project.layout.buildDirectory.get().asFile
+            )
+            configureXcFramework(pluginConfigState)
+            configureLocalDev(pluginConfigState)
             if (enablePublishing) {
-                configureArtifactManagerAndDeploy()
+                configureArtifactManagerAndDeploy(pluginConfigState)
             }
         }
     }
 
-    private fun Project.configureZipTask(extension: KmmBridgeExtension): Pair<TaskProvider<Zip>, File> {
-        val zipFile = zipFilePath()
-        val zipTask = tasks.register<Zip>("zipXCFramework") {
-            group = TASK_GROUP_NAME
-            from("$layoutBuildDir/XCFrameworks/${extension.buildType.get().getName()}")
-            destinationDirectory.set(zipFile.parentFile)
-            archiveFileName.set(zipFile.name)
-        }
-
-        return Pair(zipTask, zipFile)
-    }
-
     // Collect all declared frameworks in project and combine into xcframework
-    private fun Project.configureXcFramework() {
-        val extension = kmmBridgeExtension
+    private fun Project.configureXcFramework(pluginConfigState: PluginConfigState) {
         var xcFrameworkConfig: XCFrameworkConfig? = null
 
         val spmBuildTargets: Set<String> =
@@ -78,9 +70,9 @@ class KMMBridgePlugin : Plugin<Project> {
             .flatMap { it.binaries.filterIsInstance<Framework>() }
             .forEach { framework ->
                 val theName = framework.baseName
-                val currentName = extension.frameworkName.orNull
+                val currentName = pluginConfigState.kmmBridgeExtension.frameworkName.orNull
                 if (currentName == null) {
-                    extension.frameworkName.set(theName)
+                    pluginConfigState.kmmBridgeExtension.frameworkName.set(theName)
                 } else {
                     if (currentName != theName) {
                         throw IllegalStateException("Only one framework name currently allowed. Found $currentName and $theName")
@@ -97,13 +89,12 @@ class KMMBridgePlugin : Plugin<Project> {
             }
     }
 
-    private fun Project.configureLocalDev() {
-        val extension = kmmBridgeExtension
-        extension.localDevManager.orNull?.configureLocalDev(providers, this)
+    private fun Project.configureLocalDev(pluginConfigState: PluginConfigState) {
+        pluginConfigState.kmmBridgeExtension.localDevManager.orNull?.configureLocalDev(pluginConfigState, providers, this)
     }
 
-    private fun Project.configureArtifactManagerAndDeploy() {
-        val extension = extensions.getByType<KmmBridgeExtension>()
+    private fun Project.configureArtifactManagerAndDeploy(pluginConfigState: PluginConfigState) {
+        val extension = pluginConfigState.kmmBridgeExtension
 
         // Early-out with a warning if user hasn't added required config yet, to ensure project still syncs
         val artifactManager = extension.artifactManager.orNull ?: run {
@@ -111,7 +102,7 @@ class KMMBridgePlugin : Plugin<Project> {
             return
         }
 
-        val (zipTask, zipFile) = configureZipTask(extension)
+        val (zipTask, zipFile) = configureZipTask(pluginConfigState)
 
         // Zip task depends on the XCFramework assemble task
         zipTask.configure {
@@ -126,13 +117,15 @@ class KMMBridgePlugin : Plugin<Project> {
             inputs.file(zipFile)
             outputs.files(urlFile)
             outputs.upToDateWhen { false } // We want to always upload when this task is called
+            val versionLocal = version
+            val urlFileLocal = urlFile
 
             @Suppress("ObjectLiteralToLambda")
             doLast(object : Action<Task> {
                 override fun execute(t: Task) {
-                    logger.info("Uploading XCFramework version $version")
-                    val deployUrl = artifactManager.deployArtifact(project, zipFile, version.toString())
-                    urlFile.writeText(deployUrl)
+                    logger.info("Uploading XCFramework version $versionLocal")
+                    val deployUrl = artifactManager.deployArtifact(this@register, zipFile, versionLocal.toString())
+                    urlFileLocal.writeText(deployUrl)
                 }
             })
         }
@@ -143,11 +136,11 @@ class KMMBridgePlugin : Plugin<Project> {
         val publishRemoteTask = tasks.register("kmmBridgePublish") {
             group = TASK_GROUP_NAME
             dependsOn(uploadTask)
-
+            val versionLocal = version
             @Suppress("ObjectLiteralToLambda")
             doLast(object : Action<Task> {
                 override fun execute(t: Task) {
-                    artifactManager.finishArtifact(project, version.toString(), dependencyManagers)
+                    artifactManager.finishArtifact(this@register, versionLocal.toString(), dependencyManagers)
                 }
             })
         }
@@ -156,9 +149,22 @@ class KMMBridgePlugin : Plugin<Project> {
         // If you are exploring the task dependencies, be aware of that code
         artifactManager.configure(this, version.toString(), uploadTask, publishRemoteTask)
 
-
         for (dependencyManager in dependencyManagers) {
             dependencyManager.configure(providers, this, uploadTask, publishRemoteTask)
         }
+    }
+
+    private fun Project.configureZipTask(pluginConfigState: PluginConfigState): Pair<TaskProvider<Zip>, File> {
+        val extension = pluginConfigState.kmmBridgeExtension
+        val layoutBuildDir = pluginConfigState.buildDir
+        val zipFile = zipFilePath()
+        val zipTask = tasks.register<Zip>("zipXCFramework") {
+            group = TASK_GROUP_NAME
+            from("$layoutBuildDir/XCFrameworks/${extension.buildType.get().getName()}")
+            destinationDirectory.set(zipFile.parentFile)
+            archiveFileName.set(zipFile.name)
+        }
+
+        return Pair(zipTask, zipFile)
     }
 }

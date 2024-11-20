@@ -18,14 +18,14 @@ private const val FRAMEWORK_PUBLICATION_NAME = "KMMBridgeFramework"
 private const val KMMBRIDGE_ARTIFACT_SUFFIX = "kmmbridge"
 
 class MavenPublishArtifactManager(
-    val project: Project,
     private val publicationName: String?,
-    artifactSuffix: String?,
+    private val artifactSuffix: String?,
     private val repositoryName: String?,
     private val isMavenCentral: Boolean = false,
-) : ArtifactManager {
-    private val group: String = project.group.toString().replace(".", "/")
-    private val kmmbridgeArtifactId = "${project.name}-${artifactSuffix ?: KMMBRIDGE_ARTIFACT_SUFFIX}"
+) : ArtifactManager() {
+    lateinit var group: String
+    lateinit var kmmbridgeArtifactId :String
+    lateinit var mavenArtifactRepositoryUrl :String
 
     override fun configure(
         project: Project,
@@ -33,6 +33,10 @@ class MavenPublishArtifactManager(
         uploadTask: TaskProvider<Task>,
         kmmPublishTask: TaskProvider<Task>
     ) {
+        this.group = project.group.toString().replace(".", "/")
+        this.kmmbridgeArtifactId = "${project.name}-${artifactSuffix ?: KMMBRIDGE_ARTIFACT_SUFFIX}"
+        this.mavenArtifactRepositoryUrl = project.evaluateRepoUrl()
+
         project.publishingExtension.publications.create(
             publicationName ?: FRAMEWORK_PUBLICATION_NAME,
             MavenPublication::class.java
@@ -47,7 +51,7 @@ class MavenPublishArtifactManager(
             artifactId = kmmbridgeArtifactId
         }
 
-        publishingTasks().forEach {
+        publishingTasks(project).forEach {
             uploadTask.configure {
                 dependsOn(it)
             }
@@ -70,7 +74,11 @@ class MavenPublishArtifactManager(
      * doesn't tell you anything about the remote URLs that it's creating, it's inferred based on
      * maven's well known conventions.
      */
-    override fun deployArtifact(project: Project, zipFilePath: File, version: String): String {
+    override fun Task.deployArtifact(zipFilePath: File, version: String): String {
+        return artifactPath(mavenArtifactRepositoryUrl, version)
+    }
+
+    private fun Project.evaluateRepoUrl(): String {
         val publishingExtension = project.extensions.getByType<PublishingExtension>()
 
         // There may be more than one repo, but it's also possible we get none. This will allow us to continue and trying
@@ -81,11 +89,10 @@ class MavenPublishArtifactManager(
         } else {
             "https://repo.maven.apache.org/maven2/"
         }
-
-        return artifactPath(mavenArtifactRepositoryUrl, version)
+        return mavenArtifactRepositoryUrl
     }
 
-    private fun publishingTasks(): List<TaskProvider<Task>> {
+    private fun publishingTasks(project: Project): List<TaskProvider<Task>> {
         val publishingExtension = project.extensions.getByType<PublishingExtension>()
 
         // Either the user has supplied a correct name, or we use the default. If neither is found, fail.

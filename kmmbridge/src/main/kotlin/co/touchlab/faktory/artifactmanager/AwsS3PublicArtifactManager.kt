@@ -13,8 +13,10 @@
 
 package co.touchlab.faktory.artifactmanager
 
-import co.touchlab.faktory.internal.obscureFileName
+import co.touchlab.faktory.kmmBridgeExtension
 import org.gradle.api.Project
+import org.gradle.api.Task
+import org.gradle.api.tasks.TaskProvider
 import software.amazon.awssdk.auth.credentials.AwsBasicCredentials
 import software.amazon.awssdk.core.sync.RequestBody
 import software.amazon.awssdk.regions.Region
@@ -23,6 +25,7 @@ import software.amazon.awssdk.services.s3.S3Configuration
 import software.amazon.awssdk.services.s3.model.HeadObjectRequest
 import software.amazon.awssdk.services.s3.model.PutObjectRequest
 import java.io.File
+import java.util.*
 
 class AwsS3PublicArtifactManager(
     private val s3Region: String,
@@ -31,10 +34,20 @@ class AwsS3PublicArtifactManager(
     private val s3SecretAccessKey: String,
     private val makeArtifactsPublic: Boolean,
     private val altBaseUrl: String?,
-) : ArtifactManager {
+) : ArtifactManager() {
 
-    override fun deployArtifact(project: Project, zipFilePath: File, version: String): String {
-        val fileName = obscureFileName(project, version)
+    lateinit var fileName:String
+
+    override fun configure(
+        project: Project,
+        version: String,
+        uploadTask: TaskProvider<Task>,
+        kmmPublishTask: TaskProvider<Task>
+    ) {
+        fileName = obscureFileName(project, version)
+    }
+
+    override fun Task.deployArtifact(zipFilePath: File, version: String): String {
         uploadArtifact(zipFilePath, fileName)
         return deployUrl(fileName)
     }
@@ -95,4 +108,13 @@ class AwsS3PublicArtifactManager(
             }
         }
     }
+}
+
+/**
+ * Generate a file name that isn't guessable. Some artifact managers don't have auth guarding the urls.
+ */
+private fun obscureFileName(project: Project, versionString: String): String {
+    val randomId = UUID.randomUUID().toString()
+    val frameworkName = project.kmmBridgeExtension.frameworkName.get()
+    return "${frameworkName}-${versionString}-${randomId}.xcframework.zip"
 }
