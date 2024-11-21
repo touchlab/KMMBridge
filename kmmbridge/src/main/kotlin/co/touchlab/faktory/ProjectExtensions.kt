@@ -43,7 +43,7 @@ internal val KotlinMultiplatformExtension.cocoapods
 
 // This previously defaulted to 'false', but now you can disable it if needed, but otherwise ignore
 internal val Project.enablePublishing: Boolean
-    get() = project.findStringProperty("ENABLE_PUBLISHING")?.toBoolean() ?: true
+    get() = project.findStringProperty("ENABLE_PUBLISHING")?.toBoolean() ?: false
 
 internal val Project.spmBuildTargets: String?
     get() = project.findStringProperty("spmBuildTargets")
