@@ -13,7 +13,7 @@
 
 package co.touchlab.faktory
 
-import co.touchlab.faktory.internal.PluginConfigState
+import co.touchlab.faktory.dependencymanager.SpmDependencyManager
 import org.gradle.api.Action
 import org.gradle.api.Plugin
 import org.gradle.api.Project
@@ -44,21 +44,18 @@ class KMMBridgePlugin : Plugin<Project> {
         extension.buildType.convention(NativeBuildType.RELEASE)
 
         afterEvaluate {
-            val pluginConfigState = PluginConfigState(
-                extensions.getByType<KmmBridgeExtension>(),
-                project.projectDir,
-                project.layout.buildDirectory.get().asFile
-            )
-            configureXcFramework(pluginConfigState)
-            configureLocalDev(pluginConfigState)
+            val kmmBridgeExtension = extensions.getByType<KmmBridgeExtension>()
+
+            configureXcFramework(kmmBridgeExtension)
+            configureLocalDev(kmmBridgeExtension)
             if (enablePublishing) {
-                configureArtifactManagerAndDeploy(pluginConfigState)
+                configureArtifactManagerAndDeploy(kmmBridgeExtension)
             }
         }
     }
 
     // Collect all declared frameworks in project and combine into xcframework
-    private fun Project.configureXcFramework(pluginConfigState: PluginConfigState) {
+    private fun Project.configureXcFramework(kmmBridgeExtension: KmmBridgeExtension) {
         var xcFrameworkConfig: XCFrameworkConfig? = null
 
         val spmBuildTargets: Set<String> =
@@ -70,9 +67,9 @@ class KMMBridgePlugin : Plugin<Project> {
             .flatMap { it.binaries.filterIsInstance<Framework>() }
             .forEach { framework ->
                 val theName = framework.baseName
-                val currentName = pluginConfigState.kmmBridgeExtension.frameworkName.orNull
+                val currentName = kmmBridgeExtension.frameworkName.orNull
                 if (currentName == null) {
-                    pluginConfigState.kmmBridgeExtension.frameworkName.set(theName)
+                    kmmBridgeExtension.frameworkName.set(theName)
                 } else {
                     if (currentName != theName) {
                         throw IllegalStateException("Only one framework name currently allowed. Found $currentName and $theName")
@@ -89,24 +86,21 @@ class KMMBridgePlugin : Plugin<Project> {
             }
     }
 
-    private fun Project.configureLocalDev(pluginConfigState: PluginConfigState) {
-        pluginConfigState.kmmBridgeExtension.localDevManager.orNull?.configureLocalDev(
-            pluginConfigState,
-            providers,
+    private fun Project.configureLocalDev(kmmBridgeExtension: KmmBridgeExtension) {
+        (kmmBridgeExtension.dependencyManagers.get()
+            .find { it is SpmDependencyManager } as? SpmDependencyManager)?.configureLocalDev(
             this
         )
     }
 
-    private fun Project.configureArtifactManagerAndDeploy(pluginConfigState: PluginConfigState) {
-        val extension = pluginConfigState.kmmBridgeExtension
-
+    private fun Project.configureArtifactManagerAndDeploy(kmmBridgeExtension: KmmBridgeExtension) {
         // Early-out with a warning if user hasn't added required config yet, to ensure project still syncs
-        val artifactManager = extension.artifactManager.orNull ?: run {
+        val artifactManager = kmmBridgeExtension.artifactManager.orNull ?: run {
             project.logger.warn("You must apply an artifact manager! Call `artifactManager.set(...)` or a configuration function like `mavenPublishArtifacts()` in your `kmmbridge` block.")
             return
         }
 
-        val (zipTask, zipFile) = configureZipTask(pluginConfigState)
+        val (zipTask, zipFile) = configureZipTask(kmmBridgeExtension, project.layoutBuildDir)
 
         // Zip task depends on the XCFramework assemble task
         zipTask.configure {
@@ -134,19 +128,12 @@ class KMMBridgePlugin : Plugin<Project> {
             })
         }
 
-        val dependencyManagers = extension.dependencyManagers.get()
+        val dependencyManagers = kmmBridgeExtension.dependencyManagers.get()
 
         // Publish task depends on the upload task
         val publishRemoteTask = tasks.register("kmmBridgePublish") {
             group = TASK_GROUP_NAME
             dependsOn(uploadTask)
-            val versionLocal = version
-            @Suppress("ObjectLiteralToLambda")
-            doLast(object : Action<Task> {
-                override fun execute(t: Task) {
-                    artifactManager.finishArtifact(this@register, versionLocal.toString(), dependencyManagers)
-                }
-            })
         }
 
         // MavenPublishArtifactManager is somewhat complex because we have to hook into maven publishing
@@ -158,13 +145,14 @@ class KMMBridgePlugin : Plugin<Project> {
         }
     }
 
-    private fun Project.configureZipTask(pluginConfigState: PluginConfigState): Pair<TaskProvider<Zip>, File> {
-        val extension = pluginConfigState.kmmBridgeExtension
-        val layoutBuildDir = pluginConfigState.buildDir
+    private fun Project.configureZipTask(
+        kmmBridgeExtension: KmmBridgeExtension,
+        buildDir: File
+    ): Pair<TaskProvider<Zip>, File> {
         val zipFile = zipFilePath()
         val zipTask = tasks.register<Zip>("zipXCFramework") {
             group = TASK_GROUP_NAME
-            from("$layoutBuildDir/XCFrameworks/${extension.buildType.get().getName()}")
+            from("$buildDir/XCFrameworks/${kmmBridgeExtension.buildType.get().getName()}")
             destinationDirectory.set(zipFile.parentFile)
             archiveFileName.set(zipFile.name)
         }

@@ -23,7 +23,6 @@ import co.touchlab.faktory.dependencymanager.SpecRepo
 import co.touchlab.faktory.dependencymanager.SpmDependencyManager
 import co.touchlab.faktory.domain.SwiftToolVersion
 import co.touchlab.faktory.dsl.TargetPlatformDsl
-import co.touchlab.faktory.localdevmanager.LocalDevManager
 import org.gradle.api.Project
 import org.gradle.api.provider.ListProperty
 import org.gradle.api.provider.Property
@@ -39,8 +38,6 @@ interface KmmBridgeExtension {
     val dependencyManagers: ListProperty<DependencyManager>
 
     val artifactManager: Property<ArtifactManager>
-
-    val localDevManager: Property<LocalDevManager>
 
     val buildType: Property<NativeBuildType>
 
@@ -119,7 +116,6 @@ interface KmmBridgeExtension {
             targetPlatforms
         )
         dependencyManagers.set(dependencyManagers.getOrElse(emptyList()) + dependencyManager)
-        localDevManager.setAndFinalize(dependencyManager)
     }
 
     /**

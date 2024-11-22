@@ -13,7 +13,7 @@ import java.io.File
 
 class GithubReleaseArtifactManager(
     private val repository: String?, private val releaseString: String?, private val useExistingRelease: Boolean
-) : ArtifactManager() {
+) : ArtifactManager {
 
     @get:Input
     lateinit var releaseVersion: String
@@ -40,12 +40,12 @@ class GithubReleaseArtifactManager(
         this.frameworkName = project.kmmBridgeExtension.frameworkName.get()
     }
 
-    override fun Task.deployArtifact(zipFilePath: File, version: String): String {
+    override fun deployArtifact(task: Task, zipFilePath: File, version: String): String {
         val existingReleaseId = GithubCalls.findReleaseId(
             githubPublishToken, repoName, releaseVersion
         )
 
-        logger.info("existingReleaseId: $existingReleaseId")
+        task.logger.info("existingReleaseId: $existingReleaseId")
 
         if (existingReleaseId != null && !useExistingRelease) {
             throw GradleException("Release for '$releaseVersion' exists. Set 'useExistingRelease = true' to update existing releases.")
@@ -55,7 +55,7 @@ class GithubReleaseArtifactManager(
             githubPublishToken, repoName, releaseVersion, null
         )
 
-        logger.info("GitHub Release created with id: $idReply")
+        task.logger.info("GitHub Release created with id: $idReply")
 
         val fileName = artifactName(version, useExistingRelease)
 

@@ -13,17 +13,20 @@
 
 package co.touchlab.faktory.artifactmanager
 
-import co.touchlab.faktory.dependencymanager.DependencyManager
 import org.gradle.api.Project
 import org.gradle.api.Task
 import org.gradle.api.tasks.TaskProvider
 import java.io.File
 
-abstract class ArtifactManager {
+/**
+ * Publishes XCFramework zip files to where they are hosted in the cloud.
+ */
+interface ArtifactManager {
+
     /**
-     * Do configuration specific to this `ArtifactManager`.
+     * Run during Gradle project config.
      */
-    open fun configure(
+    fun configure(
         project: Project,
         version: String,
         uploadTask: TaskProvider<Task>,
@@ -32,20 +35,7 @@ abstract class ArtifactManager {
     }
 
     /**
-     * Send the thing, and return a link to the thing...
+     * Run during task execution. With custom implementations, be careful not to break Gradle config cache rules.
      */
-    abstract fun Task.deployArtifact(zipFilePath: File, version: String): String
-
-    internal fun deployArtifact(task: Task, zipFilePath: File, version: String): String {
-        return task.deployArtifact(zipFilePath, version)
-    }
-
-    /**
-     * Run after file written. This is essentially for GitHub releases.
-     */
-    open fun Task.finishArtifact(version: String, dependencyManagers: List<DependencyManager>) {}
-
-    internal fun finishArtifact(task: Task, version: String, dependencyManagers: List<DependencyManager>) {
-        task.finishArtifact(version, dependencyManagers)
-    }
+    fun deployArtifact(task: Task, zipFilePath: File, version: String): String
 }

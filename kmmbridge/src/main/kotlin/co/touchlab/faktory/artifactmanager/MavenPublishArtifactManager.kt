@@ -22,7 +22,7 @@ class MavenPublishArtifactManager(
     private val artifactSuffix: String?,
     private val repositoryName: String?,
     private val isMavenCentral: Boolean = false,
-) : ArtifactManager() {
+) : ArtifactManager {
     lateinit var group: String
     lateinit var kmmbridgeArtifactId: String
     lateinit var mavenArtifactRepositoryUrl: String
@@ -74,7 +74,7 @@ class MavenPublishArtifactManager(
      * doesn't tell you anything about the remote URLs that it's creating, it's inferred based on
      * maven's well known conventions.
      */
-    override fun Task.deployArtifact(zipFilePath: File, version: String): String {
+    override fun deployArtifact(task: Task, zipFilePath: File, version: String): String {
         return artifactPath(mavenArtifactRepositoryUrl, version)
     }
 

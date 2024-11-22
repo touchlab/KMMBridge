@@ -34,7 +34,7 @@ class AwsS3PublicArtifactManager(
     private val s3SecretAccessKey: String,
     private val makeArtifactsPublic: Boolean,
     private val altBaseUrl: String?,
-) : ArtifactManager() {
+) : ArtifactManager {
 
     lateinit var frameworkName: String
 
@@ -47,7 +47,7 @@ class AwsS3PublicArtifactManager(
         frameworkName = project.kmmBridgeExtension.frameworkName.get()
     }
 
-    override fun Task.deployArtifact(zipFilePath: File, version: String): String {
+    override fun deployArtifact(task: Task, zipFilePath: File, version: String): String {
         val fileName = obscureFileName(frameworkName, version)
         uploadArtifact(zipFilePath, fileName)
         return deployUrl(fileName)
