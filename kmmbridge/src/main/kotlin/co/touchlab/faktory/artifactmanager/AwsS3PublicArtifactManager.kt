@@ -36,7 +36,7 @@ class AwsS3PublicArtifactManager(
     private val altBaseUrl: String?,
 ) : ArtifactManager() {
 
-    lateinit var fileName: String
+    lateinit var frameworkName: String
 
     override fun configure(
         project: Project,
@@ -44,10 +44,11 @@ class AwsS3PublicArtifactManager(
         uploadTask: TaskProvider<Task>,
         kmmPublishTask: TaskProvider<Task>
     ) {
-        fileName = obscureFileName(project, version)
+        frameworkName = project.kmmBridgeExtension.frameworkName.get()
     }
 
     override fun Task.deployArtifact(zipFilePath: File, version: String): String {
+        val fileName = obscureFileName(frameworkName, version)
         uploadArtifact(zipFilePath, fileName)
         return deployUrl(fileName)
     }
@@ -113,8 +114,7 @@ class AwsS3PublicArtifactManager(
 /**
  * Generate a file name that isn't guessable. Some artifact managers don't have auth guarding the urls.
  */
-private fun obscureFileName(project: Project, versionString: String): String {
+private fun obscureFileName(frameworkName: String, versionString: String): String {
     val randomId = UUID.randomUUID().toString()
-    val frameworkName = project.kmmBridgeExtension.frameworkName.get()
     return "${frameworkName}-${versionString}-${randomId}.xcframework.zip"
 }
