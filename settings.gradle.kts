@@ -33,4 +33,5 @@ dependencyResolutionManagement {
 
 rootProject.name = "KMMBridge"
 include(":kmmbridge")
-include("kmmbridge-github")
+include(":kmmbridge-github")
+include(":kmmbridge-gitlab")

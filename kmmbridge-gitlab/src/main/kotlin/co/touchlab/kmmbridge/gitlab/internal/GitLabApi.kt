@@ -11,7 +11,7 @@
  * the License.
  */
 
-package co.touchlab.kmmbridge.internal
+package co.touchlab.kmmbridge.gitlab.internal
 
 import co.touchlab.kmmbridge.findStringProperty
 import org.gradle.api.Project
@@ -25,7 +25,8 @@ internal val Project.gitLabPublishUser: String?
 
 internal val Project.gitLabRepoOrNull: String?
     get() {
-        val repo = project.findStringProperty("GITHUB_REPO") ?: return null
+        val repo =
+            (project.findStringProperty("GITLAB_REPO") ?: project.findStringProperty("GITHUB_REPO")) ?: return null
         // The GitLab API accepts repo id or url-encoded path
         val repoId = repo.toIntOrNull()
         return repoId?.toString() ?: URLEncoder.encode(repo, "UTF-8")

@@ -20,8 +20,8 @@ import co.touchlab.kmmbridge.dependencymanager.CocoapodsDependencyManager
 import co.touchlab.kmmbridge.dependencymanager.DependencyManager
 import co.touchlab.kmmbridge.dependencymanager.SpecRepo
 import co.touchlab.kmmbridge.dependencymanager.SpmDependencyManager
-import co.touchlab.kmmbridge.internal.domain.SwiftToolVersion
 import co.touchlab.kmmbridge.dsl.TargetPlatformDsl
+import co.touchlab.kmmbridge.internal.domain.SwiftToolVersion
 import org.gradle.api.Project
 import org.gradle.api.provider.ListProperty
 import org.gradle.api.provider.Property
@@ -39,7 +39,6 @@ interface KmmBridgeExtension {
     val artifactManager: Property<ArtifactManager>
 
     val buildType: Property<NativeBuildType>
-
 
 
     @Suppress("unused")

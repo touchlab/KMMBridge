@@ -31,7 +31,7 @@ internal val Project.layoutBuildDir get() = layout.buildDirectory.get().asFile
 
 internal val Project.kotlin: KotlinMultiplatformExtension get() = extensions.getByType()
 internal val Project.kmmBridgeExtension get() = extensions.getByType<KmmBridgeExtension>()
- val Project.publishingExtension get() = extensions.getByType<PublishingExtension>()
+val Project.publishingExtension get() = extensions.getByType<PublishingExtension>()
 
 internal val Project.urlFile get() = file("$layoutBuildDir/faktory/url")
 

@@ -14,12 +14,18 @@ fun Project.gitHubReleaseArtifacts(
     releasString: String? = null,
     useExistingRelease: Boolean = false
 ) {
-    kmmBridgeExtension.setupGitHubReleaseArtifacts(GithubReleaseArtifactManager(repository, releasString, useExistingRelease))
+    kmmBridgeExtension.setupGitHubReleaseArtifacts(
+        GithubReleaseArtifactManager(
+            repository,
+            releasString,
+            useExistingRelease
+        )
+    )
 }
 
 private fun KmmBridgeExtension.setupGitHubReleaseArtifacts(
     githubReleaseArtifactManager: GithubReleaseArtifactManager
-){
+) {
     artifactManager.setAndFinalize(githubReleaseArtifactManager)
 }
 

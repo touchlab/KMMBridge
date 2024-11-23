@@ -14,10 +14,10 @@
 package co.touchlab.kmmbridge.dependencymanager
 
 import co.touchlab.kmmbridge.TASK_GROUP_NAME
-import co.touchlab.kmmbridge.internal.domain.SwiftToolVersion
-import co.touchlab.kmmbridge.internal.domain.TargetPlatform
 import co.touchlab.kmmbridge.dsl.TargetPlatformDsl
 import co.touchlab.kmmbridge.findXCFrameworkAssembleTask
+import co.touchlab.kmmbridge.internal.domain.SwiftToolVersion
+import co.touchlab.kmmbridge.internal.domain.TargetPlatform
 import co.touchlab.kmmbridge.internal.domain.konanTarget
 import co.touchlab.kmmbridge.internal.domain.swiftPackagePlatformName
 import co.touchlab.kmmbridge.kmmBridgeExtension
