@@ -172,6 +172,10 @@ const config = {
               title: 'Community',
               items: [
                 {
+                  "label": "Bluesky",
+                  "href": "https://bsky.app/profile/touchlab.co"
+                },
+                {
                   label: 'Twitter',
                   href: 'https://twitter.com/TouchlabHQ',
                 },
