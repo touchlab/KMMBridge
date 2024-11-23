@@ -1,4 +1,4 @@
-package co.touchlab.faktory.domain
+package co.touchlab.kmmbridge.domain
 
 internal class SwiftToolVersion private constructor(private val value: String) {
 

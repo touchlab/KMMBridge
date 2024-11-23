@@ -11,18 +11,18 @@
  * the License.
  */
 
-package co.touchlab.faktory
+package co.touchlab.kmmbridge
 
-import co.touchlab.faktory.artifactmanager.ArtifactManager
-import co.touchlab.faktory.artifactmanager.AwsS3PublicArtifactManager
-import co.touchlab.faktory.artifactmanager.GithubReleaseArtifactManager
-import co.touchlab.faktory.artifactmanager.MavenPublishArtifactManager
-import co.touchlab.faktory.dependencymanager.CocoapodsDependencyManager
-import co.touchlab.faktory.dependencymanager.DependencyManager
-import co.touchlab.faktory.dependencymanager.SpecRepo
-import co.touchlab.faktory.dependencymanager.SpmDependencyManager
-import co.touchlab.faktory.domain.SwiftToolVersion
-import co.touchlab.faktory.dsl.TargetPlatformDsl
+import co.touchlab.kmmbridge.artifactmanager.ArtifactManager
+import co.touchlab.kmmbridge.artifactmanager.AwsS3PublicArtifactManager
+import co.touchlab.kmmbridge.artifactmanager.GithubReleaseArtifactManager
+import co.touchlab.kmmbridge.artifactmanager.MavenPublishArtifactManager
+import co.touchlab.kmmbridge.dependencymanager.CocoapodsDependencyManager
+import co.touchlab.kmmbridge.dependencymanager.DependencyManager
+import co.touchlab.kmmbridge.dependencymanager.SpecRepo
+import co.touchlab.kmmbridge.dependencymanager.SpmDependencyManager
+import co.touchlab.kmmbridge.domain.SwiftToolVersion
+import co.touchlab.kmmbridge.dsl.TargetPlatformDsl
 import org.gradle.api.Project
 import org.gradle.api.provider.ListProperty
 import org.gradle.api.provider.Property

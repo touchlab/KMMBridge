@@ -1,6 +1,6 @@
 package domain
 
-import co.touchlab.faktory.domain.TargetName
+import co.touchlab.kmmbridge.domain.TargetName
 import org.jetbrains.kotlin.konan.target.Family
 import org.jetbrains.kotlin.konan.target.KonanTarget
 

@@ -1,4 +1,4 @@
-package co.touchlab.faktory.domain
+package co.touchlab.kmmbridge.domain
 
 internal class PlatformVersion private constructor(private val value: String) {
 

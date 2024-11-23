@@ -11,14 +11,14 @@
  * the License.
  */
 
-package co.touchlab.faktory.dependencymanager
+package co.touchlab.kmmbridge.dependencymanager
 
-import co.touchlab.faktory.TASK_GROUP_NAME
-import co.touchlab.faktory.cocoapods
-import co.touchlab.faktory.kmmBridgeExtension
-import co.touchlab.faktory.kotlin
-import co.touchlab.faktory.layoutBuildDir
-import co.touchlab.faktory.urlFile
+import co.touchlab.kmmbridge.TASK_GROUP_NAME
+import co.touchlab.kmmbridge.cocoapods
+import co.touchlab.kmmbridge.kmmBridgeExtension
+import co.touchlab.kmmbridge.kotlin
+import co.touchlab.kmmbridge.layoutBuildDir
+import co.touchlab.kmmbridge.urlFile
 import org.gradle.api.Action
 import org.gradle.api.Project
 import org.gradle.api.Task

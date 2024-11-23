@@ -11,9 +11,9 @@
  * the License.
  */
 
-package co.touchlab.faktory.internal
+package co.touchlab.kmmbridge.internal
 
-import co.touchlab.faktory.findStringProperty
+import co.touchlab.kmmbridge.findStringProperty
 import org.gradle.api.Project
 
 internal val Project.githubPublishTokenOrNull: String?

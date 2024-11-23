@@ -1,4 +1,4 @@
-package co.touchlab.faktory.domain
+package co.touchlab.kmmbridge.domain
 
 internal data class TargetPlatform(
     val version: PlatformVersion,

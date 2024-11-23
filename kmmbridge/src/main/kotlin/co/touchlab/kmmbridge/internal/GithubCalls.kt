@@ -11,7 +11,7 @@
  * the License.
  */
 
-package co.touchlab.faktory.internal
+package co.touchlab.kmmbridge.internal
 
 import com.google.gson.Gson
 import okhttp3.MediaType.Companion.toMediaTypeOrNull

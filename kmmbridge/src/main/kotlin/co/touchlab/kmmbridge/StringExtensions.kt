@@ -1,4 +1,4 @@
-package co.touchlab.faktory
+package co.touchlab.kmmbridge
 
 import java.util.*
 

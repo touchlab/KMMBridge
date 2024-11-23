@@ -1,8 +1,8 @@
-package co.touchlab.faktory.dsl
+package co.touchlab.kmmbridge.dsl
 
-import co.touchlab.faktory.domain.PlatformVersion
-import co.touchlab.faktory.domain.TargetName
-import co.touchlab.faktory.domain.TargetPlatform
+import co.touchlab.kmmbridge.domain.PlatformVersion
+import co.touchlab.kmmbridge.domain.TargetName
+import co.touchlab.kmmbridge.domain.TargetPlatform
 import groovy.lang.Closure
 import org.gradle.util.internal.ConfigureUtil
 

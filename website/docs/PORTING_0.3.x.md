@@ -12,7 +12,7 @@ The basic operation of KMMBridge remains the same, but how the plugin is run has
 The plugin id has changed, so replace:
 
 ```kotlin
-id("co.touchlab.faktory.kmmbridge")
+id("co.touchlab.kmmbridge.kmmbridge")
 ```
 
 with

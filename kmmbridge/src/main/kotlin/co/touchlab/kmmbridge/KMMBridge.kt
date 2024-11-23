@@ -11,9 +11,9 @@
  * the License.
  */
 
-package co.touchlab.faktory
+package co.touchlab.kmmbridge
 
-import co.touchlab.faktory.dependencymanager.SpmDependencyManager
+import co.touchlab.kmmbridge.dependencymanager.SpmDependencyManager
 import org.gradle.api.Action
 import org.gradle.api.Plugin
 import org.gradle.api.Project

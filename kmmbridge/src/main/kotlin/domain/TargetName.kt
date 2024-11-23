@@ -1,4 +1,4 @@
-package co.touchlab.faktory.domain
+package co.touchlab.kmmbridge.domain
 
 internal enum class TargetName(val identifier: String) {
     IOSarm64("iosArm64"),

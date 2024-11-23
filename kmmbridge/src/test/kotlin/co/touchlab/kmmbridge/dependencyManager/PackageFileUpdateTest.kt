@@ -1,6 +1,6 @@
-package co.touchlab.faktory.dependencyManager
+package co.touchlab.kmmbridge.dependencyManager
 
-import co.touchlab.faktory.dependencymanager.getModifiedPackageFileText
+import co.touchlab.kmmbridge.dependencymanager.getModifiedPackageFileText
 import kotlin.test.Test
 import kotlin.test.assertEquals
 

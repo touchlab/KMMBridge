@@ -11,14 +11,14 @@
  * the License.
  */
 
-import co.touchlab.faktory.internal.gitLabDomain
-import co.touchlab.faktory.internal.gitLabPublishTokenOrNull
-import co.touchlab.faktory.internal.gitLabPublishUser
-import co.touchlab.faktory.internal.gitLabRepoOrNull
-import co.touchlab.faktory.internal.githubPublishTokenOrNull
-import co.touchlab.faktory.internal.githubPublishUser
-import co.touchlab.faktory.internal.githubRepoOrNull
-import co.touchlab.faktory.publishingExtension
+import co.touchlab.kmmbridge.internal.gitLabDomain
+import co.touchlab.kmmbridge.internal.gitLabPublishTokenOrNull
+import co.touchlab.kmmbridge.internal.gitLabPublishUser
+import co.touchlab.kmmbridge.internal.gitLabRepoOrNull
+import co.touchlab.kmmbridge.internal.githubPublishTokenOrNull
+import co.touchlab.kmmbridge.internal.githubPublishUser
+import co.touchlab.kmmbridge.internal.githubRepoOrNull
+import co.touchlab.kmmbridge.publishingExtension
 import org.gradle.api.Project
 import org.gradle.api.credentials.HttpHeaderCredentials
 import org.gradle.authentication.http.HttpHeaderAuthentication

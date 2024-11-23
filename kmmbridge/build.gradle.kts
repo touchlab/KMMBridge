@@ -34,9 +34,9 @@ gradlePlugin {
     description =
         "KMMBridge is a set of Gradle tooling that facilitates publishing and consuming pre-built KMM (Kotlin Multiplatform Mobile) Xcode Framework binaries."
     plugins {
-        register("faktory-kmmbridge-plugin") {
+        register("kmmbridge-plugin") {
             id = "co.touchlab.kmmbridge"
-            implementationClass = "co.touchlab.faktory.KMMBridgePlugin"
+            implementationClass = "co.touchlab.kmmbridge.KMMBridgePlugin"
             displayName = "KMMBridge for Teams"
             tags = listOf(
                 "kmm",

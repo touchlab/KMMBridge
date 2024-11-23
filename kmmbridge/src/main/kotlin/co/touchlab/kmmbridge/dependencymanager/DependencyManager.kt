@@ -11,7 +11,7 @@
  * the License.
  */
 
-package co.touchlab.faktory.dependencymanager
+package co.touchlab.kmmbridge.dependencymanager
 
 import org.gradle.api.Project
 import org.gradle.api.Task

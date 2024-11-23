@@ -11,9 +11,9 @@
  * the License.
  */
 
-package co.touchlab.faktory.artifactmanager
+package co.touchlab.kmmbridge.artifactmanager
 
-import co.touchlab.faktory.kmmBridgeExtension
+import co.touchlab.kmmbridge.kmmBridgeExtension
 import org.gradle.api.Project
 import org.gradle.api.Task
 import org.gradle.api.tasks.TaskProvider
