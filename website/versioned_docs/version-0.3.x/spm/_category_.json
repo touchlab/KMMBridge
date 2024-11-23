@@ -1,8 +1,0 @@
-{
-  "label": "Swift Package Manager (SPM)",
-  "position": 40,
-  "link": {
-    "type": "generated-index",
-    "description": "Configuration and development with Swift Package Manager"
-  }
-}

@@ -1,5 +1,5 @@
 [versions]
-kotlin = "1.9.22"
+kotlin = "2.0.20"
 mavenPublish = "0.29.0"
 
 [libraries]

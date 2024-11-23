@@ -1,8 +1,0 @@
-{
-  "label": "General Documentation",
-  "position": 10,
-  "link": {
-    "type": "generated-index",
-    "description": "Overview and getting started docs"
-  }
-}
