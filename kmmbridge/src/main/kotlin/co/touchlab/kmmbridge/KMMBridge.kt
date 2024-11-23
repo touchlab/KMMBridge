@@ -13,6 +13,7 @@
 
 package co.touchlab.kmmbridge
 
+import co.touchlab.kmmbridge.artifactmanager.ArtifactManager
 import co.touchlab.kmmbridge.dependencymanager.SpmDependencyManager
 import org.gradle.api.Action
 import org.gradle.api.Plugin
@@ -108,25 +109,7 @@ class KMMBridgePlugin : Plugin<Project> {
         }
 
         // Upload task depends on the zip task
-        val uploadTask = tasks.register("uploadXCFramework") {
-            group = TASK_GROUP_NAME
-
-            dependsOn(zipTask)
-            inputs.file(zipFile)
-            outputs.files(urlFile)
-            outputs.upToDateWhen { false } // We want to always upload when this task is called
-            val versionLocal = version
-            val urlFileLocal = urlFile
-
-            @Suppress("ObjectLiteralToLambda")
-            doLast(object : Action<Task> {
-                override fun execute(t: Task) {
-                    logger.info("Uploading XCFramework version $versionLocal")
-                    val deployUrl = artifactManager.deployArtifact(this@register, zipFile, versionLocal.toString())
-                    urlFileLocal.writeText(deployUrl)
-                }
-            })
-        }
+        val uploadTask = configureUploadTask(zipTask, zipFile, artifactManager)
 
         val dependencyManagers = kmmBridgeExtension.dependencyManagers.get()
 
@@ -143,6 +126,30 @@ class KMMBridgePlugin : Plugin<Project> {
         for (dependencyManager in dependencyManagers) {
             dependencyManager.configure(providers, this, uploadTask, publishRemoteTask)
         }
+    }
+
+    private fun Project.configureUploadTask(
+        zipTask: TaskProvider<Zip>,
+        zipFile: File,
+        artifactManager: ArtifactManager
+    ) = tasks.register("uploadXCFramework") {
+        group = TASK_GROUP_NAME
+
+        dependsOn(zipTask)
+        inputs.file(zipFile)
+        outputs.files(urlFile)
+        outputs.upToDateWhen { false } // We want to always upload when this task is called
+        val versionLocal = version
+        val urlFileLocal = urlFile
+
+        @Suppress("ObjectLiteralToLambda")
+        doLast(object : Action<Task> {
+            override fun execute(t: Task) {
+                logger.info("Uploading XCFramework version $versionLocal")
+                val deployUrl = artifactManager.deployArtifact(this@register, zipFile, versionLocal.toString())
+                urlFileLocal.writeText(deployUrl)
+            }
+        })
     }
 
     private fun Project.configureZipTask(
