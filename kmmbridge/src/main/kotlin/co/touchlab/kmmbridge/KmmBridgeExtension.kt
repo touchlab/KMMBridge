@@ -15,7 +15,6 @@ package co.touchlab.kmmbridge
 
 import co.touchlab.kmmbridge.artifactmanager.ArtifactManager
 import co.touchlab.kmmbridge.artifactmanager.AwsS3PublicArtifactManager
-import co.touchlab.kmmbridge.artifactmanager.GithubReleaseArtifactManager
 import co.touchlab.kmmbridge.artifactmanager.MavenPublishArtifactManager
 import co.touchlab.kmmbridge.dependencymanager.CocoapodsDependencyManager
 import co.touchlab.kmmbridge.dependencymanager.DependencyManager
@@ -41,14 +40,7 @@ interface KmmBridgeExtension {
 
     val buildType: Property<NativeBuildType>
 
-    @Suppress("unused")
-    fun Project.gitHubReleaseArtifacts(
-        repository: String? = null,
-        releasString: String? = null,
-        useExistingRelease: Boolean = false
-    ) {
-        artifactManager.setAndFinalize(GithubReleaseArtifactManager(repository, releasString, useExistingRelease))
-    }
+
 
     @Suppress("unused")
     fun Project.s3PublicArtifacts(
@@ -158,7 +150,7 @@ interface KmmBridgeExtension {
         dependencyManagers.set(dependencyManagers.getOrElse(emptyList()) + dependencyManager)
     }
 
-    private fun <T> Property<T>.setAndFinalize(value: T) {
+    fun <T> Property<T>.setAndFinalize(value: T) {
         this.set(value)
         this.finalizeValue()
     }

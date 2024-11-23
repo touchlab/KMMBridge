@@ -31,7 +31,7 @@ internal val Project.layoutBuildDir get() = layout.buildDirectory.get().asFile
 
 internal val Project.kotlin: KotlinMultiplatformExtension get() = extensions.getByType()
 internal val Project.kmmBridgeExtension get() = extensions.getByType<KmmBridgeExtension>()
-internal val Project.publishingExtension get() = extensions.getByType<PublishingExtension>()
+ val Project.publishingExtension get() = extensions.getByType<PublishingExtension>()
 
 internal val Project.urlFile get() = file("$layoutBuildDir/faktory/url")
 
@@ -55,7 +55,7 @@ internal fun Project.zipFilePath(): File {
     return file("$tempDir/$artifactName")
 }
 
-internal fun Project.findStringProperty(name: String): String? {
+public fun Project.findStringProperty(name: String): String? {
     rootProject.extensions.getByType(ExtraPropertiesExtension::class.java).run {
         if (has(name))
             return get(name).toString()
@@ -64,7 +64,7 @@ internal fun Project.findStringProperty(name: String): String? {
 }
 
 internal const val TASK_GROUP_NAME = "kmmbridge"
-internal const val EXTENSION_NAME = "kmmbridge"
+public const val EXTENSION_NAME = "kmmbridge"
 
 internal fun Project.findXCFrameworkAssembleTask(buildType: NativeBuildType? = null): TaskProvider<Task> {
     val extension = extensions.getByType<KmmBridgeExtension>()

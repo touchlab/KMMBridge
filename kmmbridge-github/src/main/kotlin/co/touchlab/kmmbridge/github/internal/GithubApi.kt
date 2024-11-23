@@ -11,7 +11,7 @@
  * the License.
  */
 
-package co.touchlab.kmmbridge.internal
+package co.touchlab.kmmbridge.github.internal
 
 import co.touchlab.kmmbridge.findStringProperty
 import org.gradle.api.Project

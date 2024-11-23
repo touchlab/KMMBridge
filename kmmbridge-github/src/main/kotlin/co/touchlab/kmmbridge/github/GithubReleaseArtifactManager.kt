@@ -1,14 +1,16 @@
-package co.touchlab.kmmbridge.artifactmanager
+package co.touchlab.kmmbridge.github
 
-import co.touchlab.kmmbridge.internal.GithubCalls
-import co.touchlab.kmmbridge.internal.githubPublishToken
-import co.touchlab.kmmbridge.internal.githubRepo
-import co.touchlab.kmmbridge.kmmBridgeExtension
+import co.touchlab.kmmbridge.KmmBridgeExtension
+import co.touchlab.kmmbridge.artifactmanager.ArtifactManager
+import co.touchlab.kmmbridge.github.internal.GithubCalls
+import co.touchlab.kmmbridge.github.internal.githubPublishToken
+import co.touchlab.kmmbridge.github.internal.githubRepo
 import org.gradle.api.GradleException
 import org.gradle.api.Project
 import org.gradle.api.Task
 import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.TaskProvider
+import org.gradle.kotlin.dsl.getByType
 import java.io.File
 
 class GithubReleaseArtifactManager(
@@ -72,3 +74,4 @@ class GithubReleaseArtifactManager(
     }
 }
 
+internal val Project.kmmBridgeExtension get() = extensions.getByType<KmmBridgeExtension>()

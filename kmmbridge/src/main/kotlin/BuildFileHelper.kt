@@ -15,40 +15,11 @@ import co.touchlab.kmmbridge.internal.gitLabDomain
 import co.touchlab.kmmbridge.internal.gitLabPublishTokenOrNull
 import co.touchlab.kmmbridge.internal.gitLabPublishUser
 import co.touchlab.kmmbridge.internal.gitLabRepoOrNull
-import co.touchlab.kmmbridge.internal.githubPublishTokenOrNull
-import co.touchlab.kmmbridge.internal.githubPublishUser
-import co.touchlab.kmmbridge.internal.githubRepoOrNull
 import co.touchlab.kmmbridge.publishingExtension
 import org.gradle.api.Project
 import org.gradle.api.credentials.HttpHeaderCredentials
 import org.gradle.authentication.http.HttpHeaderAuthentication
-import java.net.URI
 
-/**
- * Helper function to support GitHub Packages publishing. Use with https://github.com/touchlab/KMMBridgeGithubWorkflow
- * or pass in a valid GitHub token with GITHUB_PUBLISH_TOKEN. Defaults user to "cirunner", which can be overridden with
- * GITHUB_PUBLISH_USER.
- *
- * Generally, just add the following in the Gradle build file.
- *
- * addGithubPackagesRepository()
- */
-@Suppress("unused")
-fun Project.addGithubPackagesRepository() {
-    publishingExtension.apply {
-        val githubPublishUser = project.githubPublishUser ?: "cirunner"
-        val githubRepo = project.githubRepoOrNull ?: return
-        val githubPublishToken = project.githubPublishTokenOrNull ?: return
-        repositories.maven {
-            name = "GitHubPackages"
-            url = URI.create("https://maven.pkg.github.com/$githubRepo")
-            credentials {
-                username = githubPublishUser
-                password = githubPublishToken
-            }
-        }
-    }
-}
 
 /**
  * Helper function to support GitLab Packages publishing.
