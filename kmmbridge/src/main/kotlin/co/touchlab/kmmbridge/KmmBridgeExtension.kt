@@ -21,7 +21,7 @@ import co.touchlab.kmmbridge.dependencymanager.CocoapodsDependencyManager
 import co.touchlab.kmmbridge.dependencymanager.DependencyManager
 import co.touchlab.kmmbridge.dependencymanager.SpecRepo
 import co.touchlab.kmmbridge.dependencymanager.SpmDependencyManager
-import co.touchlab.kmmbridge.domain.SwiftToolVersion
+import co.touchlab.kmmbridge.internal.domain.SwiftToolVersion
 import co.touchlab.kmmbridge.dsl.TargetPlatformDsl
 import org.gradle.api.Project
 import org.gradle.api.provider.ListProperty

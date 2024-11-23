@@ -1,8 +1,0 @@
-{
-  "label": "CI Configuration",
-  "position": 25,
-  "link": {
-    "type": "generated-index",
-    "description": "Setting up automatic builds"
-  }
-}
