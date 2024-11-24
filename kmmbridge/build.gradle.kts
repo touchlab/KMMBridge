@@ -62,6 +62,12 @@ dependencies {
     implementation(libs.gson)
 
     testImplementation(kotlin("test"))
+    testImplementation(gradleTestKit())
+    testImplementation("commons-io:commons-io:2.18.0")
+}
+
+tasks.getByName<Test>("test") {
+    useJUnitPlatform()
 }
 
 kotlin {

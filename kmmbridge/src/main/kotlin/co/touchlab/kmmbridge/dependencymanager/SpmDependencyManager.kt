@@ -29,12 +29,19 @@ import org.gradle.api.Action
 import org.gradle.api.Project
 import org.gradle.api.Task
 import org.gradle.api.provider.ProviderFactory
+import org.gradle.api.provider.ValueSource
+import org.gradle.api.provider.ValueSourceParameters
 import org.gradle.api.tasks.TaskProvider
 import org.gradle.kotlin.dsl.withType
+import org.gradle.process.ExecOperations
+import org.gradle.process.internal.ExecException
 import org.jetbrains.kotlin.gradle.plugin.mpp.KotlinNativeTarget
 import org.jetbrains.kotlin.gradle.plugin.mpp.NativeBuildType
+import java.io.ByteArrayOutputStream
 import java.io.File
+import java.nio.charset.Charset
 import java.util.*
+import javax.inject.Inject
 
 class SpmDependencyManager(
     /**
@@ -55,16 +62,13 @@ class SpmDependencyManager(
      * until this is resolved, or let the user enter it manually.
      */
     private fun Project.findRepoRoot(projectDir: File): String {
-        val results = providers.exec {
-            commandLine("git", "rev-parse", "--show-toplevel")
-        }.standardOutput.asText.get().lines()
-
-        return if (results.isEmpty()) {
-            "."
+        val result = providers.of(GitRevParseValue::class.java) {}.get()
+        val repoRootFile =  if (result == "") {
+            projectDir
         } else {
-            val repoFile = File(results.first())
-            projectDir.toPath().relativize(repoFile.toPath()).toString()
+            File(result)
         }
+        return repoRootFile.toString()
     }
 
     private fun Project.swiftPackageFile(projectDir: File): File {
@@ -84,7 +88,7 @@ class SpmDependencyManager(
             ?: throw IllegalArgumentException("Parameter swiftToolVersion should be not blank!")
         val platforms = swiftTargetPlatforms(project)
 
-        val swiftPackageFile = project.swiftPackageFile(project.projectDir)
+        val swiftPackageFile = project.swiftPackageFile(project.rootDir)
         val packageName = extension.frameworkName.get()
         if (useCustomPackageFile && !hasKmmbridgeVariablesSection(swiftPackageFile, packageName)) {
             project.logger.error(buildPackageFileErrorMessage(packageName, perModuleVariablesBlock))
@@ -201,7 +205,7 @@ class SpmDependencyManager(
             group = TASK_GROUP_NAME
             dependsOn(project.findXCFrameworkAssembleTask(NativeBuildType.DEBUG))
 
-            val swiftPackageFile = project.swiftPackageFile(project.projectDir)
+            val swiftPackageFile = project.swiftPackageFile(project.rootDir)
             val layoutBuildDir = project.layoutBuildDir
 
             @Suppress("ObjectLiteralToLambda")
@@ -244,6 +248,32 @@ class SpmDependencyManager(
                 .map { platformName -> ".$platformName(.v${platform.version.name})" }
                 .toList()
         }.joinToString(separator = ",\n")
+}
+
+/**
+ * Runs a git command to grab the root of the git repo. If there is no git repo, return an empty string.
+ */
+abstract class GitRevParseValue : ValueSource<String, ValueSourceParameters.None> {
+    @get:Inject
+    abstract val execOperations: ExecOperations
+
+    override fun obtain(): String {
+        val output = ByteArrayOutputStream()
+        val error = ByteArrayOutputStream()
+        return try {
+            execOperations.exec {
+                try {
+                    commandLine("git", "rev-parse", "--show-toplevel")
+                    standardOutput = output
+                    errorOutput = error
+                } catch (e: Exception) {
+                }
+            }
+            String(output.toByteArray(), Charset.defaultCharset()).lines().first()
+        } catch (e: ExecException) {
+            ""
+        }
+    }
 }
 
 internal fun stripEndSlash(path: String): String {
