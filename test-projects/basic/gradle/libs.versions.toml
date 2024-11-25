@@ -4,4 +4,4 @@ kmmBridge = "1.1.0-a2"
 
 [plugins]
 kotlin-multiplatform = { id = "org.jetbrains.kotlin.multiplatform", version.ref = "kotlin" }
-kmmbridge = { id = "co.touchlab.kmmbridge", version.ref = "kmmBridge" }
+kmmbridge = { id = "co.touchlab.kmmbridge.test", version.ref = "kmmBridge" }

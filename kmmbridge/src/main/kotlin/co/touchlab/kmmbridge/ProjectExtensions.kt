@@ -33,7 +33,7 @@ internal val Project.kotlin: KotlinMultiplatformExtension get() = extensions.get
 internal val Project.kmmBridgeExtension get() = extensions.getByType<KmmBridgeExtension>()
 val Project.publishingExtension get() = extensions.getByType<PublishingExtension>()
 
-internal val Project.urlFile get() = file("$layoutBuildDir/faktory/url")
+internal val Project.urlFile get() = file("$layoutBuildDir/kmmbridge/url")
 
 // Cocoapods is an extension of KMP extension, so you can't just do project.extensions.getByType<CocoapodsExtension>()
 internal val KotlinMultiplatformExtension.cocoapodsOrNull get() = (this as ExtensionAware).extensions.findByType<CocoapodsExtension>()
@@ -50,7 +50,7 @@ internal val Project.spmBuildTargets: String?
 
 @Suppress("SpellCheckingInspection")
 internal fun Project.zipFilePath(): File {
-    val tempDir = file("$layoutBuildDir/faktory/zip")
+    val tempDir = file("$layoutBuildDir/kmmbridge/zip")
     val artifactName = "frameworkarchive.zip"
     return file("$tempDir/$artifactName")
 }

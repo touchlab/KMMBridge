@@ -1,14 +1,15 @@
 package co.touchlab.kmmbridge
 
 import org.apache.commons.io.FileUtils
-import org.gradle.testkit.runner.GradleRunner
-import org.gradle.testkit.runner.TaskOutcome.FAILED
-import org.gradle.testkit.runner.TaskOutcome.SUCCESS
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.io.TempDir
 import java.io.File
+import java.io.FileInputStream
+import java.util.*
 import kotlin.test.assertEquals
+import kotlin.test.assertFalse
+import kotlin.test.assertTrue
 
 
 class SimplePluginTest {
@@ -29,51 +30,60 @@ class SimplePluginTest {
     }
 
     @Test
-    fun runBasicBuild(){
+    fun runBasicBuild() {
         val result = ProcessHelper.runSh("./gradlew linkDebugFrameworkIosSimulatorArm64", workingDir = testProjectDir)
-        assertEquals(result.status, 0)
+        logExecResult(result)
+        assertEquals(0, result.status)
     }
 
     @Test
-    fun runSpmDevBuild(){
+    fun runSpmDevBuild() {
         val result = ProcessHelper.runSh("./gradlew spmDevBuild --stacktrace", workingDir = testProjectDir)
-        println(result.output)
-        println(result.error)
-        assertEquals(result.status, 0)
+        logExecResult(result)
+        assertEquals(0, result.status)
     }
 
     @Test
-    fun runSpmDevBuildNoGit(){
+    fun runKmmBridgePublishNoPublishingEnabled() {
+        val result = ProcessHelper.runSh("./gradlew kmmBridgePublish --stacktrace", workingDir = testProjectDir)
+        logExecResult(result)
+        assertEquals(1, result.status)
+    }
+
+    @Test
+    fun runKmmBridgePublish() {
+        val urlFile = File(testProjectDir, "allshared/build/kmmbridge/url")
+        assertFalse(urlFile.exists())
+        val result = ProcessHelper.runSh(
+            "./gradlew kmmBridgePublish -PENABLE_PUBLISHING=true --stacktrace",
+            workingDir = testProjectDir
+        )
+        logExecResult(result)
+        assertTrue(urlFile.exists())
+        assertEquals(urlFile.readText(), "test://${loadTestGradleProperties().get("LIBRARY_VERSION")}")
+        assertEquals(0, result.status)
+    }
+
+    @Test
+    fun runSpmDevBuildNoGit() {
         ProcessHelper.runSh("rm -rdf .git", workingDir = testProjectDir)
         val result = ProcessHelper.runSh("./gradlew spmDevBuild --stacktrace", workingDir = testProjectDir)
-        println(result.output)
-        println(result.error)
-        assertEquals(result.status, 0)
+        logExecResult(result)
+        assertEquals(0, result.status)
     }
-/*
 
- */
-//    @Test
-    fun buildBasicSample() {
-//        val buildFileContent = """
-//         plugins {
-//            id("org.example.hello-world")
-//         }
-//         configure<org.example.HelloWorldExtension>{
-//            message = "Hello World!"
-//         }
-//      """.trimIndent()
+    private fun loadTestGradleProperties(): Properties {
+        val properties = Properties()
+        FileInputStream(File(testProjectDir, "gradle.properties")).use { stream ->
+            properties.load(stream)
+        }
+        return properties
+    }
 
-//        buildFile.writeText(buildFileContent)
-
-        val result = GradleRunner.create()
-            .withProjectDir(testProjectDir)
-            .withArguments("linkDebugFrameworkIosSimulatorArm64")
-            .withPluginClasspath()
-            .forwardOutput()
-            .build()
-
-//        assertTrue(result.output.contains("Hello World!"))
-        assertEquals(SUCCESS, result.task(":allshared:linkDebugFrameworkIosSimulatorArm64")?.outcome ?: FAILED)
+    private fun logExecResult(result: ExecutionResult) {
+        if (result.output.isNotEmpty())
+            println(result.output)
+        if (result.error.isNotEmpty())
+            System.err.println(result.error)
     }
 }

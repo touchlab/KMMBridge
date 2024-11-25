@@ -53,17 +53,13 @@ class SpmDependencyManager(
     private val _swiftToolVersion: String,
     private val _targetPlatforms: TargetPlatformDsl.() -> Unit,
 ) : DependencyManager {
-
-//    private fun ProviderFactory.swiftPackageFolder(projectDir: File): String =
-//        _swiftPackageFolder ?: this.findRepoRoot(projectDir)
-//
     /**
      * For new projects that aren't in git repos, it's *probably* OK to just return the current folder
      * until this is resolved, or let the user enter it manually.
      */
     private fun Project.findRepoRoot(projectDir: File): String {
         val result = providers.of(GitRevParseValue::class.java) {}.get()
-        val repoRootFile =  if (result == "") {
+        val repoRootFile = if (result == "") {
             projectDir
         } else {
             File(result)

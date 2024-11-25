@@ -49,7 +49,7 @@ class CocoapodsDependencyManager(
     ) {
 
         val podSpecFile =
-            project.file("${project.layoutBuildDir}/faktory/podspec/${project.kmmBridgeExtension.buildType.get().name.lowercase()}/${project.kotlin.cocoapods.name}.podspec")
+            project.file("${project.layoutBuildDir}/kmmbridge/podspec/${project.kmmBridgeExtension.buildType.get().name.lowercase()}/${project.kotlin.cocoapods.name}.podspec")
 
         val generatePodspecTask = project.tasks.register("generateReleasePodspec") {
             inputs.files(project.urlFile)

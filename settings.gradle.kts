@@ -35,3 +35,4 @@ rootProject.name = "KMMBridge"
 include(":kmmbridge")
 include(":kmmbridge-github")
 include(":kmmbridge-gitlab")
+include(":kmmbridge-test")
