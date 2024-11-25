@@ -20,7 +20,7 @@ jobs:
         uses: gradle/wrapper-validation-action@v1
 
       - name: Local Publish For Tests
-        run: ./gradlew publishToMavenLocal --no-daemon --stacktrace --build-cache -PRELEASE_SIGNING_ENABLED=false
+        run: ./gradlew publishToMavenLocal --no-daemon --stacktrace --build-cache -PRELEASE_SIGNING_ENABLED=false -PVERSION_NAME=9.9.9
 
       - name: Build
         run: ./gradlew build --no-daemon --stacktrace --build-cache

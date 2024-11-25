@@ -1,6 +1,6 @@
 [versions]
 kotlin = "2.0.10"
-kmmBridge = "1.1.0-a2"
+kmmBridge = "9.9.9"
 
 [plugins]
 kotlin-multiplatform = { id = "org.jetbrains.kotlin.multiplatform", version.ref = "kotlin" }
