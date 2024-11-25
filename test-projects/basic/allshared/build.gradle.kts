@@ -1,4 +1,4 @@
-import co.touchlab.kmmbridge.artifactmanager.TestArtifactManager
+import co.touchlab.kmmbridge.test.TestArtifactManager
 
 plugins {
     alias(libs.plugins.kotlin.multiplatform)
