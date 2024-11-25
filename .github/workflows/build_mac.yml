@@ -21,7 +21,6 @@ jobs:
 
       - name: Local Publish For Tests
         run: ./gradlew publishToMavenLocal --no-daemon --stacktrace --build-cache -PRELEASE_SIGNING_ENABLED=false
-        env:
 
       - name: Build
         run: ./gradlew build --no-daemon --stacktrace --build-cache
