@@ -6,23 +6,8 @@ import kotlin.test.assertEquals
 import kotlin.test.assertFalse
 import kotlin.test.assertTrue
 
-
-class SimplePluginTest : BasePluginTest() {
+class ArtifactManagerTest : BasePluginTest() {
     override fun testProjectPath(): String = "test-projects/basic"
-
-    @Test
-    fun runBasicBuild() {
-        val result = ProcessHelper.runSh("./gradlew linkDebugFrameworkIosSimulatorArm64", workingDir = testProjectDir)
-        logExecResult(result)
-        assertEquals(0, result.status)
-    }
-
-    @Test
-    fun runSpmDevBuild() {
-        val result = ProcessHelper.runSh("./gradlew spmDevBuild --stacktrace", workingDir = testProjectDir)
-        logExecResult(result)
-        assertEquals(0, result.status)
-    }
 
     @Test
     fun runKmmBridgePublishNoPublishingEnabled() {
@@ -42,14 +27,6 @@ class SimplePluginTest : BasePluginTest() {
         logExecResult(result)
         assertTrue(urlFile.exists())
         assertEquals(urlFile.readText(), "test://${loadTestGradleProperties().get("LIBRARY_VERSION")}")
-        assertEquals(0, result.status)
-    }
-
-    @Test
-    fun runSpmDevBuildNoGit() {
-        ProcessHelper.runSh("rm -rdf .git", workingDir = testProjectDir)
-        val result = ProcessHelper.runSh("./gradlew spmDevBuild --stacktrace", workingDir = testProjectDir)
-        logExecResult(result)
         assertEquals(0, result.status)
     }
 }
