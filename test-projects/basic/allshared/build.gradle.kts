@@ -18,7 +18,7 @@ kotlin {
 }
 
 kmmbridge {
-    artifactManager.set(TestArtifactManager())
+    testArtifacts()
     spm(swiftToolVersion = "5.8") {
         iOS { v("14") }
     }

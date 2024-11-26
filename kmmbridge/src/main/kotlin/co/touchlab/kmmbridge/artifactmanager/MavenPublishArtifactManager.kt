@@ -1,6 +1,6 @@
 package co.touchlab.kmmbridge.artifactmanager
 
-import co.touchlab.kmmbridge.capitalized
+import co.touchlab.kmmbridge.internal.capitalized
 import co.touchlab.kmmbridge.publishingExtension
 import org.gradle.api.GradleException
 import org.gradle.api.Project
@@ -17,7 +17,7 @@ import java.io.File
 private const val FRAMEWORK_PUBLICATION_NAME = "KMMBridgeFramework"
 private const val KMMBRIDGE_ARTIFACT_SUFFIX = "kmmbridge"
 
-class MavenPublishArtifactManager(
+internal class MavenPublishArtifactManager(
     private val publicationName: String?,
     private val artifactSuffix: String?,
     private val repositoryName: String?,

@@ -15,6 +15,13 @@ package co.touchlab.kmmbridge
 
 import co.touchlab.kmmbridge.artifactmanager.ArtifactManager
 import co.touchlab.kmmbridge.dependencymanager.SpmDependencyManager
+import co.touchlab.kmmbridge.internal.enablePublishing
+import co.touchlab.kmmbridge.internal.findXCFrameworkAssembleTask
+import co.touchlab.kmmbridge.internal.kotlin
+import co.touchlab.kmmbridge.internal.layoutBuildDir
+import co.touchlab.kmmbridge.internal.spmBuildTargets
+import co.touchlab.kmmbridge.internal.urlFile
+import co.touchlab.kmmbridge.internal.zipFilePath
 import org.gradle.api.Action
 import org.gradle.api.Plugin
 import org.gradle.api.Project

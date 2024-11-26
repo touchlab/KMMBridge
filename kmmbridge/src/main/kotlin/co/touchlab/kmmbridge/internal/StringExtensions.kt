@@ -1,8 +1,8 @@
-package co.touchlab.kmmbridge
+package co.touchlab.kmmbridge.internal
 
 import java.util.*
 
-fun String.capitalized(): String {
+internal fun String.capitalized(): String {
     return this.replaceFirstChar {
         if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString()
     }
