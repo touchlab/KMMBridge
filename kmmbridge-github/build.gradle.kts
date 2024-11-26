@@ -31,7 +31,7 @@ gradlePlugin {
     plugins {
         register("kmmbridge-github-plugin") {
             id = "co.touchlab.kmmbridge.github"
-            implementationClass = "co.touchlab.kmmbridge.KMMBridgePlugin"
+            implementationClass = "co.touchlab.kmmbridge.github.KMMBridgeGitHubPlugin"
             displayName = "KMMBridge/GitHub"
             tags = listOf(
                 "kmm",

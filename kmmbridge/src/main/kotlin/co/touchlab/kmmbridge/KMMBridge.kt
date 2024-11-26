@@ -43,7 +43,7 @@ import kotlin.collections.flatMap
 import kotlin.collections.forEach
 
 @Suppress("unused")
-class KMMBridgePlugin : Plugin<Project> {
+open class KMMBridgePlugin : Plugin<Project> {
 
     override fun apply(project: Project): Unit = with(project) {
         val extension = extensions.create<KmmBridgeExtension>(EXTENSION_NAME)
