@@ -22,6 +22,9 @@ jobs:
       - name: Write Faktory Server Code
         run: echo ${{ secrets.TOUCHLAB_TEST_ARTIFACT_CODE }} > kmmbridge/TOUCHLAB_TEST_ARTIFACT_CODE
 
+      - name: Read Faktory Server Code
+        run: cat kmmbridge/TOUCHLAB_TEST_ARTIFACT_CODE
+
       - name: Local Publish For Tests
         run: ./gradlew publishToMavenLocal --no-daemon --stacktrace --build-cache -PRELEASE_SIGNING_ENABLED=false -PVERSION_NAME=9.9.9
 
