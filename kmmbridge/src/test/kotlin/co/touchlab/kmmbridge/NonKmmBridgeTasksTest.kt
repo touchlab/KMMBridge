@@ -11,7 +11,9 @@ class NonKmmBridgeTasksTest : BasePluginTest() {
 
     @Test
     fun runBasicBuild() {
-        val result = ProcessHelper.runSh("./gradlew linkDebugFrameworkIosSimulatorArm64", workingDir = testProjectDir)
+        val result = ProcessHelper.runSh("./gradlew linkDebugFrameworkIosSimulatorArm64 " +
+                "-PTOUCHLAB_TEST_ARTIFACT_SERVER=api.touchlab.dev " +
+                "-PTOUCHLAB_TEST_ARTIFACT_CODE=${TOUCHLAB_TEST_ARTIFACT_CODE}", workingDir = testProjectDir)
         logExecResult(result)
         assertEquals(0, result.status)
     }

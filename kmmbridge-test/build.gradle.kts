@@ -50,6 +50,8 @@ gradlePlugin {
 
 dependencies {
     implementation(kotlin("stdlib"))
+    implementation(libs.okhttp)
+    implementation(libs.gson)
     api(project(":kmmbridge"))
 
     testImplementation(kotlin("test"))

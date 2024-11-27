@@ -15,11 +15,20 @@ abstract class BasePluginTest {
 
     internal lateinit var settingsFile: File
     internal lateinit var buildFile: File
+    internal lateinit var TOUCHLAB_TEST_ARTIFACT_CODE: String
 
     abstract fun testProjectPath(): String
 
     @BeforeEach
     fun setup() {
+        TOUCHLAB_TEST_ARTIFACT_CODE = File("TOUCHLAB_TEST_ARTIFACT_CODE").readText()
+        testProjectDir.listFiles()?.forEach { f ->
+            if (f.isDirectory) {
+                FileUtils.deleteDirectory(f)
+            } else {
+                FileUtils.delete(f)
+            }
+        }
         FileUtils.copyDirectory(testProjectSource, testProjectDir)
         ProcessHelper.runSh("git init;git add .;git commit -m 'arst'", workingDir = testProjectDir)
         settingsFile = File(testProjectDir, "settings.gradle.kts")

@@ -19,6 +19,9 @@ jobs:
       - name: Validate Gradle Wrapper
         uses: gradle/wrapper-validation-action@v1
 
+      - name: Write Faktory Server Code
+        run: echo ${{ secrets.TOUCHLAB_TEST_ARTIFACT_CODE }} > kmmbridge/TOUCHLAB_TEST_ARTIFACT_CODE
+
       - name: Local Publish For Tests
         run: ./gradlew publishToMavenLocal --no-daemon --stacktrace --build-cache -PRELEASE_SIGNING_ENABLED=false -PVERSION_NAME=9.9.9
 

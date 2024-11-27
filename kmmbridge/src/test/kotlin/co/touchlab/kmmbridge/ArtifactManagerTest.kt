@@ -11,7 +11,10 @@ class ArtifactManagerTest : BasePluginTest() {
 
     @Test
     fun runKmmBridgePublishNoPublishingEnabled() {
-        val result = ProcessHelper.runSh("./gradlew kmmBridgePublish --stacktrace", workingDir = testProjectDir)
+        val result = ProcessHelper.runSh("./gradlew kmmBridgePublish " +
+                "-PTOUCHLAB_TEST_ARTIFACT_SERVER=api.touchlab.dev " +
+                "-PTOUCHLAB_TEST_ARTIFACT_CODE=${TOUCHLAB_TEST_ARTIFACT_CODE} " +
+                "--stacktrace", workingDir = testProjectDir)
         logExecResult(result)
         assertEquals(1, result.status)
     }
@@ -21,12 +24,18 @@ class ArtifactManagerTest : BasePluginTest() {
         val urlFile = File(testProjectDir, "allshared/build/kmmbridge/url")
         assertFalse(urlFile.exists())
         val result = ProcessHelper.runSh(
-            "./gradlew kmmBridgePublish -PENABLE_PUBLISHING=true --stacktrace",
+            "./gradlew clean kmmBridgePublish " +
+                    "-PENABLE_PUBLISHING=true " +
+                    "-PTOUCHLAB_TEST_ARTIFACT_SERVER=api.touchlab.dev " +
+                    "-PTOUCHLAB_TEST_ARTIFACT_CODE=${TOUCHLAB_TEST_ARTIFACT_CODE} " +
+                    "--stacktrace",
             workingDir = testProjectDir
         )
         logExecResult(result)
+
         assertTrue(urlFile.exists())
-        assertEquals(urlFile.readText(), "test://${loadTestGradleProperties().get("LIBRARY_VERSION")}")
+        val urlValue = urlFile.readText()
+        assertTrue(urlValue.startsWith("https://api.touchlab.dev/infoadmin/streamTestZip"))
         assertEquals(0, result.status)
     }
 }
