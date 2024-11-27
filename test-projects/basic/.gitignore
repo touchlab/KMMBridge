@@ -1,10 +1,12 @@
+
+
 *.iml
 .gradle
 /local.properties
 /.idea
 .DS_Store
 build
-/buildSrc/build
+.build
 /captures
 .externalNativeBuild
 .cxx
@@ -13,4 +15,5 @@ build
 !/.idea/codeStyles/*
 !/.idea/inspectionProfiles/*
 .kotlin
-TOUCHLAB_TEST_ARTIFACT_CODE
+
+.swiftpm

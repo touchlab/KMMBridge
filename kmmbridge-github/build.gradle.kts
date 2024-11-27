@@ -15,16 +15,11 @@
 
 plugins {
     `kotlin-dsl`
-    kotlin("jvm")
+    alias(libs.plugins.kotlin)
     id("org.jetbrains.kotlin.plugin.allopen")
     id("java-gradle-plugin")
-    id("com.vanniktech.maven.publish.base")
+    alias(libs.plugins.maven.publish)
     id("com.gradle.plugin-publish") version "1.0.0"
-}
-
-repositories {
-    gradlePluginPortal()
-    mavenCentral()
 }
 
 @Suppress("UnstableApiUsage")
@@ -36,8 +31,8 @@ gradlePlugin {
     plugins {
         register("kmmbridge-github-plugin") {
             id = "co.touchlab.kmmbridge.github"
-            implementationClass = "co.touchlab.kmmbridge.KMMBridgePlugin"
-            displayName = "KMMBridge/GitHub for Teams"
+            implementationClass = "co.touchlab.kmmbridge.github.KMMBridgeGitHubPlugin"
+            displayName = "KMMBridge/GitHub"
             tags = listOf(
                 "kmm",
                 "kotlin",
@@ -61,24 +56,4 @@ dependencies {
     api(project(":kmmbridge"))
 
     testImplementation(kotlin("test"))
-}
-
-kotlin {
-    jvmToolchain(11)
-}
-
-val GROUP: String by project
-val VERSION_NAME: String by project
-
-group = GROUP
-version = VERSION_NAME
-
-mavenPublishing {
-    publishToMavenCentral()
-    val releaseSigningEnabled =
-        project.properties["RELEASE_SIGNING_ENABLED"]?.toString()?.equals("false", ignoreCase = true) != true
-    if (releaseSigningEnabled) signAllPublications()
-    @Suppress("UnstableApiUsage")
-    pomFromGradleProperties()
-    configureBasedOnAppliedPlugins()
 }

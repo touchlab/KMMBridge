@@ -14,11 +14,11 @@
 package co.touchlab.kmmbridge.dependencymanager
 
 import co.touchlab.kmmbridge.TASK_GROUP_NAME
-import co.touchlab.kmmbridge.cocoapods
-import co.touchlab.kmmbridge.kmmBridgeExtension
-import co.touchlab.kmmbridge.kotlin
-import co.touchlab.kmmbridge.layoutBuildDir
-import co.touchlab.kmmbridge.urlFile
+import co.touchlab.kmmbridge.internal.cocoapods
+import co.touchlab.kmmbridge.internal.kmmBridgeExtension
+import co.touchlab.kmmbridge.internal.kotlin
+import co.touchlab.kmmbridge.internal.layoutBuildDir
+import co.touchlab.kmmbridge.internal.urlFile
 import org.gradle.api.Action
 import org.gradle.api.Project
 import org.gradle.api.Task
@@ -31,12 +31,12 @@ import org.jetbrains.kotlin.gradle.plugin.mpp.Framework
 import org.jetbrains.kotlin.gradle.plugin.mpp.KotlinNativeTarget
 import java.io.File
 
-sealed class SpecRepo {
+internal sealed class SpecRepo {
     object Trunk : SpecRepo()
     class Private(val url: String) : SpecRepo()
 }
 
-class CocoapodsDependencyManager(
+internal class CocoapodsDependencyManager(
     private val specRepoDeferred: () -> SpecRepo,
     private val allowWarnings: Boolean,
     private val verboseErrors: Boolean
@@ -49,7 +49,7 @@ class CocoapodsDependencyManager(
     ) {
 
         val podSpecFile =
-            project.file("${project.layoutBuildDir}/faktory/podspec/${project.kmmBridgeExtension.buildType.get().name.lowercase()}/${project.kotlin.cocoapods.name}.podspec")
+            project.file("${project.layoutBuildDir}/kmmbridge/podspec/${project.kmmBridgeExtension.buildType.get().name.lowercase()}/${project.kotlin.cocoapods.name}.podspec")
 
         val generatePodspecTask = project.tasks.register("generateReleasePodspec") {
             inputs.files(project.urlFile)

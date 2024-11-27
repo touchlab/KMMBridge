@@ -22,9 +22,6 @@ internal val Project.githubPublishTokenOrNull: String?
 internal val Project.githubPublishUser: String?
     get() = project.findStringProperty("GITHUB_PUBLISH_USER")
 
-internal val Project.skipGitHumReleaseSpmChecks: Boolean
-    get() = project.findStringProperty("SKIP_GITHUB_RELEASE_SPM_CHECKS") == "true"
-
 internal val Project.githubRepoOrNull: String?
     get() {
         val repo = project.findStringProperty("GITHUB_REPO") ?: return null

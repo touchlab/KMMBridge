@@ -15,28 +15,35 @@ package co.touchlab.kmmbridge.dependencymanager
 
 import co.touchlab.kmmbridge.TASK_GROUP_NAME
 import co.touchlab.kmmbridge.dsl.TargetPlatformDsl
-import co.touchlab.kmmbridge.findXCFrameworkAssembleTask
 import co.touchlab.kmmbridge.internal.domain.SwiftToolVersion
 import co.touchlab.kmmbridge.internal.domain.TargetPlatform
 import co.touchlab.kmmbridge.internal.domain.konanTarget
 import co.touchlab.kmmbridge.internal.domain.swiftPackagePlatformName
-import co.touchlab.kmmbridge.kmmBridgeExtension
-import co.touchlab.kmmbridge.kotlin
-import co.touchlab.kmmbridge.layoutBuildDir
-import co.touchlab.kmmbridge.urlFile
-import co.touchlab.kmmbridge.zipFilePath
+import co.touchlab.kmmbridge.internal.findXCFrameworkAssembleTask
+import co.touchlab.kmmbridge.internal.kmmBridgeExtension
+import co.touchlab.kmmbridge.internal.kotlin
+import co.touchlab.kmmbridge.internal.layoutBuildDir
+import co.touchlab.kmmbridge.internal.urlFile
+import co.touchlab.kmmbridge.internal.zipFilePath
 import org.gradle.api.Action
 import org.gradle.api.Project
 import org.gradle.api.Task
 import org.gradle.api.provider.ProviderFactory
+import org.gradle.api.provider.ValueSource
+import org.gradle.api.provider.ValueSourceParameters
 import org.gradle.api.tasks.TaskProvider
 import org.gradle.kotlin.dsl.withType
+import org.gradle.process.ExecOperations
+import org.gradle.process.internal.ExecException
 import org.jetbrains.kotlin.gradle.plugin.mpp.KotlinNativeTarget
 import org.jetbrains.kotlin.gradle.plugin.mpp.NativeBuildType
+import java.io.ByteArrayOutputStream
 import java.io.File
+import java.nio.charset.Charset
 import java.util.*
+import javax.inject.Inject
 
-class SpmDependencyManager(
+internal class SpmDependencyManager(
     /**
      * Folder where the Package.swift file lives
      */
@@ -46,25 +53,18 @@ class SpmDependencyManager(
     private val _swiftToolVersion: String,
     private val _targetPlatforms: TargetPlatformDsl.() -> Unit,
 ) : DependencyManager {
-
-//    private fun ProviderFactory.swiftPackageFolder(projectDir: File): String =
-//        _swiftPackageFolder ?: this.findRepoRoot(projectDir)
-//
     /**
      * For new projects that aren't in git repos, it's *probably* OK to just return the current folder
      * until this is resolved, or let the user enter it manually.
      */
     private fun Project.findRepoRoot(projectDir: File): String {
-        val results = providers.exec {
-            commandLine("git", "rev-parse", "--show-toplevel")
-        }.standardOutput.asText.get().lines()
-
-        return if (results.isEmpty()) {
-            "."
+        val result = providers.of(GitRevParseValue::class.java) {}.get()
+        val repoRootFile = if (result == "") {
+            projectDir
         } else {
-            val repoFile = File(results.first())
-            projectDir.toPath().relativize(repoFile.toPath()).toString()
+            File(result)
         }
+        return repoRootFile.toString()
     }
 
     private fun Project.swiftPackageFile(projectDir: File): File {
@@ -84,7 +84,7 @@ class SpmDependencyManager(
             ?: throw IllegalArgumentException("Parameter swiftToolVersion should be not blank!")
         val platforms = swiftTargetPlatforms(project)
 
-        val swiftPackageFile = project.swiftPackageFile(project.projectDir)
+        val swiftPackageFile = project.swiftPackageFile(project.rootDir)
         val packageName = extension.frameworkName.get()
         if (useCustomPackageFile && !hasKmmbridgeVariablesSection(swiftPackageFile, packageName)) {
             project.logger.error(buildPackageFileErrorMessage(packageName, perModuleVariablesBlock))
@@ -201,7 +201,7 @@ class SpmDependencyManager(
             group = TASK_GROUP_NAME
             dependsOn(project.findXCFrameworkAssembleTask(NativeBuildType.DEBUG))
 
-            val swiftPackageFile = project.swiftPackageFile(project.projectDir)
+            val swiftPackageFile = project.swiftPackageFile(project.rootDir)
             val layoutBuildDir = project.layoutBuildDir
 
             @Suppress("ObjectLiteralToLambda")
@@ -244,6 +244,32 @@ class SpmDependencyManager(
                 .map { platformName -> ".$platformName(.v${platform.version.name})" }
                 .toList()
         }.joinToString(separator = ",\n")
+}
+
+/**
+ * Runs a git command to grab the root of the git repo. If there is no git repo, return an empty string.
+ */
+abstract class GitRevParseValue : ValueSource<String, ValueSourceParameters.None> {
+    @get:Inject
+    abstract val execOperations: ExecOperations
+
+    override fun obtain(): String {
+        val output = ByteArrayOutputStream()
+        val error = ByteArrayOutputStream()
+        return try {
+            execOperations.exec {
+                try {
+                    commandLine("git", "rev-parse", "--show-toplevel")
+                    standardOutput = output
+                    errorOutput = error
+                } catch (e: Exception) {
+                }
+            }
+            String(output.toByteArray(), Charset.defaultCharset()).lines().first()
+        } catch (e: ExecException) {
+            ""
+        }
+    }
 }
 
 internal fun stripEndSlash(path: String): String {

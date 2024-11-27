@@ -12,7 +12,6 @@
 * or implied. See the License for the specific language governing permissions and limitations under
 * the License.
 */
-
 plugins {
     `kotlin-dsl`
     alias(libs.plugins.kotlin)
@@ -29,10 +28,10 @@ gradlePlugin {
     description =
         "KMMBridge is a set of Gradle tooling that facilitates publishing and consuming pre-built KMM (Kotlin Multiplatform Mobile) Xcode Framework binaries."
     plugins {
-        register("kmmbridge-plugin") {
-            id = "co.touchlab.kmmbridge"
-            implementationClass = "co.touchlab.kmmbridge.KMMBridgePlugin"
-            displayName = "KMMBridge for Teams"
+        register("kmmbridge-test-plugin") {
+            id = "co.touchlab.kmmbridge.test"
+            implementationClass = "co.touchlab.kmmbridge.test.KMMBridgeTestPlugin"
+            displayName = "KMMBridge/Test"
             tags = listOf(
                 "kmm",
                 "kotlin",
@@ -51,12 +50,9 @@ gradlePlugin {
 
 dependencies {
     implementation(kotlin("stdlib"))
-    compileOnly(kotlin("gradle-plugin"))
-    implementation(libs.aws)
     implementation(libs.okhttp)
     implementation(libs.gson)
+    api(project(":kmmbridge"))
 
     testImplementation(kotlin("test"))
-    testImplementation(gradleTestKit())
-    testImplementation("commons-io:commons-io:2.18.0")
 }

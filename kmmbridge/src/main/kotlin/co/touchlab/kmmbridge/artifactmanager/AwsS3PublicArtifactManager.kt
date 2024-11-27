@@ -13,7 +13,7 @@
 
 package co.touchlab.kmmbridge.artifactmanager
 
-import co.touchlab.kmmbridge.kmmBridgeExtension
+import co.touchlab.kmmbridge.internal.kmmBridgeExtension
 import org.gradle.api.Project
 import org.gradle.api.Task
 import org.gradle.api.tasks.TaskProvider
@@ -27,7 +27,7 @@ import software.amazon.awssdk.services.s3.model.PutObjectRequest
 import java.io.File
 import java.util.*
 
-class AwsS3PublicArtifactManager(
+internal class AwsS3PublicArtifactManager(
     private val s3Region: String,
     private val s3Bucket: String,
     private val s3AccessKeyId: String,

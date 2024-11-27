@@ -15,3 +15,36 @@ plugins {
     id("org.jetbrains.kotlin.plugin.allopen") version "1.9.0" apply false
     alias(libs.plugins.maven.publish) apply false
 }
+
+subprojects {
+    repositories {
+        gradlePluginPortal()
+        mavenCentral()
+    }
+
+    extensions.findByType<org.jetbrains.kotlin.gradle.dsl.KotlinJvmProjectExtension>()?.apply {
+        jvmToolchain(17)
+    }
+
+    val GROUP: String by project
+    val VERSION_NAME: String by project
+
+    group = GROUP
+    version = VERSION_NAME
+
+    extensions.findByType<com.vanniktech.maven.publish.MavenPublishBaseExtension>()?.apply {
+        publishToMavenCentral()
+        val releaseSigningEnabled =
+            project.properties["RELEASE_SIGNING_ENABLED"]?.toString()?.equals("false", ignoreCase = true) != true
+        if (releaseSigningEnabled) signAllPublications()
+        @Suppress("UnstableApiUsage")
+        pomFromGradleProperties()
+        configureBasedOnAppliedPlugins()
+    }
+
+    afterEvaluate {
+        tasks.getByName<Test>("test") {
+            useJUnitPlatform()
+        }
+    }
+}

@@ -13,7 +13,7 @@ import org.gradle.api.tasks.TaskProvider
 import org.gradle.kotlin.dsl.getByType
 import java.io.File
 
-class GithubReleaseArtifactManager(
+internal class GithubReleaseArtifactManager(
     private val repository: String?, private val releaseString: String?, private val useExistingRelease: Boolean
 ) : ArtifactManager {
 
