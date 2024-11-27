@@ -30,7 +30,7 @@ gradlePlugin {
     plugins {
         register("kmmbridge-test-plugin") {
             id = "co.touchlab.kmmbridge.test"
-            implementationClass = "co.touchlab.kmmbridge.KMMBridgePlugin"
+            implementationClass = "co.touchlab.kmmbridge.test.KMMBridgeTestPlugin"
             displayName = "KMMBridge/Test"
             tags = listOf(
                 "kmm",

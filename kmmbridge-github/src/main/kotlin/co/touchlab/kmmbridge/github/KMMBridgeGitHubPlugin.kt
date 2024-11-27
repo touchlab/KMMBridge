@@ -1,5 +1,6 @@
 package co.touchlab.kmmbridge.github
 
+import co.touchlab.kmmbridge.BaseKMMBridgePlugin
 import co.touchlab.kmmbridge.KMMBridgePlugin
 import co.touchlab.kmmbridge.TASK_GROUP_NAME
 import co.touchlab.kmmbridge.findStringProperty
@@ -10,7 +11,7 @@ import org.gradle.api.Task
 import java.io.File
 import java.nio.file.Files
 
-class KMMBridgeGitHubPlugin : KMMBridgePlugin() {
+class KMMBridgeGitHubPlugin : BaseKMMBridgePlugin() {
     override fun apply(project: Project) {
         super.apply(project)
         val githubDeploySourceRepo = project.findStringProperty("githubDeploySourceRepo")
