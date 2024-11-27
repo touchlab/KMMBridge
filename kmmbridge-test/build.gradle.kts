@@ -56,3 +56,14 @@ dependencies {
 
     testImplementation(kotlin("test"))
 }
+
+mavenPublishing {
+    publishToMavenCentral()
+    val releaseSigningEnabled =
+        project.properties["RELEASE_SIGNING_ENABLED"]?.toString()?.equals("false", ignoreCase = true) != true
+    if (releaseSigningEnabled) signAllPublications()
+    @Suppress("UnstableApiUsage")
+    pomFromGradleProperties()
+    @Suppress("UnstableApiUsage")
+    configureBasedOnAppliedPlugins()
+}
