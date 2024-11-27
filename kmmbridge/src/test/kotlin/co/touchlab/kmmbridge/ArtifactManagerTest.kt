@@ -11,10 +11,12 @@ class ArtifactManagerTest : BasePluginTest() {
 
     @Test
     fun runKmmBridgePublishNoPublishingEnabled() {
-        val result = ProcessHelper.runSh("./gradlew kmmBridgePublish " +
-                "-PTOUCHLAB_TEST_ARTIFACT_SERVER=api.touchlab.dev " +
-                "-PTOUCHLAB_TEST_ARTIFACT_CODE=${TOUCHLAB_TEST_ARTIFACT_CODE} " +
-                "--stacktrace", workingDir = testProjectDir)
+        val result = ProcessHelper.runSh(
+            "./gradlew kmmBridgePublish " +
+                    "-PTOUCHLAB_TEST_ARTIFACT_SERVER=api.touchlab.dev " +
+                    "-PTOUCHLAB_TEST_ARTIFACT_CODE=${TOUCHLAB_TEST_ARTIFACT_CODE} " +
+                    "--stacktrace", workingDir = testProjectDir
+        )
         logExecResult(result)
         assertEquals(1, result.status)
     }

@@ -15,16 +15,16 @@ package co.touchlab.kmmbridge.dependencymanager
 
 import co.touchlab.kmmbridge.TASK_GROUP_NAME
 import co.touchlab.kmmbridge.dsl.TargetPlatformDsl
-import co.touchlab.kmmbridge.internal.findXCFrameworkAssembleTask
 import co.touchlab.kmmbridge.internal.domain.SwiftToolVersion
 import co.touchlab.kmmbridge.internal.domain.TargetPlatform
 import co.touchlab.kmmbridge.internal.domain.konanTarget
 import co.touchlab.kmmbridge.internal.domain.swiftPackagePlatformName
+import co.touchlab.kmmbridge.internal.findXCFrameworkAssembleTask
 import co.touchlab.kmmbridge.internal.kmmBridgeExtension
-import co.touchlab.kmmbridge.internal.urlFile
-import co.touchlab.kmmbridge.internal.zipFilePath
 import co.touchlab.kmmbridge.internal.kotlin
 import co.touchlab.kmmbridge.internal.layoutBuildDir
+import co.touchlab.kmmbridge.internal.urlFile
+import co.touchlab.kmmbridge.internal.zipFilePath
 import org.gradle.api.Action
 import org.gradle.api.Project
 import org.gradle.api.Task

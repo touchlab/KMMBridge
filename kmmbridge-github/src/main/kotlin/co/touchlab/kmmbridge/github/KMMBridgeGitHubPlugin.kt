@@ -1,7 +1,6 @@
 package co.touchlab.kmmbridge.github
 
 import co.touchlab.kmmbridge.BaseKMMBridgePlugin
-import co.touchlab.kmmbridge.KMMBridgePlugin
 import co.touchlab.kmmbridge.TASK_GROUP_NAME
 import co.touchlab.kmmbridge.findStringProperty
 import co.touchlab.kmmbridge.github.internal.procRunFailLog
@@ -11,6 +10,7 @@ import org.gradle.api.Task
 import java.io.File
 import java.nio.file.Files
 
+@Suppress("unused")
 class KMMBridgeGitHubPlugin : BaseKMMBridgePlugin() {
     override fun apply(project: Project) {
         super.apply(project)

@@ -29,7 +29,7 @@ internal class TestUploadArtifactManager(private val server: String, private val
                 .writeTimeout(Duration.ofMinutes(5)).readTimeout(Duration.ofMinutes(2)).build()
 
         val response = okHttpClient.newCall(uploadRequest).execute()
-        if(response.code>=400){
+        if (response.code >= 400) {
             throw GradleException("Test zip upload failed. Code: ${response.code}, message: ${response.message}")
         }
 
