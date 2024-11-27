@@ -21,14 +21,7 @@ abstract class BasePluginTest {
 
     @BeforeEach
     fun setup() {
-        TOUCHLAB_TEST_ARTIFACT_CODE = File("TOUCHLAB_TEST_ARTIFACT_CODE").readText()
-        testProjectDir.listFiles()?.forEach { f ->
-            if (f.isDirectory) {
-                FileUtils.deleteDirectory(f)
-            } else {
-                FileUtils.delete(f)
-            }
-        }
+        TOUCHLAB_TEST_ARTIFACT_CODE = File("TOUCHLAB_TEST_ARTIFACT_CODE").readText().lines().first()
         FileUtils.copyDirectory(testProjectSource, testProjectDir)
         ProcessHelper.runSh("git init;git add .;git commit -m 'arst'", workingDir = testProjectDir)
         settingsFile = File(testProjectDir, "settings.gradle.kts")
@@ -44,9 +37,14 @@ abstract class BasePluginTest {
     }
 
     internal fun logExecResult(result: ExecutionResult) {
+        println("***********START***********")
+        println("Params: ${result.params.joinToString(" ")}")
+        println("Working dir: ${result.workingDir.absolutePath}")
+
         if (result.output.isNotEmpty())
             println(result.output)
         if (result.error.isNotEmpty())
             System.err.println(result.error)
+        println("***********END***********")
     }
 }

@@ -9,7 +9,6 @@ import java.util.concurrent.Future
 import java.util.concurrent.atomic.AtomicReference
 
 object ProcessHelper {
-    private val executorService = Executors.newFixedThreadPool(10)
     fun runSh(
         command: String,
         envVars: Map<String, String> = emptyMap(),
@@ -39,6 +38,8 @@ object ProcessHelper {
         }
 
         return ExecutionResult(
+            params = params.toList(),
+            workingDir = workingDir,
             status = returnValue,
             output = stdOut.result,
             error = errOut.result
@@ -47,7 +48,7 @@ object ProcessHelper {
 
     private fun readProcStream(iStream: InputStream): StreamCatcher {
         val atom = AtomicReference<String>("")
-        val futureString = executorService.submit {
+        val t = Thread {
             val bufferedReader = BufferedReader(InputStreamReader(iStream))
             val allOut = bufferedReader.readText()
 
@@ -55,18 +56,22 @@ object ProcessHelper {
             atom.set(allOut)
         }
 
-        return StreamCatcher(futureString, atom)
+        t.start()
+
+        return StreamCatcher(t, atom)
     }
 
-    private class StreamCatcher(val future: Future<*>, val atom: AtomicReference<String>) {
+    private class StreamCatcher(val t: Thread, val atom: AtomicReference<String>) {
         val isDone: Boolean
-            get() = future.get() == null
+            get() = !t.isAlive
         val result: String
             get() = atom.get()
     }
 }
 
 data class ExecutionResult(
+    val params: List<String>,
+    val workingDir: File,
     val status: Int,
     val output: String,
     val error: String
