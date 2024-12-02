@@ -44,6 +44,7 @@ internal class CocoapodsDependencyManager(
     override fun configure(
         providers: ProviderFactory,
         project: Project,
+        version: String,
         uploadTask: TaskProvider<Task>,
         publishRemoteTask: TaskProvider<Task>
     ) {
@@ -64,7 +65,7 @@ internal class CocoapodsDependencyManager(
             doLast(object : Action<Task> {
                 override fun execute(t: Task) {
                     generatePodspec(
-                        cocoapodsExtension, urlFileLocal, podSpecFile, frameworkName
+                        cocoapodsExtension, urlFileLocal, version, podSpecFile, frameworkName
                     )
                 }
             })
@@ -74,6 +75,7 @@ internal class CocoapodsDependencyManager(
             group = TASK_GROUP_NAME
             inputs.files(podSpecFile)
             dependsOn(generatePodspecTask)
+            outputs.upToDateWhen { false } // We want to always upload when this task is called
 
             @Suppress("ObjectLiteralToLambda")
             doLast(object : Action<Task> {
@@ -97,8 +99,8 @@ internal class CocoapodsDependencyManager(
                             }.standardOutput.asText.get()
                         }
 
-                        is SpecRepo.Private ->
-                            providers.exec {
+                        is SpecRepo.Private -> {
+                            val execOutput = providers.exec {
                                 commandLine(
                                     "pod",
                                     "repo",
@@ -108,6 +110,13 @@ internal class CocoapodsDependencyManager(
                                     *extras.toTypedArray()
                                 )
                             }
+                            logger.info(execOutput.standardOutput.asText.get())
+                            val errorOut = execOutput.standardError.asText.get()
+                            val anyError = errorOut.lines().filter { it.isNotBlank() }.isNotEmpty()
+                            if(anyError){
+                                logger.error(errorOut)
+                            }
+                        }
                     }
                 }
             })
@@ -143,6 +152,7 @@ private fun findFrameworkName(project: Project): org.gradle.api.provider.Provide
 private fun generatePodspec(
     cocoapodsExtension: CocoapodsExtension,
     urlFile: File,
+    projectVersion:String,
     outputFile: File,
     frameworkName: Provider<String>
 ) = with(cocoapodsExtension) {
@@ -167,7 +177,7 @@ private fun generatePodspec(
     val customSpec = extraSpecAttributes.map { "|    spec.${it.key} = ${it.value}" }.joinToString("\n")
 
     val url = urlFile.readText()
-    val version = version.toString()
+    val version = version ?: projectVersion
 
     // 'Accept: application/octet-stream' needed for GitHub release file downloads
     outputFile.writeText(

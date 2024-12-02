@@ -75,6 +75,7 @@ internal class SpmDependencyManager(
     override fun configure(
         providers: ProviderFactory,
         project: Project,
+        version: String,
         uploadTask: TaskProvider<Task>,
         publishRemoteTask: TaskProvider<Task>
     ) {

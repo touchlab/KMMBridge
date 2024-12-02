@@ -134,7 +134,7 @@ abstract class BaseKMMBridgePlugin : Plugin<Project> {
         artifactManager.configure(this, version.toString(), uploadTask, publishRemoteTask)
 
         for (dependencyManager in dependencyManagers) {
-            dependencyManager.configure(providers, this, uploadTask, publishRemoteTask)
+            dependencyManager.configure(providers, this, version.toString(), uploadTask, publishRemoteTask)
         }
     }
 
