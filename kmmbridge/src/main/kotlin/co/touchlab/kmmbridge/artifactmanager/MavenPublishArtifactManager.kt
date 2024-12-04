@@ -84,12 +84,11 @@ internal class MavenPublishArtifactManager(
         // There may be more than one repo, but it's also possible we get none. This will allow us to continue and trying
         // to use the dependency should fail.
         // If there are multiple repos, the repo name needs to be specified.
-        val mavenArtifactRepositoryUrl = if (!isMavenCentral) {
+        return if (!isMavenCentral) {
             findArtifactRepository(publishingExtension).url.toString()
         } else {
-            "https://repo.maven.apache.org/maven2/"
+            "https://repo.maven.apache.org/maven2"
         }
-        return mavenArtifactRepositoryUrl
     }
 
     private fun publishingTasks(project: Project): List<TaskProvider<Task>> {

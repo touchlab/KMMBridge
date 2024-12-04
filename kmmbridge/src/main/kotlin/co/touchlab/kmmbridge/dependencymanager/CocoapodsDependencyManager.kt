@@ -25,7 +25,7 @@ import org.gradle.api.Task
 import org.gradle.api.provider.Provider
 import org.gradle.api.provider.ProviderFactory
 import org.gradle.api.tasks.TaskProvider
-import org.jetbrains.kotlin.gradle.plugin.cocoapods.CocoapodsExtension
+import org.jetbrains.kotlin.gradle.plugin.cocoapods.CocoapodsExtension.PodspecPlatformSettings
 import org.jetbrains.kotlin.gradle.plugin.cocoapods.KotlinCocoapodsPlugin
 import org.jetbrains.kotlin.gradle.plugin.mpp.Framework
 import org.jetbrains.kotlin.gradle.plugin.mpp.KotlinNativeTarget
@@ -35,6 +35,24 @@ internal sealed class SpecRepo {
     object Trunk : SpecRepo()
     class Private(val url: String) : SpecRepo()
 }
+
+/**
+ * State storage to help avoid Gradle configuration cache issues
+ */
+internal data class SafeCocoapodsData(
+    val ios: PodspecPlatformSettings,
+    val osx: PodspecPlatformSettings,
+    val tvos: PodspecPlatformSettings,
+    val watchos: PodspecPlatformSettings,
+    val extraSpecAttributes: MutableMap<String, String>,
+    val version: String?,
+    val name: String,
+    val homepage: String?,
+    val license: String?,
+    val authors: String?,
+    val summary: String?,
+    val podsDependencies: String
+)
 
 internal class CocoapodsDependencyManager(
     private val specRepoDeferred: () -> SpecRepo,
@@ -58,6 +76,25 @@ internal class CocoapodsDependencyManager(
             dependsOn(uploadTask)
 
             val cocoapodsExtension = project.kotlin.cocoapods
+
+            val safeCocoapodsData = SafeCocoapodsData(
+                cocoapodsExtension.ios,
+                cocoapodsExtension.osx,
+                cocoapodsExtension.tvos,
+                cocoapodsExtension.watchos,
+                cocoapodsExtension.extraSpecAttributes,
+                cocoapodsExtension.version,
+                cocoapodsExtension.name,
+                cocoapodsExtension.homepage,
+                cocoapodsExtension.license,
+                cocoapodsExtension.authors,
+                cocoapodsExtension.summary,
+                cocoapodsExtension.pods.joinToString(separator = "\n") { pod ->
+                    val versionSuffix = if (pod.version != null) ", '${pod.version}'" else ""
+                    "|    spec.dependency '${pod.name}'$versionSuffix"
+                }
+            )
+
             val urlFileLocal = project.urlFile
             val frameworkName = findFrameworkName(project)
 
@@ -65,7 +102,7 @@ internal class CocoapodsDependencyManager(
             doLast(object : Action<Task> {
                 override fun execute(t: Task) {
                     generatePodspec(
-                        cocoapodsExtension, urlFileLocal, version, podSpecFile, frameworkName
+                        safeCocoapodsData, urlFileLocal, version, podSpecFile, frameworkName
                     )
                 }
             })
@@ -77,26 +114,31 @@ internal class CocoapodsDependencyManager(
             dependsOn(generatePodspecTask)
             outputs.upToDateWhen { false } // We want to always upload when this task is called
 
+            val allowWarningsLocal = allowWarnings
+            val verboseErrorsLocal = verboseErrors
+            val specRepo = specRepoDeferred()
+
             @Suppress("ObjectLiteralToLambda")
             doLast(object : Action<Task> {
                 override fun execute(t: Task) {
                     val extras = mutableListOf<String>()
 
-                    if (allowWarnings) {
+                    if (allowWarningsLocal) {
                         extras.add("--allow-warnings")
                     }
 
-                    if (verboseErrors) {
+                    if (verboseErrorsLocal) {
                         extras.add("--verbose")
                     }
 
-                    when (val specRepo = specRepoDeferred()) {
+                    when (specRepo) {
                         is SpecRepo.Trunk -> {
-                            providers.exec {
+                            val execOutput = providers.exec {
                                 commandLine(
                                     "pod", "trunk", "push", podSpecFile, *extras.toTypedArray()
                                 )
-                            }.standardOutput.asText.get()
+                            }
+                            t.logger.info(execOutput.standardOutput.asText.get())
                         }
 
                         is SpecRepo.Private -> {
@@ -110,12 +152,7 @@ internal class CocoapodsDependencyManager(
                                     *extras.toTypedArray()
                                 )
                             }
-                            logger.info(execOutput.standardOutput.asText.get())
-                            val errorOut = execOutput.standardError.asText.get()
-                            val anyError = errorOut.lines().filter { it.isNotBlank() }.isNotEmpty()
-                            if(anyError){
-                                logger.error(errorOut)
-                            }
+                            t.logger.info(execOutput.standardOutput.asText.get())
                         }
                     }
                 }
@@ -130,7 +167,7 @@ internal class CocoapodsDependencyManager(
     override val needsGitTags: Boolean = false
 }
 
-private fun findFrameworkName(project: Project): org.gradle.api.provider.Provider<String> {
+private fun findFrameworkName(project: Project): Provider<String> {
     val anyPodFramework = project.provider {
         val anyTarget = project.kotlin.targets
             .withType(KotlinNativeTarget::class.java)
@@ -150,22 +187,19 @@ private fun findFrameworkName(project: Project): org.gradle.api.provider.Provide
 // TODO it might be nice to migrate this back to using the kotlin.cocoapods podspec task directly, but not worth the
 //  effort to wire it up right now.
 private fun generatePodspec(
-    cocoapodsExtension: CocoapodsExtension,
+    safeCocoapodsData: SafeCocoapodsData,
     urlFile: File,
-    projectVersion:String,
+    projectVersion: String,
     outputFile: File,
     frameworkName: Provider<String>
-) = with(cocoapodsExtension) {
+) = with(safeCocoapodsData) {
     val deploymentTargets = run {
         listOf(ios, osx, tvos, watchos).filter { it.deploymentTarget != null }.joinToString("\n") {
             if (extraSpecAttributes.containsKey("${it.name}.deployment_target")) "" else "|    spec.${it.name}.deployment_target = '${it.deploymentTarget}'"
         }
     }
 
-    val dependencies = pods.joinToString(separator = "\n") { pod ->
-        val versionSuffix = if (pod.version != null) ", '${pod.version}'" else ""
-        "|    spec.dependency '${pod.name}'$versionSuffix"
-    }
+    val dependencies = podsDependencies
 
     val vendoredFramework = "${frameworkName.get()}.xcframework"
     val vendoredFrameworks =
