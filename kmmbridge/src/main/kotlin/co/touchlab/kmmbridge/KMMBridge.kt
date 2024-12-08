@@ -52,7 +52,14 @@ abstract class BaseKMMBridgePlugin : Plugin<Project> {
         val extension = extensions.create<KmmBridgeExtension>(EXTENSION_NAME)
 
         extension.dependencyManagers.convention(emptyList())
-        extension.buildType.convention(NativeBuildType.RELEASE)
+
+        val defaultNativeBuildType = if (project.findStringProperty("NATIVE_BUILD_TYPE") == "DEBUG") {
+            NativeBuildType.DEBUG
+        } else {
+            NativeBuildType.RELEASE
+        }
+
+        extension.buildType.convention(defaultNativeBuildType)
 
         afterEvaluate {
             val kmmBridgeExtension = extensions.getByType<KmmBridgeExtension>()

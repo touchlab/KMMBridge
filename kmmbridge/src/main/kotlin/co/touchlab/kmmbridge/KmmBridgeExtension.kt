@@ -42,7 +42,6 @@ interface KmmBridgeExtension {
 
     val buildType: Property<NativeBuildType>
 
-
     @Suppress("unused")
     fun Project.s3PublicArtifacts(
         region: String,
