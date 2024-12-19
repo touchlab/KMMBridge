@@ -39,6 +39,12 @@ internal val Project.githubPublishToken
     get() = (project.property("GITHUB_PUBLISH_TOKEN")
         ?: throw IllegalArgumentException("KMMBridge Github operations need property GITHUB_PUBLISH_TOKEN")) as String
 
+internal val Project.githubArtifactReleaseId
+        get() = project.findStringProperty("GITHUB_ARTIFACT_RELEASE_ID")
+
+internal val Project.githubArtifactIdentifierName
+    get() = project.findStringProperty("GITHUB_ARTIFACT_IDENTIFIER_NAME")
+
 internal val Project.githubRepo: String
     get() = githubRepoOrNull
         ?: throw IllegalArgumentException("KMMBridge Github operations need a repo param or property GITHUB_REPO")

@@ -57,6 +57,7 @@ dependencies {
     implementation(libs.gson)
 
     testImplementation(kotlin("test"))
+    testImplementation(libs.kotlin.gradle.plugin)
     testImplementation(gradleTestKit())
     testImplementation("commons-io:commons-io:2.18.0")
 }
