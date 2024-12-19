@@ -104,7 +104,11 @@ internal class SpmDependencyManager(
                 override fun execute(t: Task) {
                     val checksum = providers.findSpmChecksum(zipFile, projectDir)
                     val url = urlFile.readText()
-                    if (useCustomPackageFile && hasKmmbridgeVariablesSection(swiftPackageFile, packageName)) {
+                    if (useCustomPackageFile && hasKmmbridgeVariablesSection(
+                            swiftPackageFile,
+                            packageName
+                        )
+                    ) {
                         modifyPackageFileVariables(swiftPackageFile, packageName, url, checksum)
                     } else if (useCustomPackageFile) {
                         // We warned you earlier, but you didn't fix it, so now we interrupt the publish process because it's
@@ -160,7 +164,14 @@ internal class SpmDependencyManager(
     ) {
 
         val packageText =
-            makePackageFileText(packageName, url, checksum, perModuleVariablesBlock, swiftToolVersion, platforms)
+            makePackageFileText(
+                packageName,
+                url,
+                checksum,
+                perModuleVariablesBlock,
+                swiftToolVersion,
+                platforms
+            )
         swiftPackageFile.parentFile.mkdirs()
         swiftPackageFile.writeText(packageText)
     }
@@ -199,6 +210,8 @@ internal class SpmDependencyManager(
         val platforms = swiftTargetPlatforms(project)
 
         project.tasks.register("spmDevBuild") {
+            description =
+                "When using SPM, builds a debug version of the XCFramework and writes a local dev path to your Package.swift."
             group = TASK_GROUP_NAME
             dependsOn(project.findXCFrameworkAssembleTask(NativeBuildType.DEBUG))
 
