@@ -19,7 +19,7 @@ class KMMBridgeGitHubPlugin : BaseKMMBridgePlugin() {
         if (githubDeploySourceRepo != null && githubDeployTargetRepo != null) {
             project.tasks.register("setupDeployKeys") {
                 group = TASK_GROUP_NAME
-                description = "Helper task to setup GitHub deploy keys"
+                description = "Helper task to setup GitHub deploy keys. Creates an ssh public/private key pair and adds them to the target and source repos."
                 outputs.upToDateWhen { false } // This should always run
 
                 @Suppress("ObjectLiteralToLambda")

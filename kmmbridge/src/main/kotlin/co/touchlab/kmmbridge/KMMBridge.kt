@@ -125,6 +125,7 @@ abstract class BaseKMMBridgePlugin : Plugin<Project> {
 
         // Publish task depends on the upload task
         val publishRemoteTask = tasks.register("kmmBridgePublish") {
+            description = "Publishes your framework. Uses your KMMBridge block configured in the build gradle to determine details."
             group = TASK_GROUP_NAME
             dependsOn(uploadTask)
         }
