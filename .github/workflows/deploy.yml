@@ -4,28 +4,21 @@ on: workflow_dispatch
 jobs:
   deploy:
     runs-on: ubuntu-latest
-
     steps:
       - name: Checkout the repo
-        uses: actions/checkout@v2
+        uses: actions/checkout@v4
 
-      - name: Validate Gradle Wrapper
-        uses: gradle/wrapper-validation-action@v1
+      - name: Setup Gradle
+        uses: gradle/actions/setup-gradle@v4
 
-      - name: Cache gradle
-        uses: actions/cache@v2
+      - uses: touchlab/read-property@0.1
+        id: version-name
         with:
-          path: ~/.gradle/caches
-          key: ${{ runner.os }}-gradle-${{ hashFiles('*.gradle.kts') }}
-          restore-keys: |
-            ${{ runner.os }}-gradle-
+          file: ./gradle.properties
+          property: VERSION_NAME
 
-      - name: Read version from gradle.properties
-        id: read_version
-        uses: christian-draeger/read-properties@1.0.1
-        with:
-          path: './gradle.properties'
-          property: 'VERSION_NAME'
+      - name: Echo Version
+        run: echo "${{ steps.version-name.outputs.propVal }}"
 
       - name: Publish Plugin
         run: ./gradlew publish --no-daemon --stacktrace --no-build-cache
