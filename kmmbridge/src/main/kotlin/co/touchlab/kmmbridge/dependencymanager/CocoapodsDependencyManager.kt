@@ -24,12 +24,21 @@ import org.gradle.api.Project
 import org.gradle.api.Task
 import org.gradle.api.provider.Provider
 import org.gradle.api.provider.ProviderFactory
+import org.gradle.api.provider.ValueSource
+import org.gradle.api.provider.ValueSourceParameters
 import org.gradle.api.tasks.TaskProvider
+import org.gradle.kotlin.dsl.of
+import org.gradle.process.ExecOperations
+import org.gradle.process.ExecSpec
+import org.gradle.process.internal.ExecException
 import org.jetbrains.kotlin.gradle.plugin.cocoapods.CocoapodsExtension.PodspecPlatformSettings
 import org.jetbrains.kotlin.gradle.plugin.cocoapods.KotlinCocoapodsPlugin
 import org.jetbrains.kotlin.gradle.plugin.mpp.Framework
 import org.jetbrains.kotlin.gradle.plugin.mpp.KotlinNativeTarget
+import java.io.ByteArrayOutputStream
 import java.io.File
+import java.nio.charset.Charset
+import javax.inject.Inject
 
 internal sealed class SpecRepo {
     object Trunk : SpecRepo()
@@ -54,11 +63,72 @@ internal data class SafeCocoapodsData(
     val podsDependencies: String
 )
 
+private abstract class PodPushValueSource<T:ValueSourceParameters> : ValueSource<String, T> {
+
+    @get:Inject
+    abstract val execOperations: ExecOperations
+
+    abstract fun ExecSpec.command()
+
+    override fun obtain(): String {
+        val output = ByteArrayOutputStream()
+
+        val result = execOperations.exec {
+            command()
+            standardOutput = output
+            // Exit Value handled below
+            isIgnoreExitValue = true
+        }
+        val outputString = String(output.toByteArray(), Charset.defaultCharset())
+        if (result.exitValue != 0) {
+            // Handling the exception ourselves
+            throw ExecException(outputString)
+        }
+        return outputString
+    }
+}
+
+private abstract class PodPrivatePushValueSource : PodPushValueSource<PodPrivatePushValueSource.Params>() {
+
+    interface Params : ValueSourceParameters {
+        var specUrl: String
+        var podSpecFile: File
+        var extras: Array<String>
+    }
+
+    override fun ExecSpec.command() {
+        commandLine(
+            "pod",
+            "repo",
+            "push",
+            parameters.specUrl,
+            parameters.podSpecFile,
+            *parameters.extras
+        )
+    }
+}
+
+private abstract class PodTrunkPushValueSource : PodPushValueSource<PodTrunkPushValueSource.Params>() {
+
+    interface Params : ValueSourceParameters {
+        var podSpecFile: File
+        var extras: Array<String>
+    }
+
+    override fun ExecSpec.command() {
+        commandLine(
+            "pod", "trunk", "push", parameters.podSpecFile, *parameters.extras
+        )
+    }
+}
+
+
 internal class CocoapodsDependencyManager(
     private val specRepoDeferred: () -> SpecRepo,
     private val allowWarnings: Boolean,
     private val verboseErrors: Boolean
 ) : DependencyManager {
+
     override fun configure(
         providers: ProviderFactory,
         project: Project,
@@ -133,26 +203,24 @@ internal class CocoapodsDependencyManager(
 
                     when (specRepo) {
                         is SpecRepo.Trunk -> {
-                            val execOutput = providers.exec {
-                                commandLine(
-                                    "pod", "trunk", "push", podSpecFile, *extras.toTypedArray()
-                                )
+                            val podPushProvider = providers.of(PodTrunkPushValueSource::class) {
+                                parameters {
+                                    this.podSpecFile = podSpecFile
+                                    this.extras = extras.toTypedArray()
+                                }
                             }
-                            t.logger.info(execOutput.standardOutput.asText.get())
+                            t.logger.info(podPushProvider.get())
                         }
 
                         is SpecRepo.Private -> {
-                            val execOutput = providers.exec {
-                                commandLine(
-                                    "pod",
-                                    "repo",
-                                    "push",
-                                    specRepo.url,
-                                    podSpecFile,
-                                    *extras.toTypedArray()
-                                )
+                            val podPushProvider = providers.of(PodPrivatePushValueSource::class) {
+                                parameters {
+                                    this.specUrl = specRepo.url
+                                    this.podSpecFile = podSpecFile
+                                    this.extras = extras.toTypedArray()
+                                }
                             }
-                            t.logger.info(execOutput.standardOutput.asText.get())
+                            t.logger.info(podPushProvider.get())
                         }
                     }
                 }
@@ -208,7 +276,8 @@ private fun generatePodspec(
     val libraries =
         if (extraSpecAttributes.containsKey("libraries")) "" else "|    spec.libraries                = 'c++'"
 
-    val customSpec = extraSpecAttributes.map { "|    spec.${it.key} = ${it.value}" }.joinToString("\n")
+    val customSpec =
+        extraSpecAttributes.map { "|    spec.${it.key} = ${it.value}" }.joinToString("\n")
 
     val url = urlFile.readText()
     val version = version ?: projectVersion
@@ -219,14 +288,20 @@ private fun generatePodspec(
             |Pod::Spec.new do |spec|
             |    spec.name                     = '$name'
             |    spec.version                  = '$version'
-            |    spec.homepage                 = ${homepage.orEmpty().surroundWithSingleQuotesIfNeeded()}
+            |    spec.homepage                 = ${
+            homepage.orEmpty().surroundWithSingleQuotesIfNeeded()
+        }
             |    spec.source                   = { 
             |                                      :http => '${url}',
             |                                      :type => 'zip',
             |                                      :headers => ["'Accept: application/octet-stream'"]
             |                                    }
-            |    spec.authors                  = ${authors.orEmpty().surroundWithSingleQuotesIfNeeded()}
-            |    spec.license                  = ${license.orEmpty().surroundWithSingleQuotesIfNeeded()}
+            |    spec.authors                  = ${
+            authors.orEmpty().surroundWithSingleQuotesIfNeeded()
+        }
+            |    spec.license                  = ${
+            license.orEmpty().surroundWithSingleQuotesIfNeeded()
+        }
             |    spec.summary                  = '${summary.orEmpty()}'
             $vendoredFrameworks
             $libraries
