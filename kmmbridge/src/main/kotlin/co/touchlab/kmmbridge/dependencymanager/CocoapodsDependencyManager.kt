@@ -294,7 +294,7 @@ private fun generatePodspec(
             |    spec.source                   = { 
             |                                      :http => '${url}',
             |                                      :type => 'zip',
-            |                                      :headers => ["'Accept: application/octet-stream'"]
+            |                                      :headers => ["Accept: application/octet-stream"]
             |                                    }
             |    spec.authors                  = ${
             authors.orEmpty().surroundWithSingleQuotesIfNeeded()
