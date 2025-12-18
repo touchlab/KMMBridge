@@ -47,6 +47,24 @@ gradlePlugin {
                     "consume",
                 )
         }
+        register("kmmbridge-spm-plugin") {
+            id = "co.touchlab.kmmbridge.spm"
+            implementationClass = "co.touchlab.kmmbridge.spm.KmmBridgeSpmPlugin"
+            displayName = "KMMBridge SPM Package.swift Generator"
+            description = "Root-level plugin that auto-generates Package.swift from all KMMBridge modules"
+            tags =
+                listOf(
+                    "kmm",
+                    "kotlin",
+                    "multiplatform",
+                    "mobile",
+                    "ios",
+                    "xcode",
+                    "framework",
+                    "spm",
+                    "swift-package-manager",
+                )
+        }
     }
 }
 

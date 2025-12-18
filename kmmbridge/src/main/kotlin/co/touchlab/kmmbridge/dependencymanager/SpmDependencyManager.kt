@@ -15,6 +15,7 @@ package co.touchlab.kmmbridge.dependencymanager
 
 import co.touchlab.kmmbridge.TASK_GROUP_NAME
 import co.touchlab.kmmbridge.dsl.TargetPlatformDsl
+import co.touchlab.kmmbridge.spm.SpmModuleMetadata
 import co.touchlab.kmmbridge.internal.domain.SwiftToolVersion
 import co.touchlab.kmmbridge.internal.domain.TargetPlatform
 import co.touchlab.kmmbridge.internal.domain.konanTarget
@@ -93,6 +94,43 @@ internal class SpmDependencyManager(
             project.logger.error(buildPackageFileErrorMessage(packageName, perModuleVariablesBlock))
         }
 
+        // Task to write module metadata for root-level Package.swift generation
+        val writeMetadataTask =
+            project.tasks.register("writeSpmMetadata") {
+                group = TASK_GROUP_NAME
+                description = "Writes SPM module metadata for Package.swift generation"
+                val zipFile = project.zipFilePath()
+                val urlFile = project.urlFile
+                val metadataFile = File(project.layout.buildDirectory.asFile.get(), SpmModuleMetadata.METADATA_FILE_NAME)
+                val platformsMap = parsePlatformsMap(project)
+
+                inputs.files(zipFile, urlFile)
+                outputs.file(metadataFile)
+
+                @Suppress("ObjectLiteralToLambda")
+                doLast(
+                    object : Action<Task> {
+                        override fun execute(t: Task) {
+                            val checksum = providers.findSpmChecksum(zipFile, projectDir)
+                            val url = urlFile.readText()
+
+                            val metadata = SpmModuleMetadata(
+                                frameworkName = packageName,
+                                url = url,
+                                checksum = checksum,
+                                platforms = platformsMap,
+                                swiftToolsVersion = swiftToolVersion.name
+                            )
+
+                            metadata.writeToFile(metadataFile)
+                            project.logger.info("Wrote SPM metadata to ${metadataFile.absolutePath}")
+                        }
+                    },
+                )
+            }
+
+        writeMetadataTask.configure { dependsOn(uploadTask) }
+
         val updatePackageSwiftTask =
             project.tasks.register("updatePackageSwift") {
                 group = TASK_GROUP_NAME
@@ -135,7 +173,10 @@ internal class SpmDependencyManager(
             }
 
         updatePackageSwiftTask.configure { dependsOn(uploadTask) }
-        publishRemoteTask.configure { dependsOn(updatePackageSwiftTask) }
+        publishRemoteTask.configure {
+            dependsOn(updatePackageSwiftTask)
+            dependsOn(writeMetadataTask)
+        }
     }
 
     private fun hasKmmbridgeVariablesSection(swiftPackageFile: File, packageName: String): Boolean {
@@ -206,6 +247,10 @@ internal class SpmDependencyManager(
     fun configureLocalDev(project: Project) {
         if (useCustomPackageFile) return // No local dev when using a custom package file
 
+        // Skip if root SPM plugin is applied (use spmDevBuildAll instead)
+        val rootHasSpmPlugin = project.rootProject.extensions.findByName("kmmBridgeSpm") != null
+        if (rootHasSpmPlugin) return
+
         val extension = project.kmmBridgeExtension
         val swiftToolVersion =
             SwiftToolVersion.of(_swiftToolVersion)
@@ -265,6 +310,33 @@ internal class SpmDependencyManager(
                 .map { platformName -> ".$platformName(.v${platform.version.name})" }
                 .toList()
         }.joinToString(separator = ",\n")
+
+    /**
+     * Parse platforms into a map for metadata JSON.
+     * Returns a map like {"iOS": "15", "macOS": "15"}
+     */
+    private fun parsePlatformsMap(project: Project): Map<String, String> {
+        val targetPlatforms = TargetPlatformDsl()
+            .apply(_targetPlatforms)
+            .targetPlatforms
+
+        val platformMap = mutableMapOf<String, String>()
+
+        targetPlatforms.forEach { platform ->
+            project.kotlin.targets
+                .withType<KotlinNativeTarget>()
+                .asSequence()
+                .filter { it.konanTarget.family.isAppleFamily }
+                .filter { appleTarget -> platform.targets.firstOrNull { it.konanTarget == appleTarget.konanTarget } != null }
+                .mapNotNull { it.konanTarget.family.swiftPackagePlatformName }
+                .distinct()
+                .forEach { platformName ->
+                    platformMap[platformName] = platform.version.name
+                }
+        }
+
+        return platformMap
+    }
 }
 
 /**
