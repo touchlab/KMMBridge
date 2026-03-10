@@ -56,11 +56,7 @@ class PackageSwiftGeneratorTest {
             }
         }
 
-        fun generatePackageSwift(
-            packageName: String,
-            swiftToolsVersion: String,
-            modules: List<SpmModuleMetadata>
-        ): String {
+        fun generatePackageSwift(packageName: String, swiftToolsVersion: String, modules: List<SpmModuleMetadata>): String {
             val platforms = resolvePlatforms(modules)
             val platformsString = platforms.entries
                 .sortedBy { it.key }
@@ -115,8 +111,8 @@ let package = Package(
                 url = "https://example.com/MyFramework.xcframework.zip",
                 checksum = "abc123",
                 platforms = mapOf("iOS" to "15"),
-                swiftToolsVersion = "5.9"
-            )
+                swiftToolsVersion = "5.9",
+            ),
         )
 
         val result = generator.generatePackageSwift("my-sdk", "5.9", modules)
@@ -138,15 +134,15 @@ let package = Package(
                 url = "https://example.com/OpenAIClient.xcframework.zip",
                 checksum = "checksum1",
                 platforms = mapOf("iOS" to "15", "macOS" to "12"),
-                swiftToolsVersion = "5.9"
+                swiftToolsVersion = "5.9",
             ),
             SpmModuleMetadata(
                 frameworkName = "AnthropicClient",
                 url = "https://example.com/AnthropicClient.xcframework.zip",
                 checksum = "checksum2",
                 platforms = mapOf("iOS" to "15", "macOS" to "12"),
-                swiftToolsVersion = "5.9"
-            )
+                swiftToolsVersion = "5.9",
+            ),
         )
 
         val result = generator.generatePackageSwift("openai-kotlin", "5.9", modules)
@@ -167,7 +163,7 @@ let package = Package(
         val modules = listOf(
             SpmModuleMetadata("A", "", "", emptyMap(), "5.7"),
             SpmModuleMetadata("B", "", "", emptyMap(), "5.9"),
-            SpmModuleMetadata("C", "", "", emptyMap(), "5.8")
+            SpmModuleMetadata("C", "", "", emptyMap(), "5.8"),
         )
 
         val version = generator.resolveSwiftToolsVersion(modules, "5.5")
@@ -179,7 +175,7 @@ let package = Package(
     fun `uses default swift tools version when none specified`() {
         val modules = listOf(
             SpmModuleMetadata("A", "", "", emptyMap(), ""),
-            SpmModuleMetadata("B", "", "", emptyMap(), "")
+            SpmModuleMetadata("B", "", "", emptyMap(), ""),
         )
 
         val version = generator.resolveSwiftToolsVersion(modules, "5.9")
@@ -192,7 +188,7 @@ let package = Package(
         val modules = listOf(
             SpmModuleMetadata("A", "", "", mapOf("iOS" to "14", "macOS" to "11"), "5.9"),
             SpmModuleMetadata("B", "", "", mapOf("iOS" to "15", "macOS" to "12"), "5.9"),
-            SpmModuleMetadata("C", "", "", mapOf("iOS" to "13", "macOS" to "13"), "5.9")
+            SpmModuleMetadata("C", "", "", mapOf("iOS" to "13", "macOS" to "13"), "5.9"),
         )
 
         val platforms = generator.resolvePlatforms(modules)
@@ -206,7 +202,7 @@ let package = Package(
         val modules = listOf(
             SpmModuleMetadata("A", "", "", mapOf("iOS" to "15"), "5.9"),
             SpmModuleMetadata("B", "", "", mapOf("macOS" to "12"), "5.9"),
-            SpmModuleMetadata("C", "", "", mapOf("iOS" to "14", "tvOS" to "15"), "5.9")
+            SpmModuleMetadata("C", "", "", mapOf("iOS" to "14", "tvOS" to "15"), "5.9"),
         )
 
         val platforms = generator.resolvePlatforms(modules)
@@ -221,7 +217,7 @@ let package = Package(
         val modules = listOf(
             SpmModuleMetadata("A", "", "", emptyMap(), "5.7"),
             SpmModuleMetadata("B", "", "", emptyMap(), "5.10"),
-            SpmModuleMetadata("C", "", "", emptyMap(), "5.9")
+            SpmModuleMetadata("C", "", "", emptyMap(), "5.9"),
         )
 
         val version = generator.resolveSwiftToolsVersion(modules, "5.5")
@@ -237,8 +233,8 @@ let package = Package(
                 url = "https://test.com/TestModule.zip",
                 checksum = "test123",
                 platforms = mapOf("iOS" to "15"),
-                swiftToolsVersion = "5.9"
-            )
+                swiftToolsVersion = "5.9",
+            ),
         )
 
         val result = generator.generatePackageSwift("test-package", "5.9", modules)

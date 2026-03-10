@@ -13,14 +13,17 @@
 
 package co.touchlab.kmmbridge.spm
 
+import co.touchlab.kmmbridge.BaseKMMBridgePlugin
 import co.touchlab.kmmbridge.TASK_GROUP_NAME
+import co.touchlab.kmmbridge.dependencymanager.SpmDependencyManager
+import co.touchlab.kmmbridge.internal.kmmBridgeExtension
+import co.touchlab.kmmbridge.internal.kmmBridgeExtensionOrNull
+import java.io.File
 import org.gradle.api.Action
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.api.Task
 import org.gradle.kotlin.dsl.create
-import org.gradle.kotlin.dsl.getByType
-import java.io.File
 
 /**
  * Root-level plugin for generating Package.swift from all KMMBridge modules.
@@ -47,6 +50,7 @@ class KmmBridgeSpmPlugin : Plugin<Project> {
         const val GENERATE_TASK_NAME = "generatePackageSwift"
         const val PUBLISH_ALL_TASK_NAME = "kmmBridgePublishAll"
         const val SPM_DEV_BUILD_ALL_TASK_NAME = "spmDevBuildAll"
+        const val WRITE_SPM_METADATA_TASK_NAME = "writeSpmMetadata"
     }
 
     override fun apply(project: Project): Unit = with(project) {
@@ -73,7 +77,9 @@ class KmmBridgeSpmPlugin : Plugin<Project> {
         val kmmBridgeModules = findKmmBridgeModules(project, extension)
 
         if (kmmBridgeModules.isEmpty()) {
-            project.logger.warn("No KMMBridge modules with SPM found. Make sure subprojects apply 'co.touchlab.kmmbridge' and configure spm().")
+            project.logger.warn(
+                "No KMMBridge modules with SPM found. Make sure subprojects apply 'co.touchlab.kmmbridge' and configure spm().",
+            )
             return
         }
 
@@ -86,7 +92,7 @@ class KmmBridgeSpmPlugin : Plugin<Project> {
 
             // Depend on all module upload tasks
             kmmBridgeModules.forEach { module ->
-                val uploadTask = module.tasks.findByName("uploadXCFramework")
+                val uploadTask = module.tasks.findByName(WRITE_SPM_METADATA_TASK_NAME)
                 if (uploadTask != null) {
                     dependsOn(uploadTask)
                 }
@@ -100,25 +106,27 @@ class KmmBridgeSpmPlugin : Plugin<Project> {
             outputs.file(File(outputDir, "Package.swift"))
 
             @Suppress("ObjectLiteralToLambda")
-            doLast(object : Action<Task> {
-                override fun execute(t: Task) {
-                    val metadata = collectMetadata(moduleProjects)
-                    if (metadata.isEmpty()) {
-                        project.logger.warn("No module metadata found. Make sure modules have been published.")
-                        return
+            doLast(
+                object : Action<Task> {
+                    override fun execute(t: Task) {
+                        val metadata = collectMetadata(moduleProjects)
+                        if (metadata.isEmpty()) {
+                            project.logger.warn("No module metadata found. Make sure modules have been published.")
+                            return
+                        }
+
+                        val packageSwift = generatePackageSwift(
+                            packageName = packageName,
+                            swiftToolsVersion = resolveSwiftToolsVersion(metadata, swiftToolsVersion),
+                            modules = metadata,
+                        )
+
+                        val outputFile = File(outputDir, "Package.swift")
+                        outputFile.writeText(packageSwift)
+                        project.logger.lifecycle("Generated Package.swift with ${metadata.size} modules at ${outputFile.absolutePath}")
                     }
-
-                    val packageSwift = generatePackageSwift(
-                        packageName = packageName,
-                        swiftToolsVersion = resolveSwiftToolsVersion(metadata, swiftToolsVersion),
-                        modules = metadata
-                    )
-
-                    val outputFile = File(outputDir, "Package.swift")
-                    outputFile.writeText(packageSwift)
-                    project.logger.lifecycle("Generated Package.swift with ${metadata.size} modules at ${outputFile.absolutePath}")
-                }
-            })
+                },
+            )
         }
 
         // Register kmmBridgePublishAll task that does everything
@@ -128,7 +136,7 @@ class KmmBridgeSpmPlugin : Plugin<Project> {
 
             // Depend on all module kmmBridgePublish tasks
             kmmBridgeModules.forEach { module ->
-                val publishTask = module.tasks.findByName("kmmBridgePublish")
+                val publishTask = module.tasks.findByName(BaseKMMBridgePlugin.PUBLISH_TASK_NAME)
                 if (publishTask != null) {
                     dependsOn(publishTask)
                 }
@@ -156,83 +164,68 @@ class KmmBridgeSpmPlugin : Plugin<Project> {
             val packageName = extension.packageName.get()
             val swiftToolsVersion = extension.swiftToolsVersion.get()
             val moduleProjects = kmmBridgeModules.toList()
-            val rootDir = project.projectDir
 
             outputs.file(File(outputDir, "Package.swift"))
 
             @Suppress("ObjectLiteralToLambda")
-            doLast(object : Action<Task> {
-                override fun execute(t: Task) {
-                    val localModules = collectLocalModuleInfo(moduleProjects, rootDir)
-                    if (localModules.isEmpty()) {
-                        project.logger.warn("No local XCFrameworks found. Make sure modules have been built.")
-                        return
+            doLast(
+                object : Action<Task> {
+                    override fun execute(t: Task) {
+                        val localModules = collectLocalModuleInfo(moduleProjects, outputDir)
+                        if (localModules.isEmpty()) {
+                            project.logger.warn("No local XCFrameworks found. Make sure modules have been built.")
+                            return
+                        }
+
+                        val packageSwift = generateLocalPackageSwift(
+                            packageName = packageName,
+                            swiftToolsVersion = swiftToolsVersion,
+                            modules = localModules,
+                        )
+
+                        val outputFile = File(outputDir, "Package.swift")
+                        outputFile.writeText(packageSwift)
+                        project.logger.lifecycle(
+                            "Generated local Package.swift with ${localModules.size} modules at ${outputFile.absolutePath}",
+                        )
                     }
-
-                    val packageSwift = generateLocalPackageSwift(
-                        packageName = packageName,
-                        swiftToolsVersion = swiftToolsVersion,
-                        modules = localModules
-                    )
-
-                    val outputFile = File(outputDir, "Package.swift")
-                    outputFile.writeText(packageSwift)
-                    project.logger.lifecycle("Generated local Package.swift with ${localModules.size} modules at ${outputFile.absolutePath}")
-                }
-            })
+                },
+            )
         }
     }
 
     /**
      * Data class for local module info (used for spmDevBuildAll).
      */
-    private data class LocalModuleInfo(
-        val frameworkName: String,
-        val localPath: String,
-        val platforms: Map<String, String>
-    )
+    private data class LocalModuleInfo(val frameworkName: String, val localPath: String, val platforms: Map<String, String>)
 
     /**
      * Collect local module info from built XCFrameworks.
      */
     private fun collectLocalModuleInfo(modules: List<Project>, rootDir: File): List<LocalModuleInfo> {
         return modules.mapNotNull { module ->
-            val kmmBridgeExt = module.extensions.findByName("kmmbridge") ?: return@mapNotNull null
+            val kmmBridgeExt = module.kmmBridgeExtension
 
             // Get framework name from extension
-            val frameworkNameProp = kmmBridgeExt.javaClass.methods
-                .find { it.name == "getFrameworkName" }
-                ?.invoke(kmmBridgeExt)
-
-            val frameworkName = when (frameworkNameProp) {
-                is org.gradle.api.provider.Property<*> -> frameworkNameProp.orNull?.toString()
-                else -> null
-            } ?: return@mapNotNull null
+            val frameworkName = kmmBridgeExt.frameworkName.orNull ?: return@mapNotNull null
 
             // Find XCFramework in build directory
-            val buildDir = module.layout.buildDirectory.asFile.get()
-            val debugXcFramework = File(buildDir, "XCFrameworks/debug/$frameworkName.xcframework")
-            val releaseXcFramework = File(buildDir, "XCFrameworks/release/$frameworkName.xcframework")
+            val buildType = kmmBridgeExt.buildType.get()
 
-            val xcFrameworkDir = when {
-                debugXcFramework.exists() -> debugXcFramework
-                releaseXcFramework.exists() -> releaseXcFramework
-                else -> {
-                    module.logger.warn("XCFramework not found for $frameworkName in ${buildDir.absolutePath}")
-                    return@mapNotNull null
-                }
-            }
+            val xcFrameworkDir = module.layout.buildDirectory.asFile.get()
+                .resolve("XCFrameworks/${buildType.getName()}/$frameworkName.xcframework")
 
-            // Calculate relative path from root
+            // Calculate the relative path from root
             val relativePath = rootDir.toPath().relativize(xcFrameworkDir.toPath()).toString()
 
             // Default platforms (we could enhance this to read from config)
-            val platforms = mapOf("iOS" to "15", "macOS" to "15")
+            val spmDependencyBlock = kmmBridgeExt.dependencyManagers.get()
+                .find { it is SpmDependencyManager } as SpmDependencyManager
 
             LocalModuleInfo(
                 frameworkName = frameworkName,
                 localPath = relativePath,
-                platforms = platforms
+                platforms = spmDependencyBlock.parsePlatformsMap(module),
             )
         }
     }
@@ -240,11 +233,7 @@ class KmmBridgeSpmPlugin : Plugin<Project> {
     /**
      * Generate Package.swift with local paths for development.
      */
-    private fun generateLocalPackageSwift(
-        packageName: String,
-        swiftToolsVersion: String,
-        modules: List<LocalModuleInfo>
-    ): String {
+    private fun generateLocalPackageSwift(packageName: String, swiftToolsVersion: String, modules: List<LocalModuleInfo>): String {
         val platforms = modules.flatMap { it.platforms.entries }
             .groupBy({ it.key }, { it.value })
             .mapValues { (_, versions) -> versions.maxWithOrNull(versionComparator) ?: versions.first() }
@@ -299,12 +288,7 @@ let package = Package(
 
         return project.subprojects.filter { subproject ->
             // Check if this module has KMMBridge extension
-            val hasKmmBridge = try {
-                subproject.extensions.findByName("kmmbridge") != null
-            } catch (e: Exception) {
-                false
-            }
-
+            val hasKmmBridge = subproject.kmmBridgeExtensionOrNull != null
             if (!hasKmmBridge) return@filter false
 
             // Check include/exclude filters
@@ -319,20 +303,18 @@ let package = Package(
     /**
      * Collect metadata from all modules.
      */
-    private fun collectMetadata(modules: List<Project>): List<SpmModuleMetadata> {
-        return modules.mapNotNull { module ->
-            val metadataFile = File(module.layout.buildDirectory.asFile.get(), SpmModuleMetadata.METADATA_FILE_NAME)
-            if (metadataFile.exists()) {
-                try {
-                    SpmModuleMetadata.fromFile(metadataFile)
-                } catch (e: Exception) {
-                    module.logger.warn("Failed to read metadata from ${metadataFile.absolutePath}: ${e.message}")
-                    null
-                }
-            } else {
-                module.logger.warn("Metadata file not found: ${metadataFile.absolutePath}")
+    private fun collectMetadata(modules: List<Project>): List<SpmModuleMetadata> = modules.mapNotNull { module ->
+        val metadataFile = File(module.layout.buildDirectory.asFile.get(), SpmModuleMetadata.METADATA_FILE_NAME)
+        if (metadataFile.exists()) {
+            try {
+                SpmModuleMetadata.fromFile(metadataFile)
+            } catch (e: Exception) {
+                module.logger.warn("Failed to read metadata from ${metadataFile.absolutePath}: ${e.message}")
                 null
             }
+        } else {
+            module.logger.warn("Metadata file not found: ${metadataFile.absolutePath}")
+            null
         }
     }
 
@@ -364,11 +346,7 @@ let package = Package(
     /**
      * Generate the complete Package.swift content.
      */
-    private fun generatePackageSwift(
-        packageName: String,
-        swiftToolsVersion: String,
-        modules: List<SpmModuleMetadata>
-    ): String {
+    private fun generatePackageSwift(packageName: String, swiftToolsVersion: String, modules: List<SpmModuleMetadata>): String {
         val platforms = resolvePlatforms(modules)
         val platformsString = platforms.entries
             .sortedBy { it.key }

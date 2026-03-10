@@ -27,7 +27,7 @@ class SpmModuleMetadataTest {
             url = "https://example.com/TestFramework.xcframework.zip",
             checksum = "abc123def456",
             platforms = mapOf("iOS" to "15", "macOS" to "12"),
-            swiftToolsVersion = "5.9"
+            swiftToolsVersion = "5.9",
         )
 
         val json = metadata.toJson()
@@ -71,7 +71,7 @@ class SpmModuleMetadataTest {
             url = "https://example.com/test.zip",
             checksum = "checksum123",
             platforms = mapOf("iOS" to "15", "macOS" to "12", "tvOS" to "15"),
-            swiftToolsVersion = "5.9"
+            swiftToolsVersion = "5.9",
         )
 
         val json = original.toJson()
@@ -90,7 +90,7 @@ class SpmModuleMetadataTest {
             url = "https://example.com/file-test.zip",
             checksum = "file-checksum",
             platforms = mapOf("iOS" to "16"),
-            swiftToolsVersion = "5.8"
+            swiftToolsVersion = "5.8",
         )
 
         metadata.writeToFile(tempFile)
@@ -109,7 +109,7 @@ class SpmModuleMetadataTest {
             url = "https://example.com/test.zip",
             checksum = "checksum",
             platforms = emptyMap(),
-            swiftToolsVersion = "5.9"
+            swiftToolsVersion = "5.9",
         )
 
         val json = metadata.toJson()

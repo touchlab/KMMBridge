@@ -26,7 +26,7 @@ data class SpmModuleMetadata(
     val url: String,
     val checksum: String,
     val platforms: Map<String, String>, // e.g., {"iOS": "15", "macOS": "15"}
-    val swiftToolsVersion: String
+    val swiftToolsVersion: String,
 ) {
     companion object {
         private val gson: Gson = GsonBuilder().setPrettyPrinting().create()
