@@ -16,7 +16,7 @@
 plugins {
     `kotlin-dsl`
     alias(libs.plugins.kotlin)
-    id("org.jetbrains.kotlin.plugin.allopen")
+    alias(libs.plugins.allopen)
     id("java-gradle-plugin")
     alias(libs.plugins.maven.publish)
     id("com.gradle.plugin-publish") version "1.0.0"

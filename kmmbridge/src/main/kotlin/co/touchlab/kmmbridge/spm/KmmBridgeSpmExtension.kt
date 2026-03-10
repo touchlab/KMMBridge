@@ -13,9 +13,9 @@
 
 package co.touchlab.kmmbridge.spm
 
+import java.io.File
 import org.gradle.api.provider.Property
 import org.gradle.api.provider.SetProperty
-import java.io.File
 
 /**
  * Extension for configuring SPM Package.swift generation at the root project level.

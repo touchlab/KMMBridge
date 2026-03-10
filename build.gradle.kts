@@ -12,7 +12,7 @@
  */
 plugins {
     alias(libs.plugins.kotlin) apply false
-    id("org.jetbrains.kotlin.plugin.allopen") version "1.9.0" apply false
+    alias(libs.plugins.allopen) apply false
     alias(libs.plugins.maven.publish) apply false
     id("org.jlleitschuh.gradle.ktlint") version "12.2.0" apply false
 }
