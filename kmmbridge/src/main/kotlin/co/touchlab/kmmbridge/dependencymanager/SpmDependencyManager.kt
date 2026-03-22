@@ -290,12 +290,16 @@ internal class SpmDependencyManager(
 
     /**
      * Parse platforms into a map for metadata JSON.
-     * Returns a map like {"iOS": "15", "macOS": "15"}
+     * Returns a map like {"iOS": "15", "macOS": "15"}.
+     * When multiple TargetPlatform entries map to the same Swift platform name, the maximum version wins.
      */
     internal fun parsePlatformsMap(project: Project): Map<String, String> {
         val targetPlatforms = TargetPlatformDsl()
             .apply(_targetPlatforms)
             .targetPlatforms
+            .ifEmpty {
+                throw IllegalArgumentException("At least one target platform should be specified!")
+            }
 
         val platformMap = mutableMapOf<String, String>()
 
@@ -308,11 +312,25 @@ internal class SpmDependencyManager(
                 .mapNotNull { it.konanTarget.family.swiftPackagePlatformName }
                 .distinct()
                 .forEach { platformName ->
-                    platformMap[platformName] = platform.version.name
+                    val newVersion = platform.version.name
+                    val existingVersion = platformMap[platformName]
+                    if (existingVersion == null || comparePlatformVersions(newVersion, existingVersion) > 0) {
+                        platformMap[platformName] = newVersion
+                    }
                 }
         }
 
+        if (platformMap.isEmpty()) {
+            throw IllegalArgumentException("At least one target platform should be specified!")
+        }
+
         return platformMap
+    }
+
+    private fun comparePlatformVersions(v1: String, v2: String): Int {
+        val n1 = v1.toIntOrNull()
+        val n2 = v2.toIntOrNull()
+        return if (n1 != null && n2 != null) n1.compareTo(n2) else v1.compareTo(v2)
     }
 }
 
