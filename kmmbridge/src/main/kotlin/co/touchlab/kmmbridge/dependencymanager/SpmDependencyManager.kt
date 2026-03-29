@@ -291,11 +291,18 @@ internal class SpmDependencyManager(
     /**
      * Parse platforms into a map for metadata JSON.
      * Returns a map like {"iOS": "15", "macOS": "15"}
+     *
+     * When multiple TargetPlatform entries map to the same Swift package platform name,
+     * the maximum version is kept.
      */
     internal fun parsePlatformsMap(project: Project): Map<String, String> {
         val targetPlatforms = TargetPlatformDsl()
             .apply(_targetPlatforms)
             .targetPlatforms
+
+        require(targetPlatforms.isNotEmpty()) {
+            "No target platforms configured for SPM. Make sure to specify at least one platform in the spm { } block."
+        }
 
         val platformMap = mutableMapOf<String, String>()
 
@@ -308,11 +315,33 @@ internal class SpmDependencyManager(
                 .mapNotNull { it.konanTarget.family.swiftPackagePlatformName }
                 .distinct()
                 .forEach { platformName ->
-                    platformMap[platformName] = platform.version.name
+                    val newVersion = platform.version.name
+                    val existingVersion = platformMap[platformName]
+                    if (existingVersion == null || isNewerVersion(newVersion, existingVersion)) {
+                        platformMap[platformName] = newVersion
+                    }
                 }
         }
 
+        require(platformMap.isNotEmpty()) {
+            "No valid platforms resolved for SPM Package.swift. Check that your target platforms match configured Kotlin/Native targets."
+        }
+
         return platformMap
+    }
+
+    /**
+     * Compare version strings, returning true if [candidate] is newer than [current].
+     * Tries numeric comparison first, falls back to lexicographic.
+     */
+    private fun isNewerVersion(candidate: String, current: String): Boolean {
+        val candidateInt = candidate.toIntOrNull()
+        val currentInt = current.toIntOrNull()
+        return if (candidateInt != null && currentInt != null) {
+            candidateInt > currentInt
+        } else {
+            candidate > current
+        }
     }
 }
 
