@@ -2,6 +2,7 @@ package co.touchlab.kmmbridge.internal
 
 import co.touchlab.kmmbridge.KmmBridgeExtension
 import co.touchlab.kmmbridge.findStringProperty
+import co.touchlab.kmmbridge.spm.KmmBridgeSpmExtension
 import java.io.File
 import org.gradle.api.Project
 import org.gradle.api.Task
@@ -17,7 +18,12 @@ import org.jetbrains.kotlin.gradle.plugin.mpp.NativeBuildType
 internal val Project.layoutBuildDir get() = layout.buildDirectory.get().asFile
 
 internal val Project.kotlin: KotlinMultiplatformExtension get() = extensions.getByType()
+
 internal val Project.kmmBridgeExtension get() = extensions.getByType<KmmBridgeExtension>()
+internal val Project.kmmBridgeExtensionOrNull get() = extensions.findByType<KmmBridgeExtension>()
+
+internal val Project.spmKmmBridgeExtension get() = extensions.getByType<KmmBridgeSpmExtension>()
+internal val Project.spmKmmBridgeExtensionOrNull get() = extensions.findByType<KmmBridgeSpmExtension>()
 
 internal val Project.urlFile get() = file("$layoutBuildDir/kmmbridge/url")
 
