@@ -14,17 +14,11 @@
 package co.touchlab.kmmbridge
 
 import org.gradle.api.Project
-import org.gradle.api.plugins.ExtraPropertiesExtension
 import org.gradle.api.publish.PublishingExtension
 import org.gradle.kotlin.dsl.getByType
 
 val Project.publishingExtension get() = extensions.getByType<PublishingExtension>()
 
 fun Project.findStringProperty(name: String): String? {
-    rootProject.extensions.getByType(ExtraPropertiesExtension::class.java).run {
-        if (has(name)) {
-            return get(name).toString()
-        }
-    }
-    return null
+    return providers.gradleProperty(name).getOrNull()
 }
