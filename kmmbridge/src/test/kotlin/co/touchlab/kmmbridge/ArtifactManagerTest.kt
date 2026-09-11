@@ -14,8 +14,6 @@ class ArtifactManagerTest : BasePluginTest() {
         val result =
             ProcessHelper.runSh(
                 "./gradlew kmmBridgePublish " +
-                    "-PTOUCHLAB_TEST_ARTIFACT_SERVER=api.touchlab.dev " +
-                    "-PTOUCHLAB_TEST_ARTIFACT_CODE=${TOUCHLAB_TEST_ARTIFACT_CODE} " +
                     "--stacktrace",
                 workingDir = testProjectDir,
             )
@@ -31,8 +29,6 @@ class ArtifactManagerTest : BasePluginTest() {
             ProcessHelper.runSh(
                 "./gradlew clean kmmBridgePublish " +
                     "-PENABLE_PUBLISHING=true " +
-                    "-PTOUCHLAB_TEST_ARTIFACT_SERVER=api.touchlab.dev " +
-                    "-PTOUCHLAB_TEST_ARTIFACT_CODE=${TOUCHLAB_TEST_ARTIFACT_CODE} " +
                     "--stacktrace",
                 workingDir = testProjectDir,
             )
@@ -40,7 +36,7 @@ class ArtifactManagerTest : BasePluginTest() {
 
         assertTrue(urlFile.exists())
         val urlValue = urlFile.readText()
-        assertTrue(urlValue.startsWith("https://api.touchlab.dev/infoadmin/streamTestZip"))
+        assertTrue(urlValue.startsWith("http://127.0.0.1:8089/file"))
         assertEquals(0, result.status)
     }
 }
