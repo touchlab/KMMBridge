@@ -18,7 +18,7 @@ import java.net.URLEncoder
 import org.gradle.api.Project
 
 internal val Project.gitLabPublishTokenOrNull: String?
-    get() = project.property("GITLAB_PUBLISH_TOKEN") as String?
+    get() = project.findStringProperty("GITLAB_PUBLISH_TOKEN")
 
 internal val Project.gitLabPublishUser: String?
     get() = project.findStringProperty("GITLAB_PUBLISH_USER")
