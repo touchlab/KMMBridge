@@ -16,7 +16,7 @@ import org.gradle.api.Task
  * Simple artifact manager that posts files to our server (Touchlab). This isn't designed for general usage. Just for
  * our tests. If there is more general demand for this functionality, reach out and we'll discuss ways of making it work.
  */
-internal class TestUploadArtifactManager() : ArtifactManager {
+internal class TestUploadArtifactManager : ArtifactManager {
     private val server: String = "http://127.0.0.1:8089"
 
     override fun deployArtifact(task: Task, zipFilePath: File, version: String): String {
