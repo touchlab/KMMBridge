@@ -19,6 +19,4 @@ import org.gradle.kotlin.dsl.getByType
 
 val Project.publishingExtension get() = extensions.getByType<PublishingExtension>()
 
-fun Project.findStringProperty(name: String): String? {
-    return providers.gradleProperty(name).getOrNull()
-}
+fun Project.findStringProperty(name: String): String? = providers.gradleProperty(name).getOrNull()
