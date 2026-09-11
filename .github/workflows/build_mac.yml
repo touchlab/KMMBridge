@@ -19,11 +19,11 @@ jobs:
       - name: Setup Gradle
         uses: gradle/actions/setup-gradle@v4
 
-      - name: Write Faktory Server Code
-        run: echo ${{ secrets.TOUCHLAB_TEST_ARTIFACT_CODE }} > kmmbridge/TOUCHLAB_TEST_ARTIFACT_CODE
-
-      - name: Read Faktory Server Code
-        run: cat kmmbridge/TOUCHLAB_TEST_ARTIFACT_CODE
+      - name: Start local test artifact server
+        run: |
+          nohup node .github/scripts/test-artifact-server.js 8089 > /tmp/test-artifact-server.log 2>&1 &
+          disown
+          npx --yes wait-on tcp:127.0.0.1:8089
 
       - name: Local Publish For Tests
         run: ./gradlew publishToMavenLocal --no-daemon --stacktrace --build-cache -PRELEASE_SIGNING_ENABLED=false -PVERSION_NAME=9.9.9

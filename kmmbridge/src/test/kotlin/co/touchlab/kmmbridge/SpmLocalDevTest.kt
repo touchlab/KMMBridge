@@ -10,9 +10,7 @@ class SpmLocalDevTest : BasePluginTest() {
     fun runSpmDevBuild() {
         val result =
             ProcessHelper.runSh(
-                "./gradlew spmDevBuild --stacktrace " +
-                    "-PTOUCHLAB_TEST_ARTIFACT_SERVER=api.touchlab.dev " +
-                    "-PTOUCHLAB_TEST_ARTIFACT_CODE=${TOUCHLAB_TEST_ARTIFACT_CODE}",
+                "./gradlew spmDevBuild --stacktrace",
                 workingDir = testProjectDir,
             )
         logExecResult(result)
@@ -27,9 +25,7 @@ class SpmLocalDevTest : BasePluginTest() {
         ProcessHelper.runSh("rm -rdf .git", workingDir = testProjectDir)
         val result =
             ProcessHelper.runSh(
-                "./gradlew spmDevBuild --stacktrace " +
-                    "-PTOUCHLAB_TEST_ARTIFACT_SERVER=api.touchlab.dev " +
-                    "-PTOUCHLAB_TEST_ARTIFACT_CODE=${TOUCHLAB_TEST_ARTIFACT_CODE}",
+                "./gradlew spmDevBuild --stacktrace",
                 workingDir = testProjectDir,
             )
         logExecResult(result)

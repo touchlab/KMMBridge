@@ -16,16 +16,17 @@ import org.gradle.api.Task
  * Simple artifact manager that posts files to our server (Touchlab). This isn't designed for general usage. Just for
  * our tests. If there is more general demand for this functionality, reach out and we'll discuss ways of making it work.
  */
-internal class TestUploadArtifactManager(private val server: String, private val code: String) : ArtifactManager {
+internal class TestUploadArtifactManager : ArtifactManager {
+    private val server: String = "http://127.0.0.1:8089"
+
     override fun deployArtifact(task: Task, zipFilePath: File, version: String): String {
         val body: RequestBody = zipFilePath.asRequestBody("application/octet-stream".toMediaTypeOrNull())
         val uploadRequest =
             Request
                 .Builder()
                 .url(
-                    "https://$server/infoadmin/storeTestZip",
+                    "$server/store",
                 ).post(body)
-                .addHeader("code", code)
                 .addHeader("Content-Type", "application/octet-stream")
                 .build()
 
@@ -46,7 +47,7 @@ internal class TestUploadArtifactManager(private val server: String, private val
         val uploadResponseString = response.body!!.string()
         val url = Gson().fromJson(uploadResponseString, UploadReply::class.java).url
 
-        return "https://$server$url"
+        return "$server$url"
     }
 
     data class UploadReply(var url: String)
