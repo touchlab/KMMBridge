@@ -24,7 +24,8 @@ class ArtifactManagerTest : BasePluginTest() {
     @Test
     fun runKmmBridgePublish() {
         val urlFile = File(testProjectDir, "allshared/build/kmmbridge/url")
-        assertFalse(urlFile.exists())
+        if (urlFile.exists()) urlFile.delete()
+
         val result =
             ProcessHelper.runSh(
                 "./gradlew clean kmmBridgePublish " +
@@ -34,9 +35,8 @@ class ArtifactManagerTest : BasePluginTest() {
             )
         logExecResult(result)
 
-        assertTrue(urlFile.exists())
-        val urlValue = urlFile.readText()
-        assertTrue(urlValue.startsWith("http://127.0.0.1:8089/file"))
         assertEquals(0, result.status)
+        assertTrue(urlFile.exists())
+        assertEquals("test://0.1.8", urlFile.readText())
     }
 }
