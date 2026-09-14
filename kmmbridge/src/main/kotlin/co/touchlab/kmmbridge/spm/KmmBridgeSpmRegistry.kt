@@ -39,6 +39,7 @@ internal abstract class KmmBridgeSpmRegistry : BuildService<BuildServiceParamete
         val debugXCFrameworkDir: File,
         val debugAssembleTaskName: String,
         val platforms: Map<String, String>,
+        val swiftToolsVersion: String,
     )
 
     private val registrations = ConcurrentHashMap<String, ModuleRegistration>()

@@ -15,6 +15,7 @@ package co.touchlab.kmmbridge.spm
 
 import kotlin.test.Test
 import kotlin.test.assertEquals
+import kotlin.test.assertFailsWith
 import kotlin.test.assertTrue
 
 class PackageSwiftGeneratorTest {
@@ -84,7 +85,7 @@ class PackageSwiftGeneratorTest {
             SpmModuleMetadata("C", "", "", emptyMap(), "5.8"),
         )
 
-        val version = generator.resolveSwiftToolsVersion(modules, "5.5")
+        val version = generator.resolveSwiftToolsVersion(modules.map { it.swiftToolsVersion }, "5.5")
 
         assertEquals("5.9", version)
     }
@@ -96,7 +97,7 @@ class PackageSwiftGeneratorTest {
             SpmModuleMetadata("B", "", "", emptyMap(), ""),
         )
 
-        val version = generator.resolveSwiftToolsVersion(modules, "5.9")
+        val version = generator.resolveSwiftToolsVersion(modules.map { it.swiftToolsVersion }, "5.9")
 
         assertEquals("5.9", version)
     }
@@ -138,7 +139,7 @@ class PackageSwiftGeneratorTest {
             SpmModuleMetadata("C", "", "", emptyMap(), "5.9"),
         )
 
-        val version = generator.resolveSwiftToolsVersion(modules, "5.5")
+        val version = generator.resolveSwiftToolsVersion(modules.map { it.swiftToolsVersion }, "5.5")
 
         assertEquals("5.10", version) // 5.10 > 5.9 > 5.7
     }
@@ -170,5 +171,29 @@ class PackageSwiftGeneratorTest {
         assertTrue(packageIndex < platformsIndex)
         assertTrue(platformsIndex < productsIndex)
         assertTrue(productsIndex < targetsIndex)
+    }
+
+    @Test
+    fun `rejects duplicate framework names for remote generation`() {
+        val modules = listOf(
+            SpmModuleMetadata("Shared", "https://a", "checksumA", mapOf("iOS" to "15"), "5.9"),
+            SpmModuleMetadata("Shared", "https://b", "checksumB", mapOf("iOS" to "15"), "5.9"),
+        )
+
+        assertFailsWith<IllegalArgumentException> {
+            generator.generatePackageSwift("my-sdk", "5.9", modules)
+        }
+    }
+
+    @Test
+    fun `rejects duplicate framework names for local generation`() {
+        val modules = listOf(
+            PackageSwiftGenerator.LocalModuleInfo("Shared", "a/build", mapOf("iOS" to "15"), "5.9"),
+            PackageSwiftGenerator.LocalModuleInfo("Shared", "b/build", mapOf("iOS" to "15"), "5.9"),
+        )
+
+        assertFailsWith<IllegalArgumentException> {
+            generator.generateLocalPackageSwift("my-sdk", "5.9", modules)
+        }
     }
 }

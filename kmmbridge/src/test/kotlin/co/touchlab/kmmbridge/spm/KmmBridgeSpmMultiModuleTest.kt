@@ -61,10 +61,31 @@ class KmmBridgeSpmMultiModuleTest : BasePluginTest() {
         logExecResult(result)
         assertEquals(0, result.status)
 
+        // The root aggregator is applied, so each module's own updatePackageSwift must defer to it
+        // rather than racing to write its own single-module Package.swift to the same file.
+        assertTrue((result.output + result.error).contains("Skipping updatePackageSwift"))
+
         val packageSwift = packageSwiftFile().readText()
         assertTrue(packageSwift.contains("ModuleA"))
         assertTrue(packageSwift.contains("ModuleB"))
         assertFalse(packageSwift.contains("ModuleExcluded"))
+    }
+
+    /**
+     * Regression test: if a module is registered but its metadata was never actually written (e.g.
+     * it hasn't been published in this run), `generatePackageSwift` must fail loudly instead of
+     * silently emitting an incomplete Package.swift missing that module.
+     */
+    @Test
+    fun generatePackageSwiftFailsOnPartialMetadata() {
+        val result =
+            ProcessHelper.runSh(
+                "./gradlew generatePackageSwift -PENABLE_PUBLISHING=true -x :module-b:writeSpmMetadata --stacktrace",
+                workingDir = testProjectDir,
+            )
+        logExecResult(result)
+        assertEquals(1, result.status)
+        assertTrue((result.output + result.error).contains("Missing or unreadable SPM metadata for module(s): ModuleB"))
     }
 
     /**
@@ -93,6 +114,10 @@ class KmmBridgeSpmMultiModuleTest : BasePluginTest() {
         assertEquals(0, perModule.status)
         assertTrue(perModule.output.contains("Skipping spmDevBuild"))
 
-        assertEquals(aggregatedContent, packageSwiftFile().readText(), "Per-module spmDevBuild must not overwrite the aggregated Package.swift")
+        assertEquals(
+            aggregatedContent,
+            packageSwiftFile().readText(),
+            "Per-module spmDevBuild must not overwrite the aggregated Package.swift",
+        )
     }
 }

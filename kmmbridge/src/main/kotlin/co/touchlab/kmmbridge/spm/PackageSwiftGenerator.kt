@@ -35,12 +35,12 @@ internal class PackageSwiftGenerator {
 
     /**
      * Resolve the Swift tools version to use.
-     * Uses the maximum version from all modules, or the configured default.
+     * Uses the maximum version across [versions], or the configured default.
      */
-    fun resolveSwiftToolsVersion(modules: List<SpmModuleMetadata>, defaultVersion: String): String {
-        val versions = modules.map { it.swiftToolsVersion }.filter { it.isNotBlank() }
-        return if (versions.isNotEmpty()) {
-            versions.maxWithOrNull(versionComparator) ?: defaultVersion
+    fun resolveSwiftToolsVersion(versions: List<String>, defaultVersion: String): String {
+        val filtered = versions.filter { it.isNotBlank() }
+        return if (filtered.isNotEmpty()) {
+            filtered.maxWithOrNull(versionComparator) ?: defaultVersion
         } else {
             defaultVersion
         }
@@ -67,6 +67,8 @@ internal class PackageSwiftGenerator {
      * Generate the complete Package.swift content for remote (published) modules.
      */
     fun generatePackageSwift(packageName: String, swiftToolsVersion: String, modules: List<SpmModuleMetadata>): String {
+        validateUniqueFrameworkNames(modules.map { it.frameworkName })
+
         val platforms = resolvePlatforms(modules)
         val platformsString = formatPlatforms(platforms)
 
@@ -113,11 +115,9 @@ let package = Package(
     /**
      * Generate Package.swift content with local paths for development.
      */
-    fun generateLocalPackageSwift(
-        packageName: String,
-        swiftToolsVersion: String,
-        modules: List<LocalModuleInfo>,
-    ): String {
+    fun generateLocalPackageSwift(packageName: String, swiftToolsVersion: String, modules: List<LocalModuleInfo>): String {
+        validateUniqueFrameworkNames(modules.map { it.frameworkName })
+
         val platforms = modules.flatMap { it.platforms.entries }
             .groupBy({ it.key }, { it.value })
             .mapValues { (_, versions) -> versions.maxWithOrNull(versionComparator) ?: versions.first() }
@@ -162,23 +162,37 @@ let package = Package(
 """
     }
 
-    private fun formatPlatforms(platforms: Map<String, String>): String =
-        platforms.entries
-            .sortedBy { it.key }
-            .joinToString(",\n        ") { (platform, version) ->
-                ".$platform(.v$version)"
-            }
+    private fun formatPlatforms(platforms: Map<String, String>): String = platforms.entries
+        .sortedBy { it.key }
+        .joinToString(",\n        ") { (platform, version) -> ".$platform(.v$version)" }
 
     /**
      * Data class for local module info (used for spmDevBuildAll).
      */
-    data class LocalModuleInfo(val frameworkName: String, val localPath: String, val platforms: Map<String, String>)
+    data class LocalModuleInfo(
+        val frameworkName: String,
+        val localPath: String,
+        val platforms: Map<String, String>,
+        val swiftToolsVersion: String,
+    )
+
+    /**
+     * SPM product and target names must be unique within a Package.swift. Fail early with a clear
+     * message rather than emitting a manifest SwiftPM will reject.
+     */
+    private fun validateUniqueFrameworkNames(names: List<String>) {
+        val duplicates = names.groupingBy { it }.eachCount().filterValues { it > 1 }.keys
+        require(duplicates.isEmpty()) {
+            "Duplicate framework name(s) found across KMMBridge modules: ${duplicates.joinToString()}. " +
+                "Each module's framework name must be unique to generate a valid Package.swift."
+        }
+    }
 
     companion object {
         /**
          * Escape a string for safe inclusion in a Swift string literal.
          */
-        fun escapeSwiftString(value: String): String =
-            value.replace("\\", "\\\\").replace("\"", "\\\"")
+        fun escapeSwiftString(value: String): String = value
+            .replace("\\", "\\\\").replace("\"", "\\\"")
     }
 }

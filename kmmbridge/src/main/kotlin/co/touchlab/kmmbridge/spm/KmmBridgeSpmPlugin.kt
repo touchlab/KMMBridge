@@ -17,6 +17,7 @@ import co.touchlab.kmmbridge.BaseKMMBridgePlugin
 import co.touchlab.kmmbridge.TASK_GROUP_NAME
 import java.io.File
 import org.gradle.api.Action
+import org.gradle.api.GradleException
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.api.Task
@@ -101,6 +102,11 @@ class KmmBridgeSpmPlugin : Plugin<Project> {
             val packageName = extension.packageName.get()
             val swiftToolsVersion = extension.swiftToolsVersion.get()
 
+            // Declare the actual data this task reads so up-to-date checks and the build cache see
+            // changes to a module's published metadata, not just this task's own output file.
+            inputs.files(modulesProvider.map { modules -> modules.map { it.metadataFile } })
+            inputs.property("packageName", packageName)
+            inputs.property("swiftToolsVersion", swiftToolsVersion)
             outputs.file(File(outputDir, "Package.swift"))
 
             @Suppress("ObjectLiteralToLambda")
@@ -120,10 +126,21 @@ class KmmBridgeSpmPlugin : Plugin<Project> {
                             logger.warn("No module metadata found. Make sure modules have been published.")
                             return
                         }
+                        if (metadata.size < modules.size) {
+                            val missing = modules.map { it.frameworkName } - metadata.map { it.frameworkName }.toSet()
+                            throw GradleException(
+                                "Missing or unreadable SPM metadata for module(s): ${missing.joinToString()}. " +
+                                    "Make sure all selected modules have been published (writeSpmMetadata ran successfully) " +
+                                    "before generating Package.swift.",
+                            )
+                        }
 
                         val packageSwift = generator.generatePackageSwift(
                             packageName = packageName,
-                            swiftToolsVersion = generator.resolveSwiftToolsVersion(metadata, swiftToolsVersion),
+                            swiftToolsVersion = generator.resolveSwiftToolsVersion(
+                                metadata.map { it.swiftToolsVersion },
+                                swiftToolsVersion,
+                            ),
                             modules = metadata,
                         )
 
@@ -146,7 +163,13 @@ class KmmBridgeSpmPlugin : Plugin<Project> {
             // only register themselves once publishing is configured (ENABLE_PUBLISHING), so a
             // module without publishing enabled simply never appears here.
             dependsOn(modulesProvider.map { modules -> modules.map { "${it.path}:${BaseKMMBridgePlugin.PUBLISH_TASK_NAME}" } })
-            finalizedBy(generateTask)
+
+            // A dependency (not finalizedBy): finalizedBy would run generateTask even if a module's
+            // publish failed, silently generating Package.swift from a mix of stale and new data and
+            // masking the failed release. As a dependency, generateTask only runs - and this task
+            // only succeeds - once every publish task it depends on (transitively, via writeSpmMetadata)
+            // has completed successfully.
+            dependsOn(generateTask)
 
             doFirst {
                 if (filterModules(registry.get().modules(), extension).isEmpty()) {
@@ -169,8 +192,13 @@ class KmmBridgeSpmPlugin : Plugin<Project> {
 
             val outputDir = extension.outputDirectory.get()
             val packageName = extension.packageName.get()
-            val swiftToolsVersion = extension.swiftToolsVersion.get()
+            val defaultSwiftToolsVersion = extension.swiftToolsVersion.get()
 
+            // Declare the actual data this task reads: each module's built XCFramework directory
+            // (content changes when rebuilt), plus the configuration that shapes the output.
+            inputs.files(modulesProvider.map { modules -> modules.map { it.debugXCFrameworkDir } })
+            inputs.property("packageName", packageName)
+            inputs.property("moduleSwiftToolsVersions", modulesProvider.map { modules -> modules.map { it.swiftToolsVersion } })
             outputs.file(File(outputDir, "Package.swift"))
 
             @Suppress("ObjectLiteralToLambda")
@@ -184,9 +212,15 @@ class KmmBridgeSpmPlugin : Plugin<Project> {
                             return
                         }
 
+                        // Resolve the maximum Swift-tools version across modules, same as the
+                        // published/remote generatePackageSwift path, rather than always using the
+                        // root default.
+                        val resolvedSwiftToolsVersion =
+                            generator.resolveSwiftToolsVersion(localModules.map { it.swiftToolsVersion }, defaultSwiftToolsVersion)
+
                         val packageSwift = generator.generateLocalPackageSwift(
                             packageName = packageName,
-                            swiftToolsVersion = swiftToolsVersion,
+                            swiftToolsVersion = resolvedSwiftToolsVersion,
                             modules = localModules,
                         )
 
@@ -203,12 +237,22 @@ class KmmBridgeSpmPlugin : Plugin<Project> {
     }
 
     /**
-     * Collect local module info from built XCFrameworks.
+     * Collect local module info from built XCFrameworks. Modules whose XCFramework directory
+     * doesn't exist yet (not built) are skipped with a warning rather than emitting a
+     * `.binaryTarget(path:)` that points at nothing.
      */
     private fun collectLocalModuleInfo(
         modules: List<KmmBridgeSpmRegistry.ModuleRegistration>,
         rootDir: File,
-    ): List<PackageSwiftGenerator.LocalModuleInfo> = modules.map { module ->
+    ): List<PackageSwiftGenerator.LocalModuleInfo> = modules.mapNotNull { module ->
+        if (!module.debugXCFrameworkDir.exists()) {
+            logger.warn(
+                "Skipping module ${module.path}: XCFramework not found at ${module.debugXCFrameworkDir.absolutePath}. " +
+                    "Make sure '${module.debugAssembleTaskName}' has run for this module.",
+            )
+            return@mapNotNull null
+        }
+
         // Calculate the relative path from root
         val relativePath = rootDir.toPath().relativize(module.debugXCFrameworkDir.toPath()).toString()
 
@@ -216,6 +260,7 @@ class KmmBridgeSpmPlugin : Plugin<Project> {
             frameworkName = module.frameworkName,
             localPath = relativePath,
             platforms = module.platforms,
+            swiftToolsVersion = module.swiftToolsVersion,
         )
     }
 
@@ -239,17 +284,18 @@ class KmmBridgeSpmPlugin : Plugin<Project> {
     /**
      * Collect metadata from all modules.
      */
-    private fun collectMetadata(modules: List<KmmBridgeSpmRegistry.ModuleRegistration>): List<SpmModuleMetadata> = modules.mapNotNull { module ->
-        if (module.metadataFile.exists()) {
-            try {
-                SpmModuleMetadata.fromFile(module.metadataFile)
-            } catch (e: Exception) {
-                logger.warn("Failed to read metadata from ${module.metadataFile.absolutePath} (module ${module.path}): ${e.message}")
+    private fun collectMetadata(modules: List<KmmBridgeSpmRegistry.ModuleRegistration>): List<SpmModuleMetadata> =
+        modules.mapNotNull { module ->
+            if (module.metadataFile.exists()) {
+                try {
+                    SpmModuleMetadata.fromFile(module.metadataFile)
+                } catch (e: Exception) {
+                    logger.warn("Failed to read metadata from ${module.metadataFile.absolutePath} (module ${module.path}): ${e.message}")
+                    null
+                }
+            } else {
+                logger.warn("Metadata file not found for module ${module.path}: ${module.metadataFile.absolutePath}")
                 null
             }
-        } else {
-            logger.warn("Metadata file not found for module ${module.path}: ${module.metadataFile.absolutePath}")
-            null
         }
-    }
 }
