@@ -17,7 +17,7 @@ import co.touchlab.kmmbridge.findStringProperty
 import org.gradle.api.Project
 
 internal val Project.githubPublishTokenOrNull: String?
-    get() = project.property("GITHUB_PUBLISH_TOKEN") as String?
+    get() = project.findStringProperty("GITHUB_PUBLISH_TOKEN")
 
 internal val Project.githubPublishUser: String?
     get() = project.findStringProperty("GITHUB_PUBLISH_USER")
@@ -37,10 +37,8 @@ internal val Project.githubRepoOrNull: String?
 
 internal val Project.githubPublishToken
     get() =
-        (
-            project.property("GITHUB_PUBLISH_TOKEN")
-                ?: throw IllegalArgumentException("KMMBridge Github operations need property GITHUB_PUBLISH_TOKEN")
-            ) as String
+        project.findStringProperty("GITHUB_PUBLISH_TOKEN")
+            ?: throw IllegalArgumentException("KMMBridge Github operations need property GITHUB_PUBLISH_TOKEN")
 
 internal val Project.githubArtifactReleaseId
     get() = project.findStringProperty("GITHUB_ARTIFACT_RELEASE_ID")
