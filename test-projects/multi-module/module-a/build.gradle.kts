@@ -5,6 +5,9 @@ plugins {
     alias(libs.plugins.kmmbridge)
 }
 
+group = providers.gradleProperty("GROUP").get()
+version = providers.gradleProperty("LIBRARY_VERSION").get()
+
 kotlin {
     listOf(
         iosX64(),
@@ -12,6 +15,7 @@ kotlin {
         iosSimulatorArm64(),
     ).forEach {
         it.binaries.framework {
+            baseName = "ModuleA"
             isStatic = true
         }
     }

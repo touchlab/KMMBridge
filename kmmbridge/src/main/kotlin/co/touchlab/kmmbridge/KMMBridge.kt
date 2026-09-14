@@ -46,6 +46,10 @@ import org.jetbrains.kotlin.gradle.plugin.mpp.apple.XCFrameworkConfig
 open class KMMBridgePlugin : BaseKMMBridgePlugin()
 
 abstract class BaseKMMBridgePlugin : Plugin<Project> {
+    companion object {
+        internal const val PUBLISH_TASK_NAME = "kmmBridgePublish"
+    }
+
     override fun apply(project: Project): Unit = with(project) {
         val extension = extensions.create<KmmBridgeExtension>(EXTENSION_NAME)
 
@@ -141,7 +145,7 @@ abstract class BaseKMMBridgePlugin : Plugin<Project> {
 
         // Publish task depends on the upload task
         val publishRemoteTask =
-            tasks.register("kmmBridgePublish") {
+            tasks.register(PUBLISH_TASK_NAME) {
                 description = "Publishes your framework. Uses your KMMBridge block configured in the build gradle to determine details."
                 group = TASK_GROUP_NAME
                 dependsOn(uploadTask)

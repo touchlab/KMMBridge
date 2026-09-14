@@ -10,5 +10,6 @@ kotlin-gradle-plugin = { module = "org.jetbrains.kotlin:kotlin-gradle-plugin-api
 
 [plugins]
 kotlin = { id = "org.jetbrains.kotlin.jvm", version.ref = "kotlin" }
+allopen = { id = "org.jetbrains.kotlin.plugin.allopen", version.ref = "kotlin" }
 maven-publish = { id = "com.vanniktech.maven.publish.base", version.ref = "mavenPublish" }
 

@@ -17,7 +17,9 @@ import org.jetbrains.kotlin.gradle.plugin.mpp.NativeBuildType
 internal val Project.layoutBuildDir get() = layout.buildDirectory.get().asFile
 
 internal val Project.kotlin: KotlinMultiplatformExtension get() = extensions.getByType()
+
 internal val Project.kmmBridgeExtension get() = extensions.getByType<KmmBridgeExtension>()
+internal val Project.kmmBridgeExtensionOrNull get() = extensions.findByType<KmmBridgeExtension>()
 
 internal val Project.urlFile get() = file("$layoutBuildDir/kmmbridge/url")
 
