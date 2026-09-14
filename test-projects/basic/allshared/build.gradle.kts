@@ -18,8 +18,8 @@ kotlin {
 }
 
 kmmbridge {
-    testUploadArtifacts()
-    spm(swiftToolVersion = "5.8") {
+    testArtifacts()
+    spm(swiftToolVersion = "5.8", spmDirectory = "../") {
         iOS { v("14") }
     }
 }

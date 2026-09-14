@@ -2,7 +2,6 @@ package co.touchlab.kmmbridge
 
 import java.io.File
 import kotlin.test.assertEquals
-import kotlin.test.assertFalse
 import kotlin.test.assertTrue
 import org.junit.jupiter.api.Test
 
@@ -14,8 +13,6 @@ class ArtifactManagerTest : BasePluginTest() {
         val result =
             ProcessHelper.runSh(
                 "./gradlew kmmBridgePublish " +
-                    "-PTOUCHLAB_TEST_ARTIFACT_SERVER=api.touchlab.dev " +
-                    "-PTOUCHLAB_TEST_ARTIFACT_CODE=${TOUCHLAB_TEST_ARTIFACT_CODE} " +
                     "--stacktrace",
                 workingDir = testProjectDir,
             )
@@ -26,21 +23,19 @@ class ArtifactManagerTest : BasePluginTest() {
     @Test
     fun runKmmBridgePublish() {
         val urlFile = File(testProjectDir, "allshared/build/kmmbridge/url")
-        assertFalse(urlFile.exists())
+        if (urlFile.exists()) urlFile.delete()
+
         val result =
             ProcessHelper.runSh(
                 "./gradlew clean kmmBridgePublish " +
                     "-PENABLE_PUBLISHING=true " +
-                    "-PTOUCHLAB_TEST_ARTIFACT_SERVER=api.touchlab.dev " +
-                    "-PTOUCHLAB_TEST_ARTIFACT_CODE=${TOUCHLAB_TEST_ARTIFACT_CODE} " +
                     "--stacktrace",
                 workingDir = testProjectDir,
             )
         logExecResult(result)
 
-        assertTrue(urlFile.exists())
-        val urlValue = urlFile.readText()
-        assertTrue(urlValue.startsWith("https://api.touchlab.dev/infoadmin/streamTestZip"))
         assertEquals(0, result.status)
+        assertTrue(urlFile.exists())
+        assertEquals("test://0.1.8", urlFile.readText())
     }
 }
