@@ -27,6 +27,10 @@ kmmBridgeSpm {
 }
 ```
 
+Apply `co.touchlab.kmmbridge.spm` **only** to the root project, and only there - never combine it
+with the per-module `co.touchlab.kmmbridge` plugin on the same project. They are two separate
+plugins with two separate jobs: the root plugin aggregates, the per-module plugin builds/publishes.
+
 ### 2. Configure each darwin module (simplified)
 
 ```kotlin
@@ -37,7 +41,7 @@ plugins {
 
 kmmbridge {
     gitHubReleaseArtifacts()
-    spm(swiftToolsVersion = "5.9") {
+    spm(swiftToolVersion = "5.9") {
         iOS { v("15") }
         macOS { v("15") }
     }
@@ -45,6 +49,11 @@ kmmbridge {
 ```
 
 Note: No need for `useCustomPackageFile` or `perModuleVariablesBlock` - the root plugin handles everything automatically!
+
+Each module's `frameworkName` (the name passed to `Framework { baseName = ... }`/derived from the
+Kotlin target) must be **unique across all participating modules**. Two modules sharing the same
+name will fail Package.swift generation with a clear error rather than produce a broken manifest -
+see [Troubleshooting](#duplicate-framework-name).
 
 ### 3. Run the tasks
 
@@ -66,7 +75,16 @@ Note: No need for `useCustomPackageFile` or `perModuleVariablesBlock` - the root
 | `kmmBridgePublishAll` | Publishes all modules to artifact storage and generates Package.swift with URLs |
 | `generatePackageSwift` | Generates Package.swift from published module metadata |
 
-> **Note**: When using the root SPM plugin, the module-level `spmDevBuild` task is automatically disabled to avoid conflicts. Use `spmDevBuildAll` instead for multi-module projects.
+> **Note**: When the root SPM plugin is applied, each module's own `spmDevBuild` and `updatePackageSwift`
+> tasks still run (and can still be up-to-date-checked), but their write step short-circuits at
+> execution time - each logs a `Skipping ...` message and defers to `spmDevBuildAll`/the root
+> `generatePackageSwift` instead of writing its own single-module Package.swift and racing with the
+> aggregated one. This is expected; you'll see these log lines for every module when running
+> `spmDevBuildAll` or `kmmBridgePublishAll` from the root.
+>
+> `kmmBridgePublishAll` generates Package.swift as a **dependency**, not a finalizer: if any module's
+> publish fails, `generatePackageSwift` does not run at all, so a failed release never leaves behind a
+> stale or partially-updated Package.swift.
 
 ## Configuration Options
 
@@ -274,15 +292,29 @@ Make sure:
 
 ### "No module metadata found"
 
-For `generatePackageSwift`:
+For `generatePackageSwift`, if **no** discovered module has metadata:
 - Metadata is created during publishing
 - Run `kmmBridgePublishAll` instead, or use `spmDevBuildAll` for local dev
+
+### "Missing or unreadable SPM metadata for module(s): ..."
+
+For `generatePackageSwift`, if **some but not all** discovered modules have metadata, the task fails
+fast with this error instead of silently generating an incomplete Package.swift missing those
+modules. Make sure every selected module (see `includeModules`/`excludeModules`) has actually been
+published - i.e. its `writeSpmMetadata` task has run successfully - before generating Package.swift.
 
 ### "XCFramework not found"
 
 For `spmDevBuildAll`:
 - Make sure XCFrameworks are built first
 - The task should auto-depend on assemble tasks, but you can run `./gradlew assembleXCFramework` manually
+
+### Duplicate framework name
+
+If two modules share the same `frameworkName`, Package.swift generation (both `generatePackageSwift`
+and `spmDevBuildAll`) fails with `Duplicate framework name(s) found across KMMBridge modules: ...`.
+SPM product/target names must be unique within a single Package.swift, so give each module's
+framework a distinct name.
 
 ## Platform Resolution
 
@@ -298,4 +330,8 @@ When modules specify different platform versions, the plugin takes the **maximum
 
 ## Swift Tools Version Resolution
 
-Similarly, Swift tools version is resolved to the maximum across all modules, or the configured default if none specified.
+Similarly, Swift tools version is resolved to the maximum across all modules, or the configured
+default if none specified. This applies identically to **both** generation paths: `generatePackageSwift`
+(remote, using each module's published metadata) and `spmDevBuildAll` (local dev, using each module's
+configured `swiftToolVersion`) resolve the version the same way - a module built with a newer
+`swiftToolVersion` raises the version for the whole generated package in either case.
