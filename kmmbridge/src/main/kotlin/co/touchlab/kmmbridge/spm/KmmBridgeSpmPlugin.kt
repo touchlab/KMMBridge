@@ -15,16 +15,15 @@ package co.touchlab.kmmbridge.spm
 
 import co.touchlab.kmmbridge.BaseKMMBridgePlugin
 import co.touchlab.kmmbridge.TASK_GROUP_NAME
-import co.touchlab.kmmbridge.dependencymanager.SpmDependencyManager
-import co.touchlab.kmmbridge.internal.kmmBridgeExtension
-import co.touchlab.kmmbridge.internal.kmmBridgeExtensionOrNull
 import java.io.File
 import org.gradle.api.Action
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.api.Task
+import org.gradle.api.logging.Logger
+import org.gradle.api.logging.Logging
+import org.gradle.api.provider.Provider
 import org.gradle.kotlin.dsl.create
-import org.jetbrains.kotlin.gradle.plugin.mpp.NativeBuildType
 
 /**
  * Root-level plugin for generating Package.swift from all KMMBridge modules.
@@ -55,6 +54,7 @@ class KmmBridgeSpmPlugin : Plugin<Project> {
     }
 
     private val generator = PackageSwiftGenerator()
+    private val logger: Logger = Logging.getLogger(KmmBridgeSpmPlugin::class.java)
 
     override fun apply(project: Project): Unit = with(project) {
         if (project != project.rootProject) {
@@ -70,41 +70,36 @@ class KmmBridgeSpmPlugin : Plugin<Project> {
         extension.includeModules.convention(emptySet())
         extension.excludeModules.convention(emptySet())
 
-        // Register tasks after all projects are evaluated
-        gradle.projectsEvaluated {
-            registerTasks(project, extension)
-        }
+        val registry = project.kmmBridgeSpmRegistry()
+        registry.get().markRootApplied()
+
+        registerTasks(project, extension, registry)
     }
 
-    private fun registerTasks(project: Project, extension: KmmBridgeSpmExtension) {
-        val kmmBridgeModules = findKmmBridgeModules(project, extension)
-
-        if (kmmBridgeModules.isEmpty()) {
-            project.logger.warn(
-                "No KMMBridge modules with SPM found. Make sure subprojects apply 'co.touchlab.kmmbridge' and configure spm().",
-            )
-            return
-        }
-
-        project.logger.info("Found ${kmmBridgeModules.size} KMMBridge modules: ${kmmBridgeModules.map { it.path }}")
+    /**
+     * Registers the aggregator tasks. Every subproject's data flows through [registry] rather than
+     * this project touching another project's live [Project]/[Task]/extension objects, and
+     * cross-project task wiring uses path-string [Task.dependsOn] references - both Project
+     * Isolation-safe patterns. The registry is only read from task-execution-time actions
+     * ([Task.doLast]/[Task.doFirst]) or lazy [Provider]s, never at configuration time, since task
+     * execution is always ordered after every project finishes configuring.
+     */
+    private fun registerTasks(project: Project, extension: KmmBridgeSpmExtension, registry: Provider<KmmBridgeSpmRegistry>) {
+        val modulesProvider: Provider<List<KmmBridgeSpmRegistry.ModuleRegistration>> =
+            registry.map { filterModules(it.modules(), extension) }
 
         // Register generatePackageSwift task
         val generateTask = project.tasks.register(GENERATE_TASK_NAME) {
             group = TASK_GROUP_NAME
             description = "Generates Package.swift from all KMMBridge module metadata"
+            usesService(registry)
 
-            // Depend on all module upload tasks
-            kmmBridgeModules.forEach { module ->
-                val uploadTask = module.tasks.findByName(WRITE_SPM_METADATA_TASK_NAME)
-                if (uploadTask != null) {
-                    dependsOn(uploadTask)
-                }
-            }
+            // Depend on all module metadata-write tasks, resolved lazily by task path
+            dependsOn(modulesProvider.map { modules -> modules.map { "${it.path}:$WRITE_SPM_METADATA_TASK_NAME" } })
 
             val outputDir = extension.outputDirectory.get()
             val packageName = extension.packageName.get()
             val swiftToolsVersion = extension.swiftToolsVersion.get()
-            val moduleProjects = kmmBridgeModules.toList()
 
             outputs.file(File(outputDir, "Package.swift"))
 
@@ -112,9 +107,17 @@ class KmmBridgeSpmPlugin : Plugin<Project> {
             doLast(
                 object : Action<Task> {
                     override fun execute(t: Task) {
-                        val metadata = collectMetadata(moduleProjects)
+                        val modules = filterModules(registry.get().modules(), extension)
+                        if (modules.isEmpty()) {
+                            logger.warn(
+                                "No KMMBridge modules with SPM found. Make sure subprojects apply 'co.touchlab.kmmbridge' and configure spm().",
+                            )
+                            return
+                        }
+
+                        val metadata = collectMetadata(modules)
                         if (metadata.isEmpty()) {
-                            project.logger.warn("No module metadata found. Make sure modules have been published.")
+                            logger.warn("No module metadata found. Make sure modules have been published.")
                             return
                         }
 
@@ -127,7 +130,7 @@ class KmmBridgeSpmPlugin : Plugin<Project> {
                         val outputFile = File(outputDir, "Package.swift")
                         outputFile.parentFile?.mkdirs()
                         outputFile.writeText(packageSwift)
-                        project.logger.lifecycle("Generated Package.swift with ${metadata.size} modules at ${outputFile.absolutePath}")
+                        logger.lifecycle("Generated Package.swift with ${metadata.size} modules at ${outputFile.absolutePath}")
                     }
                 },
             )
@@ -137,24 +140,18 @@ class KmmBridgeSpmPlugin : Plugin<Project> {
         project.tasks.register(PUBLISH_ALL_TASK_NAME) {
             group = TASK_GROUP_NAME
             description = "Publishes all KMMBridge modules and generates Package.swift"
+            usesService(registry)
 
-            // Depend on all module kmmBridgePublish tasks
-            var hasPublishTasks = false
-            kmmBridgeModules.forEach { module ->
-                val publishTask = module.tasks.findByName(BaseKMMBridgePlugin.PUBLISH_TASK_NAME)
-                if (publishTask != null) {
-                    dependsOn(publishTask)
-                    hasPublishTasks = true
-                }
-            }
+            // Depend on all module kmmBridgePublish tasks, resolved lazily by task path. Modules
+            // only register themselves once publishing is configured (ENABLE_PUBLISHING), so a
+            // module without publishing enabled simply never appears here.
+            dependsOn(modulesProvider.map { modules -> modules.map { "${it.path}:${BaseKMMBridgePlugin.PUBLISH_TASK_NAME}" } })
+            finalizedBy(generateTask)
 
-            if (hasPublishTasks) {
-                // Then generate Package.swift
-                finalizedBy(generateTask)
-            } else {
-                doFirst {
-                    project.logger.warn(
-                        "Task $PUBLISH_ALL_TASK_NAME did not find any '${BaseKMMBridgePlugin.PUBLISH_TASK_NAME}' tasks in KMMBridge modules. " +
+            doFirst {
+                if (filterModules(registry.get().modules(), extension).isEmpty()) {
+                    logger.warn(
+                        "Task $PUBLISH_ALL_TASK_NAME did not find any KMMBridge modules with SPM configured. " +
                             "Publishing is disabled or not configured (e.g. ENABLE_PUBLISHING not set); skipping Package.swift generation.",
                     )
                 }
@@ -165,20 +162,14 @@ class KmmBridgeSpmPlugin : Plugin<Project> {
         project.tasks.register(SPM_DEV_BUILD_ALL_TASK_NAME) {
             group = TASK_GROUP_NAME
             description = "Builds all XCFrameworks locally and generates Package.swift with local paths"
+            usesService(registry)
 
-            // Depend on all module XCFramework assemble tasks
-            kmmBridgeModules.forEach { module ->
-                val assembleTask = module.tasks.findByName("assembleXCFramework")
-                    ?: module.tasks.findByName("assembleDebugXCFramework")
-                if (assembleTask != null) {
-                    dependsOn(assembleTask)
-                }
-            }
+            // Depend on all module XCFramework assemble tasks, resolved lazily by task path
+            dependsOn(modulesProvider.map { modules -> modules.map { "${it.path}:${it.debugAssembleTaskName}" } })
 
             val outputDir = extension.outputDirectory.get()
             val packageName = extension.packageName.get()
             val swiftToolsVersion = extension.swiftToolsVersion.get()
-            val moduleProjects = kmmBridgeModules.toList()
 
             outputs.file(File(outputDir, "Package.swift"))
 
@@ -186,9 +177,10 @@ class KmmBridgeSpmPlugin : Plugin<Project> {
             doLast(
                 object : Action<Task> {
                     override fun execute(t: Task) {
-                        val localModules = collectLocalModuleInfo(moduleProjects, outputDir)
+                        val modules = filterModules(registry.get().modules(), extension)
+                        val localModules = collectLocalModuleInfo(modules, outputDir)
                         if (localModules.isEmpty()) {
-                            project.logger.warn("No local XCFrameworks found. Make sure modules have been built.")
+                            logger.warn("No local XCFrameworks found. Make sure modules have been built.")
                             return
                         }
 
@@ -201,7 +193,7 @@ class KmmBridgeSpmPlugin : Plugin<Project> {
                         val outputFile = File(outputDir, "Package.swift")
                         outputFile.parentFile?.mkdirs()
                         outputFile.writeText(packageSwift)
-                        project.logger.lifecycle(
+                        logger.lifecycle(
                             "Generated local Package.swift with ${localModules.size} modules at ${outputFile.absolutePath}",
                         )
                     }
@@ -213,71 +205,50 @@ class KmmBridgeSpmPlugin : Plugin<Project> {
     /**
      * Collect local module info from built XCFrameworks.
      */
-    private fun collectLocalModuleInfo(modules: List<Project>, rootDir: File): List<PackageSwiftGenerator.LocalModuleInfo> {
-        return modules.mapNotNull { module ->
-            val kmmBridgeExt = module.kmmBridgeExtension
+    private fun collectLocalModuleInfo(
+        modules: List<KmmBridgeSpmRegistry.ModuleRegistration>,
+        rootDir: File,
+    ): List<PackageSwiftGenerator.LocalModuleInfo> = modules.map { module ->
+        // Calculate the relative path from root
+        val relativePath = rootDir.toPath().relativize(module.debugXCFrameworkDir.toPath()).toString()
 
-            // Get framework name from extension
-            val frameworkName = kmmBridgeExt.frameworkName.orNull ?: return@mapNotNull null
-
-            // For local dev (spmDevBuildAll), always use DEBUG build output
-            val xcFrameworkDir = module.layout.buildDirectory.asFile.get()
-                .resolve("XCFrameworks/${NativeBuildType.DEBUG.getName()}/$frameworkName.xcframework")
-
-            // Calculate the relative path from root
-            val relativePath = rootDir.toPath().relativize(xcFrameworkDir.toPath()).toString()
-
-            // Read platforms from the SPM dependency manager configuration
-            val spmDependencyBlock = kmmBridgeExt.dependencyManagers.get()
-                .find { it is SpmDependencyManager } as? SpmDependencyManager
-                ?: return@mapNotNull null
-
-            PackageSwiftGenerator.LocalModuleInfo(
-                frameworkName = frameworkName,
-                localPath = relativePath,
-                platforms = spmDependencyBlock.parsePlatformsMap(module),
-            )
-        }
+        PackageSwiftGenerator.LocalModuleInfo(
+            frameworkName = module.frameworkName,
+            localPath = relativePath,
+            platforms = module.platforms,
+        )
     }
 
     /**
-     * Find all subprojects that have KMMBridge with SPM configured.
+     * Filter registered modules by the extension's include/exclude module paths.
      */
-    private fun findKmmBridgeModules(project: Project, extension: KmmBridgeSpmExtension): Set<Project> {
+    private fun filterModules(
+        allModules: List<KmmBridgeSpmRegistry.ModuleRegistration>,
+        extension: KmmBridgeSpmExtension,
+    ): List<KmmBridgeSpmRegistry.ModuleRegistration> {
         val includeModules = extension.includeModules.get()
         val excludeModules = extension.excludeModules.get()
 
-        return project.subprojects.filter { subproject ->
-            // Check if this module has KMMBridge extension with SPM configured
-            val kmmBridgeExt = subproject.kmmBridgeExtensionOrNull ?: return@filter false
-
-            // Only include modules that have SPM configured via SpmDependencyManager
-            val hasSpm = kmmBridgeExt.dependencyManagers.get().any { it is SpmDependencyManager }
-            if (!hasSpm) return@filter false
-
-            // Check include/exclude filters
-            val modulePath = subproject.path
-            val isIncluded = includeModules.isEmpty() || includeModules.contains(modulePath)
-            val isExcluded = excludeModules.contains(modulePath)
-
+        return allModules.filter { module ->
+            val isIncluded = includeModules.isEmpty() || includeModules.contains(module.path)
+            val isExcluded = excludeModules.contains(module.path)
             isIncluded && !isExcluded
-        }.toSet()
+        }
     }
 
     /**
      * Collect metadata from all modules.
      */
-    private fun collectMetadata(modules: List<Project>): List<SpmModuleMetadata> = modules.mapNotNull { module ->
-        val metadataFile = File(module.layout.buildDirectory.asFile.get(), SpmModuleMetadata.METADATA_FILE_NAME)
-        if (metadataFile.exists()) {
+    private fun collectMetadata(modules: List<KmmBridgeSpmRegistry.ModuleRegistration>): List<SpmModuleMetadata> = modules.mapNotNull { module ->
+        if (module.metadataFile.exists()) {
             try {
-                SpmModuleMetadata.fromFile(metadataFile)
+                SpmModuleMetadata.fromFile(module.metadataFile)
             } catch (e: Exception) {
-                module.logger.warn("Failed to read metadata from ${metadataFile.absolutePath}: ${e.message}")
+                logger.warn("Failed to read metadata from ${module.metadataFile.absolutePath} (module ${module.path}): ${e.message}")
                 null
             }
         } else {
-            module.logger.warn("Metadata file not found: ${metadataFile.absolutePath}")
+            logger.warn("Metadata file not found for module ${module.path}: ${module.metadataFile.absolutePath}")
             null
         }
     }

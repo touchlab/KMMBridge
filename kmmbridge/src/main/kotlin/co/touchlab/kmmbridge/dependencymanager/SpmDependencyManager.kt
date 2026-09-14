@@ -22,10 +22,11 @@ import co.touchlab.kmmbridge.internal.findXCFrameworkAssembleTask
 import co.touchlab.kmmbridge.internal.kmmBridgeExtension
 import co.touchlab.kmmbridge.internal.kotlin
 import co.touchlab.kmmbridge.internal.layoutBuildDir
-import co.touchlab.kmmbridge.internal.spmKmmBridgeExtensionOrNull
 import co.touchlab.kmmbridge.internal.urlFile
 import co.touchlab.kmmbridge.internal.zipFilePath
+import co.touchlab.kmmbridge.spm.KmmBridgeSpmRegistry
 import co.touchlab.kmmbridge.spm.SpmModuleMetadata
+import co.touchlab.kmmbridge.spm.kmmBridgeSpmRegistry
 import java.io.ByteArrayOutputStream
 import java.io.File
 import java.nio.charset.Charset
@@ -87,12 +88,15 @@ internal class SpmDependencyManager(
             SwiftToolVersion.of(_swiftToolVersion)
                 ?: throw IllegalArgumentException("Parameter swiftToolVersion should be not blank!")
         val platforms = swiftTargetPlatforms(project)
+        val platformsMap = parsePlatformsMap(project)
 
         val swiftPackageFile = project.swiftPackageFile(project.rootDir)
         val packageName = extension.frameworkName.get()
         if (useCustomPackageFile && !hasKmmbridgeVariablesSection(swiftPackageFile, packageName)) {
             project.logger.error(buildPackageFileErrorMessage(packageName, perModuleVariablesBlock))
         }
+
+        registerInSpmRegistry(project, packageName)
 
         // Task to write module metadata for root-level Package.swift generation
         val writeMetadataTask =
@@ -119,12 +123,12 @@ internal class SpmDependencyManager(
                                 frameworkName = packageName,
                                 url = url,
                                 checksum = checksum,
-                                platforms = parsePlatformsMap(project),
+                                platforms = platformsMap,
                                 swiftToolsVersion = swiftToolVersion.name,
                             )
 
                             metadata.writeToFile(metadataFile)
-                            project.logger.info("Wrote SPM metadata to ${metadataFile.absolutePath}")
+                            t.logger.info("Wrote SPM metadata to ${metadataFile.absolutePath}")
                         }
                     },
                 )
@@ -176,6 +180,25 @@ internal class SpmDependencyManager(
             dependsOn(updatePackageSwiftTask)
             dependsOn(writeMetadataTask)
         }
+    }
+
+    /**
+     * Registers this module with the shared [KmmBridgeSpmRegistry] so the root aggregator plugin
+     * (if applied) can discover it without ever touching this project's live [Project] object.
+     * Safe to call more than once per project - it only overwrites this module's own entry.
+     */
+    private fun registerInSpmRegistry(project: Project, packageName: String) {
+        val buildDir = project.layout.buildDirectory.asFile.get()
+        project.kmmBridgeSpmRegistry().get().registerModule(
+            KmmBridgeSpmRegistry.ModuleRegistration(
+                path = project.path,
+                frameworkName = packageName,
+                metadataFile = File(buildDir, SpmModuleMetadata.METADATA_FILE_NAME),
+                debugXCFrameworkDir = File(buildDir, "XCFrameworks/${NativeBuildType.DEBUG.getName()}/$packageName.xcframework"),
+                debugAssembleTaskName = project.findXCFrameworkAssembleTask(NativeBuildType.DEBUG).name,
+                platforms = parsePlatformsMap(project),
+            ),
+        )
     }
 
     private fun hasKmmbridgeVariablesSection(swiftPackageFile: File, packageName: String): Boolean {
@@ -244,23 +267,25 @@ internal class SpmDependencyManager(
     override val needsGitTags: Boolean = true
 
     fun configureLocalDev(project: Project) {
-        if (useCustomPackageFile) return // No local dev when using a custom package file
+        // Register regardless of useCustomPackageFile so the root aggregator can still discover this
+        // module (matches the discovery semantics used before this was registry-based).
+        registerInSpmRegistry(project, project.kmmBridgeExtension.frameworkName.get())
 
-        // Skip if root SPM plugin is applied (use spmDevBuildAll instead)
-        val rootHasSpmPlugin = project.rootProject.spmKmmBridgeExtensionOrNull != null
-        if (rootHasSpmPlugin) return
+        if (useCustomPackageFile) return // No local dev when using a custom package file
 
         val extension = project.kmmBridgeExtension
         val swiftToolVersion =
             SwiftToolVersion.of(_swiftToolVersion)
                 ?: throw IllegalArgumentException("Parameter swiftToolVersion should be not blank!")
         val platforms = swiftTargetPlatforms(project)
+        val registry = project.kmmBridgeSpmRegistry()
 
         project.tasks.register("spmDevBuild") {
             description =
                 "When using SPM, builds a debug version of the XCFramework and writes a local dev path to your Package.swift."
             group = TASK_GROUP_NAME
             dependsOn(project.findXCFrameworkAssembleTask(NativeBuildType.DEBUG))
+            usesService(registry)
 
             val swiftPackageFile = project.swiftPackageFile(project.rootDir)
             val layoutBuildDir = project.layoutBuildDir
@@ -269,6 +294,14 @@ internal class SpmDependencyManager(
             doLast(
                 object : Action<Task> {
                     override fun execute(t: Task) {
+                        // Skip if the root SPM aggregator plugin is applied (use spmDevBuildAll instead)
+                        if (registry.get().isRootApplied()) {
+                            t.logger.lifecycle(
+                                "Skipping spmDevBuild: root project applies co.touchlab.kmmbridge.spm. Use 'spmDevBuildAll' instead.",
+                            )
+                            return
+                        }
+
                         swiftPackageFile.writeText(
                             makeLocalDevPackageFileText(
                                 swiftPackageFile,
